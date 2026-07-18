@@ -5,52 +5,47 @@
 
 import React, { useState } from 'react';
 import { Mail, Lock, Eye, EyeOff, LogIn, HelpCircle, ShieldCheck, Sun, Moon } from 'lucide-react';
-import { Persona, Theme } from '../types';
+import { Theme } from '../types';
+import { supabase } from '../lib/supabaseClient';
 
 interface LoginScreenProps {
-  onLogin: (persona: Persona, email: string) => void;
   theme: Theme;
   onThemeToggle: () => void;
 }
 
-export default function LoginScreen({ onLogin, theme, onThemeToggle }: LoginScreenProps) {
-  const [activeTab, setActiveTab] = useState<Persona>('owner');
+export default function LoginScreen({ theme, onThemeToggle }: LoginScreenProps) {
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('password123');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [rememberMe, setRememberMe] = useState(true);
   const [error, setError] = useState('');
+  const [submitting, setSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email) {
-      if (activeTab === 'owner') {
-        setEmail('contact@promanagepro.com');
-      } else {
-        setEmail('alex.chen@oakwood.com');
-      }
-    }
-    
-    // Simulate login
-    onLogin(activeTab, email || (activeTab === 'owner' ? 'contact@promanagepro.com' : 'alex.chen@oakwood.com'));
-  };
-
-  const handleQuickFill = (persona: Persona) => {
-    setActiveTab(persona);
-    if (persona === 'owner') {
-      setEmail('contact@promanagepro.com');
-    } else {
-      setEmail('alex.chen@oakwood.com');
-    }
-    setPassword('••••••••');
     setError('');
+    setSubmitting(true);
+
+    const { error: signInError } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    setSubmitting(false);
+
+    if (signInError) {
+      setError(signInError.message);
+      return;
+    }
+
+    // On success, App's onAuthStateChange listener picks up the new
+    // session and routes to the right persona automatically.
   };
 
   return (
-    <div 
+    <div
       className="min-h-screen flex flex-col justify-between items-center p-6 relative transition-colors duration-300"
       style={{
-        backgroundImage: theme === 'dark' 
+        backgroundImage: theme === 'dark'
           ? 'linear-gradient(rgba(15, 20, 24, 0.85), rgba(15, 20, 24, 0.95)), url("https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=2070&auto=format&fit=crop")'
           : 'linear-gradient(rgba(252, 248, 250, 0.85), rgba(252, 248, 250, 0.95)), url("https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=2070&auto=format&fit=crop")',
         backgroundSize: 'cover',
@@ -93,34 +88,6 @@ export default function LoginScreen({ onLogin, theme, onThemeToggle }: LoginScre
           {/* Decorative background pulse */}
           <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-sky-400 via-indigo-500 to-sky-400 animate-pulse" />
 
-          {/* Persona Tabs */}
-          <div className="flex bg-slate-100 dark:bg-slate-900 p-1 rounded-lg mb-8">
-            <button
-              id="tab-owner"
-              type="button"
-              onClick={() => handleQuickFill('owner')}
-              className={`flex-1 py-2.5 text-xs font-bold tracking-wider uppercase rounded-md transition-all duration-200 ${
-                activeTab === 'owner'
-                  ? 'bg-white dark:bg-[#1e293b] text-slate-900 dark:text-white shadow-sm border border-slate-200/50 dark:border-slate-700/50'
-                  : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
-              }`}
-            >
-              SIGN IN AS OWNER
-            </button>
-            <button
-              id="tab-tenant"
-              type="button"
-              onClick={() => handleQuickFill('tenant')}
-              className={`flex-1 py-2.5 text-xs font-bold tracking-wider uppercase rounded-md transition-all duration-200 ${
-                activeTab === 'tenant'
-                  ? 'bg-white dark:bg-[#1e293b] text-slate-900 dark:text-white shadow-sm border border-slate-200/50 dark:border-slate-700/50'
-                  : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
-              }`}
-            >
-              SIGN IN AS TENANT
-            </button>
-          </div>
-
           <form onSubmit={handleSubmit} className="space-y-6">
             {error && (
               <div className="p-3 text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900/50 rounded-lg">
@@ -141,7 +108,7 @@ export default function LoginScreen({ onLogin, theme, onThemeToggle }: LoginScre
                   id="login-email"
                   type="email"
                   required
-                  placeholder={activeTab === 'owner' ? 'name@company.com' : 'alex.chen@oakwood.com'}
+                  placeholder="name@company.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="w-full pl-10 pr-4 py-3 bg-slate-50 dark:bg-slate-950/50 border border-slate-200 dark:border-slate-800 rounded-lg text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-600 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500/50 focus:border-sky-500 transition-all"
@@ -183,39 +150,19 @@ export default function LoginScreen({ onLogin, theme, onThemeToggle }: LoginScre
               </div>
             </div>
 
-            {/* Remember me */}
-            <div className="flex items-center">
-              <input
-                id="keep-logged-in"
-                type="checkbox"
-                checked={rememberMe}
-                onChange={(e) => setRememberMe(e.target.checked)}
-                className="h-4 w-4 rounded border-slate-300 text-sky-600 focus:ring-sky-500 dark:bg-slate-950 dark:border-slate-800"
-              />
-              <label htmlFor="keep-logged-in" className="ml-2 block text-sm text-slate-600 dark:text-slate-400">
-                Keep me logged in
-              </label>
-            </div>
-
             {/* Sign In Button */}
             <button
               id="btn-signin"
               type="submit"
-              className="w-full flex items-center justify-center gap-2 py-3.5 px-4 rounded-lg font-bold text-sm uppercase tracking-wider transition-all duration-200 shadow-md bg-slate-950 hover:bg-slate-900 dark:bg-sky-400 dark:hover:bg-sky-300 text-white dark:text-slate-950 cursor-pointer"
+              disabled={submitting}
+              className="w-full flex items-center justify-center gap-2 py-3.5 px-4 rounded-lg font-bold text-sm uppercase tracking-wider transition-all duration-200 shadow-md bg-slate-950 hover:bg-slate-900 dark:bg-sky-400 dark:hover:bg-sky-300 text-white dark:text-slate-950 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              Sign In <LogIn size={16} />
+              {submitting ? 'Signing In…' : 'Sign In'} <LogIn size={16} />
             </button>
           </form>
 
-          {/* Quick Credential Hints */}
-          <div className="mt-6 border-t border-slate-100 dark:border-slate-800 pt-4 text-center">
-            <span className="text-xs text-slate-400 dark:text-slate-500">
-              Demo logins: Click tabs above to autofill. Any password works.
-            </span>
-          </div>
-
           {/* Register Info */}
-          <div className="mt-4 text-center">
+          <div className="mt-6 border-t border-slate-100 dark:border-slate-800 pt-4 text-center">
             <span className="text-xs text-slate-600 dark:text-slate-400">
               Don't have an account?{' '}
               <a href="#register" className="font-semibold text-slate-900 hover:underline dark:text-sky-400 dark:hover:text-sky-300">

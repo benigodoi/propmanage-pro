@@ -4,23 +4,22 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { 
-  getSavedState, 
-  saveState, 
-  INITIAL_PROPERTIES, 
-  INITIAL_TENANTS, 
-  INITIAL_PAYMENTS, 
-  INITIAL_SERVICE_REQUESTS 
-} from './data';
-import { 
-  Property, 
-  Tenant, 
-  Payment, 
-  ServiceRequest, 
-  Persona, 
-  OwnerScreen, 
-  TenantScreen, 
-  Unit 
+import type { Session } from '@supabase/supabase-js';
+import { supabase } from './lib/supabaseClient';
+import { listProperties, createProperty } from './lib/api/properties';
+import { listUnitsWithDetails, createUnit, updateUnit } from './lib/api/units';
+import { listActiveLeasesAsTenants } from './lib/api/leases';
+import { listPayments, updatePaymentStatus } from './lib/api/payments';
+import { listServiceRequests, createServiceRequest } from './lib/api/serviceRequests';
+import {
+  Property,
+  Tenant,
+  Payment,
+  ServiceRequest,
+  Persona,
+  OwnerScreen,
+  TenantScreen,
+  Unit
 } from './types';
 
 // Importing Custom High-Fidelity Components
@@ -32,6 +31,7 @@ import PaymentTracker from './components/PaymentTracker';
 import UnitConfiguration from './components/UnitConfiguration';
 import TenantDashboard from './components/TenantDashboard';
 import InvoiceView from './components/InvoiceView';
+import SettingsScreen from './components/SettingsScreen';
 
 import { 
   Building, 
@@ -50,7 +50,6 @@ import {
   Upload,
   Download
 } from 'lucide-react';
-import { INITIAL_UNITS } from './data';
 
 export default function App() {
   // Theme & Identity States
@@ -58,7 +57,11 @@ export default function App() {
     const saved = localStorage.getItem('theme');
     return (saved === 'light' || saved === 'dark') ? saved : 'dark';
   });
-  const [user, setUser] = useState<{ email: string; persona: Persona } | null>(null);
+  const [user, setUser] = useState<{ email: string; fullName: string | null; persona: Persona } | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
+  const [authLoading, setAuthLoading] = useState(true);
+  const [profileLoading, setProfileLoading] = useState(false);
+  const [dataLoading, setDataLoading] = useState(false);
 
   // Screen Routing States
   const [activeOwnerScreen, setActiveOwnerScreen] = useState<OwnerScreen>('dashboard');
@@ -80,33 +83,104 @@ export default function App() {
   // Modal Triggers
   const [showAddPropertyModal, setShowAddPropertyModal] = useState(false);
   const [showServiceRequestModal, setShowServiceRequestModal] = useState(false);
+  const [showAddUnitModal, setShowAddUnitModal] = useState(false);
+  const [addUnitPropertyId, setAddUnitPropertyId] = useState<string | null>(null);
 
   // New Property Form States
   const [newPropName, setNewPropName] = useState('');
   const [newPropAddress, setNewPropAddress] = useState('');
   const [newPropUnits, setNewPropUnits] = useState(12);
-  const [newPropRent, setNewPropRent] = useState(1800);
+
+  // New Unit Form States
+  const [newUnitNumber, setNewUnitNumber] = useState('');
+  const [newUnitBedrooms, setNewUnitBedrooms] = useState(1);
+  const [newUnitBathrooms, setNewUnitBathrooms] = useState(1);
+  const [newUnitSqft, setNewUnitSqft] = useState(600);
+  const [newUnitBaseRent, setNewUnitBaseRent] = useState(1500);
 
   // Service Request Form States
   const [srCategory, setSrCategory] = useState<'plumbing' | 'electrical' | 'hvac' | 'appliance' | 'general'>('plumbing');
   const [srDescription, setSrDescription] = useState('');
   const [srPriority, setSrPriority] = useState<'low' | 'medium' | 'high'>('medium');
 
-  // Load state on mount
+  // Restore/track the Supabase auth session
   useEffect(() => {
-    // Sync with saved state or fall back to INITIAL constants
-    const savedProperties = getSavedState<Property[]>('properties', INITIAL_PROPERTIES);
-    const savedUnits = getSavedState<Unit[]>('units', INITIAL_UNITS);
-    const savedTenants = getSavedState<Tenant[]>('tenants', INITIAL_TENANTS);
-    const savedPayments = getSavedState<Payment[]>('payments', INITIAL_PAYMENTS);
-    const savedRequests = getSavedState<ServiceRequest[]>('service_requests', INITIAL_SERVICE_REQUESTS);
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setAuthLoading(false);
+    });
 
-    setProperties(savedProperties);
-    setUnits(savedUnits);
-    setTenants(savedTenants);
-    setPayments(savedPayments);
-    setServiceRequests(savedRequests);
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
+
+  // Resolve the signed-in session into a persona via the profiles table
+  const refetchProfile = React.useCallback((currentSession: Session) => {
+    return supabase
+      .from('profiles')
+      .select('role, email, full_name')
+      .eq('id', currentSession.user.id)
+      .single()
+      .then(({ data, error }) => {
+        if (error || !data) {
+          console.error('Failed to load profile for signed-in user', error);
+          setUser(null);
+          return;
+        }
+        setUser({
+          email: data.email ?? currentSession.user.email ?? '',
+          fullName: data.full_name,
+          persona: data.role === 'admin' ? 'owner' : 'tenant',
+        });
+      });
+  }, []);
+
+  useEffect(() => {
+    if (!session) {
+      setUser(null);
+      return;
+    }
+    setProfileLoading(true);
+    refetchProfile(session).finally(() => setProfileLoading(false));
+  }, [session, refetchProfile]);
+
+  // Fetch all entity data from Supabase once the signed-in user is resolved
+  const refetchAll = React.useCallback(async () => {
+    setDataLoading(true);
+    try {
+      const [propertiesData, unitsData, tenantsData, paymentsData, serviceRequestsData] = await Promise.all([
+        listProperties(),
+        listUnitsWithDetails(),
+        listActiveLeasesAsTenants(),
+        listPayments(),
+        listServiceRequests(),
+      ]);
+      setProperties(propertiesData);
+      setUnits(unitsData);
+      setTenants(tenantsData);
+      setPayments(paymentsData);
+      setServiceRequests(serviceRequestsData);
+    } catch (err) {
+      console.error('Failed to load data from Supabase', err);
+    } finally {
+      setDataLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!user) {
+      setProperties([]);
+      setUnits([]);
+      setTenants([]);
+      setPayments([]);
+      setServiceRequests([]);
+      return;
+    }
+    refetchAll();
+  }, [user, refetchAll]);
 
   // Sync theme changes with DOM and localStorage
   useEffect(() => {
@@ -118,58 +192,25 @@ export default function App() {
     localStorage.setItem('theme', theme);
   }, [theme]);
 
-  // Save state on any change
-  useEffect(() => {
-    if (properties.length > 0) saveState('properties', properties);
-  }, [properties]);
-
-  useEffect(() => {
-    if (units.length > 0) saveState('units', units);
-  }, [units]);
-
-  useEffect(() => {
-    if (tenants.length > 0) saveState('tenants', tenants);
-  }, [tenants]);
-
-  useEffect(() => {
-    if (payments.length > 0) saveState('payments', payments);
-  }, [payments]);
-
-  useEffect(() => {
-    if (serviceRequests.length > 0) saveState('service_requests', serviceRequests);
-  }, [serviceRequests]);
-
   // Toggle Dark/Light themes
   const handleThemeToggle = () => {
     setTheme((prev) => (prev === 'light' ? 'dark' : 'light'));
   };
 
-  // Switch Logins
-  const handleLogin = (persona: Persona, email: string) => {
-    setUser({ email, persona });
-    if (persona === 'owner') {
-      setActiveOwnerScreen('dashboard');
-    } else {
-      setActiveTenantScreen('dashboard');
-    }
-  };
-
-  const handleLogout = () => {
-    setUser(null);
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
   };
 
   // Helper action: Update specific payment status
-  const handleUpdatePaymentStatus = (id: string, status: 'Paid' | 'Overdue' | 'Pending' | 'Partial', datePaid?: string) => {
-    setPayments(prev => prev.map(p => {
-      if (p.id === id) {
-        return {
-          ...p,
-          status,
-          datePaid: datePaid || p.datePaid
-        };
-      }
-      return p;
-    }));
+  const handleUpdatePaymentStatus = async (id: string, status: 'Paid' | 'Overdue' | 'Pending' | 'Partial', datePaid?: string) => {
+    try {
+      await updatePaymentStatus(id, status, datePaid);
+      const freshPayments = await listPayments();
+      setPayments(freshPayments);
+    } catch (err) {
+      console.error('Failed to update payment status', err);
+      alert('Could not update payment status. Please try again.');
+    }
   };
 
   // Helper action: Configure specific unit
@@ -180,86 +221,84 @@ export default function App() {
   };
 
   // Helper action: Save updated unit details back to property
-  const handleSaveUnitConfig = (updatedUnit: Unit) => {
-    setUnits(prev => prev.map(u => u.id === updatedUnit.id ? updatedUnit : u));
+  const handleSaveUnitConfig = async (updatedUnit: Unit) => {
+    try {
+      await updateUnit(updatedUnit.id, { baseRent: updatedUnit.baseRent, utilities: updatedUnit.utilities });
+      const freshUnits = await listUnitsWithDetails();
+      setUnits(freshUnits);
+    } catch (err) {
+      console.error('Failed to save unit configuration', err);
+      alert('Could not save unit changes. Please try again.');
+    }
   };
 
   // Helper action: Add new property asset
-  const handleAddPropertySubmit = (e: React.FormEvent) => {
+  const handleAddPropertySubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newPropName || !newPropAddress) return;
 
-    const propId = `prop-new-${Date.now()}`;
+    try {
+      await createProperty({ name: newPropName, address: newPropAddress, unitsCount: newPropUnits });
+      const freshProperties = await listProperties();
+      setProperties(freshProperties);
+      setNewPropName('');
+      setNewPropAddress('');
+      setShowAddPropertyModal(false);
+    } catch (err) {
+      console.error('Failed to create property', err);
+      alert('Could not create property. Please try again.');
+    }
+  };
 
-    // Generate basic mock units
-    const mockUnits: Unit[] = Array.from({ length: 4 }).map((_, idx) => {
-      const unitNum = `${idx + 1}0${idx + 1}`;
-      const isOccupied = idx < 3; // 75% occupancy
-      return {
-        id: `u-${propId}-${unitNum}`,
-        propertyId: propId,
-        propertyName: newPropName,
-        unitNumber: unitNum,
-        bedrooms: idx % 2 === 0 ? 2 : 1,
-        bathrooms: 1,
-        sqft: idx % 2 === 0 ? 850 : 650,
-        baseRent: newPropRent,
-        utilities: [
-          { id: `util-e-${unitNum}`, name: 'Electricity recovery', amount: 120 },
-          { id: `util-g-${unitNum}`, name: 'Garbage & Recycling', amount: 25 }
-        ],
-        leaseDocs: [
-          { name: `Lease_Agreement_${unitNum}.pdf`, size: '2.1 MB', date: 'Jul 12, 2023' }
-        ],
-        activeTenant: isOccupied ? {
-          id: `t-${propId}-${unitNum}`,
-          name: idx === 0 ? 'Elena Martinez' : idx === 1 ? 'John Doe' : 'Claire Smith',
-          email: idx === 0 ? 'elena.m@provider.com' : 'john.d@provider.com',
-          phone: '+1 (555) 012-3456',
-          leaseStart: 'Oct 01, 2023',
-          leaseEnd: 'Sept 30, 2024',
-          status: 'Active' as const,
-          unitNumber: unitNum,
-          propertyName: newPropName
-        } : undefined
-      };
-    });
+  // Helper action: Add a new unit to a property
+  const handleAddUnitSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!addUnitPropertyId || !newUnitNumber) return;
 
-    const newProperty: Property = {
-      id: propId,
-      name: newPropName,
-      address: newPropAddress,
-      unitsCount: newPropUnits,
-      occupancyRate: 75,
-      monthlyRevenue: newPropRent * 3 + 145 * 3, // based on 3 occupied units
-      iconType: 'building'
-    };
-
-    setProperties([newProperty, ...properties]);
-    setUnits(prev => [...prev, ...mockUnits]);
-    setNewPropName('');
-    setNewPropAddress('');
-    setShowAddPropertyModal(false);
+    try {
+      await createUnit(addUnitPropertyId, {
+        unitNumber: newUnitNumber,
+        bedrooms: newUnitBedrooms,
+        bathrooms: newUnitBathrooms,
+        sqft: newUnitSqft,
+        baseRent: newUnitBaseRent,
+      });
+      const [freshUnits, freshProperties] = await Promise.all([listUnitsWithDetails(), listProperties()]);
+      setUnits(freshUnits);
+      setProperties(freshProperties);
+      setNewUnitNumber('');
+      setNewUnitBedrooms(1);
+      setNewUnitBathrooms(1);
+      setNewUnitSqft(600);
+      setNewUnitBaseRent(1500);
+      setShowAddUnitModal(false);
+      setAddUnitPropertyId(null);
+    } catch (err) {
+      console.error('Failed to create unit', err);
+      alert('Could not create unit. Please try again.');
+    }
   };
 
   // Helper action: Create tenant service request
-  const handleServiceRequestSubmit = (e: React.FormEvent) => {
+  const handleServiceRequestSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!srDescription) return;
 
-    const newRequest: ServiceRequest = {
-      id: `sr-new-${Date.now()}`,
-      title: `${srCategory.toUpperCase()} Service Request`,
-      category: srCategory.toUpperCase(),
-      description: srDescription,
-      status: 'Pending',
-      dateCreated: new Date().toISOString().split('T')[0]
-    };
-
-    setServiceRequests([newRequest, ...serviceRequests]);
-    setSrDescription('');
-    setShowServiceRequestModal(false);
-    alert('Service Request submitted successfully! The building superintendent has been notified.');
+    try {
+      await createServiceRequest({
+        title: `${srCategory.toUpperCase()} Service Request`,
+        category: srCategory.toUpperCase(),
+        description: srDescription,
+      });
+      const freshRequests = await listServiceRequests();
+      setServiceRequests(freshRequests);
+      setSrDescription('');
+      setShowServiceRequestModal(false);
+      alert('Service Request submitted successfully! The building superintendent has been notified.');
+    } catch (err) {
+      console.error('Failed to submit service request', err);
+      alert(err instanceof Error ? err.message : 'Could not submit service request. Please try again.');
+    }
   };
 
   // Helper view resolver: Get active unit details for configuration
@@ -268,13 +307,23 @@ export default function App() {
     return units.find(u => u.propertyId === selectedPropertyId && u.unitNumber === selectedUnitNumber) || null;
   }, [units, selectedPropertyId, selectedUnitNumber]);
 
-  // If user is not logged in, render beautiful auth splash
-  if (!user) {
+  // Wait for the initial session check (and the first data fetch) before
+  // deciding what to render, so a refresh with an existing session doesn't
+  // flash the login screen or an empty dashboard.
+  if (authLoading || (session && profileLoading) || (session && user && dataLoading)) {
     return (
-      <LoginScreen 
-        onLogin={handleLogin} 
-        theme={theme} 
-        onThemeToggle={handleThemeToggle} 
+      <div className="min-h-screen flex items-center justify-center bg-[#fcf8fa] dark:bg-[#0f1418] text-slate-400 text-sm">
+        Loading…
+      </div>
+    );
+  }
+
+  // If user is not logged in, render beautiful auth splash
+  if (!session || !user) {
+    return (
+      <LoginScreen
+        theme={theme}
+        onThemeToggle={handleThemeToggle}
       />
     );
   }
@@ -285,6 +334,8 @@ export default function App() {
       {/* Sidebar Navigation */}
       <Sidebar
         persona={user.persona}
+        currentUserEmail={user.email}
+        currentUserName={user.fullName}
         activeOwnerScreen={activeOwnerScreen}
         activeTenantScreen={activeTenantScreen}
         onOwnerScreenChange={(scr) => {
@@ -312,15 +363,19 @@ export default function App() {
         {/* Header bar */}
         <Header
           persona={user.persona}
-          onPersonaChange={(p) => {
-            setUser({ email: user.email, persona: p });
-            setSearchQuery('');
-          }}
           theme={theme}
           onThemeToggle={handleThemeToggle}
           onAddPropertyClick={() => setShowAddPropertyModal(true)}
           onServiceRequestClick={() => setShowServiceRequestModal(true)}
+          onSettingsClick={() => {
+            if (user.persona === 'owner') {
+              setActiveOwnerScreen('settings');
+            } else {
+              setActiveTenantScreen('settings');
+            }
+          }}
           currentUserEmail={user.email}
+          currentUserName={user.fullName}
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
         />
@@ -336,11 +391,11 @@ export default function App() {
                 {activeOwnerScreen === 'dashboard' && (
                   <OwnerDashboard
                     properties={properties}
+                    units={units}
+                    payments={payments}
                     tenants={tenants}
-                    onSelectProperty={(id) => {
-                      setSelectedPropertyId(id);
-                      setSelectedUnitNumber('402'); // default demo unit
-                      setActiveOwnerScreen('configure-unit');
+                    onSelectProperty={() => {
+                      setActiveOwnerScreen('properties');
                     }}
                     onOpenInvoice={(paymentId) => {
                       const pay = payments.find(p => p.id === paymentId);
@@ -391,7 +446,19 @@ export default function App() {
                           </div>
 
                           <div>
-                            <h4 className="text-xxs font-bold text-slate-400 uppercase mb-3 tracking-widest">Active Units</h4>
+                            <div className="flex justify-between items-center mb-3">
+                              <h4 className="text-xxs font-bold text-slate-400 uppercase tracking-widest">Active Units</h4>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setAddUnitPropertyId(prop.id);
+                                  setShowAddUnitModal(true);
+                                }}
+                                className="text-xxs font-bold text-sky-500 hover:underline flex items-center gap-1 cursor-pointer"
+                              >
+                                <Plus size={12} /> Add Unit
+                              </button>
+                            </div>
                             <div className="grid grid-cols-2 gap-2">
                               {units.filter(u => u.propertyId === prop.id).map(unit => (
                                 <button
@@ -407,6 +474,9 @@ export default function App() {
                                   <ChevronRight size={14} className="text-slate-300 group-hover:text-sky-400 transition-colors" />
                                 </button>
                               ))}
+                              {units.filter(u => u.propertyId === prop.id).length === 0 && (
+                                <p className="col-span-2 text-[10px] text-slate-400 italic py-2">No units yet — add one to get started.</p>
+                              )}
                             </div>
                           </div>
                         </div>
@@ -480,6 +550,9 @@ export default function App() {
               <>
                 {activeTenantScreen === 'dashboard' && (
                   <TenantDashboard
+                    units={units}
+                    payments={payments}
+                    serviceRequests={serviceRequests}
                     onOpenInvoice={(id) => {
                       const pay = payments.find(p => p.id === id);
                       if (pay) setSelectedPaymentInvoice(pay);
@@ -491,69 +564,57 @@ export default function App() {
                 )}
 
                 {activeTenantScreen === 'property-details' && (
-                  <div className="bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm">
-                    {/* Hero Banner */}
-                    <div 
-                      className="h-48 flex items-end p-6 select-none"
-                      style={{
-                        backgroundImage: 'linear-gradient(to top, rgba(15, 23, 42, 0.9), rgba(15, 23, 42, 0.1)), url("https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&q=80&w=1000")',
-                        backgroundSize: 'cover',
-                        backgroundPosition: 'center',
-                      }}
-                    >
-                      <div>
-                        <h2 className="text-2xl font-black text-white tracking-tight">Oakwood Lofts</h2>
-                        <p className="text-slate-300 text-xs mt-1">123 Maple Street, San Francisco, CA 94115</p>
+                  units[0] ? (
+                    <div className="bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm">
+                      <div className="p-8 space-y-8">
+                        <div>
+                          <h2 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">{units[0].propertyName}</h2>
+                          <p className="text-slate-500 dark:text-slate-400 text-xs mt-1">Unit {units[0].unitNumber}</p>
+                        </div>
+
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-xs font-semibold text-slate-600 dark:text-slate-400 border-t border-b border-slate-100 dark:border-slate-800 py-4">
+                          <div>
+                            <span className="text-[10px] text-slate-400 uppercase block mb-1">Bedrooms</span>
+                            <span className="text-slate-900 dark:text-white font-bold">{units[0].bedrooms}</span>
+                          </div>
+                          <div>
+                            <span className="text-[10px] text-slate-400 uppercase block mb-1">Bathrooms</span>
+                            <span className="text-slate-900 dark:text-white font-bold">{units[0].bathrooms}</span>
+                          </div>
+                          <div>
+                            <span className="text-[10px] text-slate-400 uppercase block mb-1">Square Feet</span>
+                            <span className="text-slate-900 dark:text-white font-bold">{units[0].sqft}</span>
+                          </div>
+                          <div>
+                            <span className="text-[10px] text-slate-400 uppercase block mb-1">Base Rent</span>
+                            <span className="text-slate-900 dark:text-white font-bold">${units[0].baseRent.toLocaleString()}</span>
+                          </div>
+                        </div>
+
+                        {units[0].utilities.length > 0 && (
+                          <div>
+                            <h3 className="font-bold text-sm uppercase tracking-wider text-slate-900 dark:text-white mb-3">Utilities & Add-ons</h3>
+                            <div className="grid grid-cols-2 gap-3 text-xs text-slate-600 dark:text-slate-400 font-semibold">
+                              {units[0].utilities.map((u) => (
+                                <span key={u.id}>{u.name}: ${u.amount.toLocaleString()}/mo</span>
+                              ))}
+                            </div>
+                          </div>
+                        )}
                       </div>
                     </div>
-
-                    {/* Description content */}
-                    <div className="p-8 grid grid-cols-1 md:grid-cols-3 gap-8">
-                      <div className="md:col-span-2 space-y-6">
-                        <div>
-                          <h3 className="font-bold text-sm uppercase tracking-wider text-slate-900 dark:text-white mb-3">About Oakwood Lofts</h3>
-                          <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-                            Originally constructed in 1912, Oakwood Lofts features beautifully restored industrial masonry, exposed timber columns, concrete accent walls, and oversized dual-pane sash windows. Conveniently situated in lower Pacific Heights, residents enjoy quick access to tech shuttle routes, central transit links, grocery retailers, and boutique parks.
-                          </p>
-                        </div>
-
-                        <div>
-                          <h3 className="font-bold text-sm uppercase tracking-wider text-slate-900 dark:text-white mb-3">Building Amenities</h3>
-                          <div className="grid grid-cols-2 gap-3 text-xs text-slate-600 dark:text-slate-400 font-semibold">
-                            <span className="flex items-center gap-2">✓ Restored Roof Garden & Sun deck</span>
-                            <span className="flex items-center gap-2">✓ Controlled Access Bike Storage Room</span>
-                            <span className="flex items-center gap-2">✓ Secure Keyless Salto Lock Entrance</span>
-                            <span className="flex items-center gap-2">✓ On-site EV Charging Stations</span>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="bg-slate-50 dark:bg-slate-900/60 border border-slate-150 dark:border-slate-800 p-6 rounded-xl space-y-4">
-                        <h3 className="font-bold text-sm text-slate-900 dark:text-white">Emergency Contacts</h3>
-                        <div className="space-y-3.5 text-xs text-slate-600 dark:text-slate-400 font-semibold">
-                          <div>
-                            <span className="text-[10px] text-slate-400 block mb-0.5">EMERGENCY HOTLINE</span>
-                            <span className="text-slate-900 dark:text-white font-bold">1-800-555-LOFT</span>
-                          </div>
-                          <div>
-                            <span className="text-[10px] text-slate-400 block mb-0.5">ON-SITE SUPERINTENDENT</span>
-                            <span className="text-slate-900 dark:text-white font-bold">Marcus Thompson (Unit 101)</span>
-                          </div>
-                          <div>
-                            <span className="text-[10px] text-slate-400 block mb-0.5">FIRE / POLICE EMERGENCY</span>
-                            <span className="text-red-500 font-bold">Dial 911</span>
-                          </div>
-                        </div>
-                      </div>
+                  ) : (
+                    <div className="bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-800 rounded-xl p-12 text-center">
+                      <p className="text-sm font-semibold text-slate-600 dark:text-slate-400">No active lease on file yet.</p>
                     </div>
-                  </div>
+                  )
                 )}
 
                 {activeTenantScreen === 'payments' && (
                   <div className="bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-800 rounded-xl p-8 shadow-sm space-y-6">
                     <div>
                       <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Payment Ledger Statement</h2>
-                      <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">Review historical billing, auto-pay debits, and printable ledger statements.</p>
+                      <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">Review historical billing and printable ledger statements.</p>
                     </div>
 
                     <div className="overflow-x-auto border border-slate-150 dark:border-slate-800 rounded-lg">
@@ -561,31 +622,31 @@ export default function App() {
                         <thead>
                           <tr className="bg-slate-50 dark:bg-slate-900 text-slate-400 font-bold uppercase tracking-wider text-[10px] border-b border-slate-200 dark:border-slate-800">
                             <th className="px-6 py-3">BILLING ITEM</th>
+                            <th className="px-6 py-3">STATUS</th>
                             <th className="px-6 py-3">DATE PAID</th>
-                            <th className="px-6 py-3">METHOD</th>
-                            <th className="px-6 py-3 text-right">AMOUNT PAID</th>
+                            <th className="px-6 py-3 text-right">AMOUNT</th>
                             <th className="px-6 py-3 text-center">RECEIPT</th>
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100 dark:divide-slate-800/40 text-xs font-semibold">
-                          <tr className="hover:bg-slate-50 dark:hover:bg-slate-800/20">
-                            <td className="px-6 py-4 font-bold text-slate-900 dark:text-white">September Rent</td>
-                            <td className="px-6 py-4 text-slate-500">Sept 02, 2023</td>
-                            <td className="px-6 py-4 text-slate-600">Bank ACH (...8829)</td>
-                            <td className="px-6 py-4 text-right font-mono font-bold">$2,450.00</td>
-                            <td className="px-6 py-4 text-center">
-                              <button type="button" onClick={() => setSelectedPaymentInvoice(payments[1])} className="px-3 py-1 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded text-xxs font-bold uppercase">View Statement</button>
-                            </td>
-                          </tr>
-                          <tr className="hover:bg-slate-50 dark:hover:bg-slate-800/20">
-                            <td className="px-6 py-4 font-bold text-slate-900 dark:text-white">August Rent</td>
-                            <td className="px-6 py-4 text-slate-500">Aug 01, 2023</td>
-                            <td className="px-6 py-4 text-slate-600">Bank ACH (...8829)</td>
-                            <td className="px-6 py-4 text-right font-mono font-bold">$2,450.00</td>
-                            <td className="px-6 py-4 text-center">
-                              <button type="button" onClick={() => setSelectedPaymentInvoice(payments[2])} className="px-3 py-1 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded text-xxs font-bold uppercase">View Statement</button>
-                            </td>
-                          </tr>
+                          {payments.map((p) => (
+                            <tr key={p.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/20">
+                              <td className="px-6 py-4 font-bold text-slate-900 dark:text-white">{p.month}</td>
+                              <td className="px-6 py-4 text-slate-600">{p.status}</td>
+                              <td className="px-6 py-4 text-slate-500">{p.datePaid || '—'}</td>
+                              <td className="px-6 py-4 text-right font-mono font-bold">${p.totalDue.toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
+                              <td className="px-6 py-4 text-center">
+                                <button type="button" onClick={() => setSelectedPaymentInvoice(p)} className="px-3 py-1 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded text-xxs font-bold uppercase">View Statement</button>
+                              </td>
+                            </tr>
+                          ))}
+                          {payments.length === 0 && (
+                            <tr>
+                              <td colSpan={5} className="px-6 py-8 text-center text-slate-400 font-semibold">
+                                No billing history yet.
+                              </td>
+                            </tr>
+                          )}
                         </tbody>
                       </table>
                     </div>
@@ -594,48 +655,44 @@ export default function App() {
 
                 {activeTenantScreen === 'documents' && (
                   <div className="bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-800 p-8 rounded-xl space-y-6">
-                    <div className="flex justify-between items-center border-b border-slate-100 dark:border-slate-800 pb-4">
-                      <div>
-                        <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Lease Agreements & Vault Docs</h2>
-                        <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">Review critical documents, sign lease updates, or upload renters insurance policies.</p>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => alert("Simulating document file upload picker")}
-                        className="px-4 py-2 bg-slate-950 dark:bg-sky-400 hover:bg-slate-900 dark:hover:bg-sky-300 text-white dark:text-slate-950 rounded-lg text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 cursor-pointer"
-                      >
-                        <Upload size={14} /> Upload Vault Doc
-                      </button>
+                    <div className="border-b border-slate-100 dark:border-slate-800 pb-4">
+                      <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Lease Agreements & Vault Docs</h2>
+                      <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">Documents attached to your lease.</p>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
-                      {/* Doc 1 */}
-                      <div className="p-4 border border-slate-150 dark:border-slate-800 rounded-lg flex justify-between items-center">
-                        <div className="flex items-center gap-3">
-                          <FileText size={24} className="text-sky-500" />
-                          <div>
-                            <p className="font-bold text-xs text-slate-900 dark:text-white">Master Lease Agreement.pdf</p>
-                            <p className="text-xxs text-slate-400">PDF • 2.4 MB • Signed Jul 12, 2023</p>
+                      {(units[0]?.leaseDocs ?? []).map((doc, idx) => (
+                        <div key={idx} className="p-4 border border-slate-150 dark:border-slate-800 rounded-lg flex justify-between items-center">
+                          <div className="flex items-center gap-3">
+                            <FileText size={24} className="text-sky-500" />
+                            <div>
+                              <p className="font-bold text-xs text-slate-900 dark:text-white">{doc.name}</p>
+                              <p className="text-xxs text-slate-400">{doc.size} • {doc.date}</p>
+                            </div>
                           </div>
+                          <Download size={16} className="text-slate-400" />
                         </div>
-                        <button type="button" onClick={() => alert("Downloading document...")} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 rounded"><Download size={16} /></button>
-                      </div>
-
-                      {/* Doc 2 */}
-                      <div className="p-4 border border-slate-150 dark:border-slate-800 rounded-lg flex justify-between items-center">
-                        <div className="flex items-center gap-3">
-                          <FileText size={24} className="text-sky-500" />
-                          <div>
-                            <p className="font-bold text-xs text-slate-900 dark:text-white">Building Rules & Regulations.pdf</p>
-                            <p className="text-xxs text-slate-400">PDF • 1.1 MB • Signed Jul 12, 2023</p>
-                          </div>
-                        </div>
-                        <button type="button" onClick={() => alert("Downloading document...")} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 rounded"><Download size={16} /></button>
-                      </div>
+                      ))}
+                      {(!units[0]?.leaseDocs || units[0].leaseDocs.length === 0) && (
+                        <p className="col-span-2 text-xs font-semibold text-slate-400 dark:text-slate-500 text-center py-8">
+                          No documents on file yet.
+                        </p>
+                      )}
                     </div>
                   </div>
                 )}
               </>
+            )}
+
+            {/* Settings Sub-View (shared across personas) */}
+            {((user.persona === 'owner' && activeOwnerScreen === 'settings') ||
+              (user.persona === 'tenant' && activeTenantScreen === 'settings')) && (
+              <SettingsScreen
+                persona={user.persona}
+                onProfileUpdated={() => {
+                  if (session) refetchProfile(session);
+                }}
+              />
             )}
 
             {/* Help Center Accordion Sub-View */}
@@ -718,31 +775,18 @@ export default function App() {
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label htmlFor="new-property-units" className="block text-[10px] font-bold text-slate-400 uppercase">UNITS COUNT</label>
-                  <input
-                    id="new-property-units"
-                    type="number"
-                    required
-                    min="1"
-                    value={newPropUnits}
-                    onChange={(e) => setNewPropUnits(Number(e.target.value))}
-                    className="w-full mt-1 px-3 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg text-xs"
-                  />
-                </div>
-                <div>
-                  <label htmlFor="new-property-rent" className="block text-[10px] font-bold text-slate-400 uppercase">MONTHLY BASE RENT ($)</label>
-                  <input
-                    id="new-property-rent"
-                    type="number"
-                    required
-                    min="100"
-                    value={newPropRent}
-                    onChange={(e) => setNewPropRent(Number(e.target.value))}
-                    className="w-full mt-1 px-3 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg text-xs"
-                  />
-                </div>
+              <div>
+                <label htmlFor="new-property-units" className="block text-[10px] font-bold text-slate-400 uppercase">TARGET UNITS COUNT</label>
+                <input
+                  id="new-property-units"
+                  type="number"
+                  required
+                  min="1"
+                  value={newPropUnits}
+                  onChange={(e) => setNewPropUnits(Number(e.target.value))}
+                  className="w-full mt-1 px-3 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg text-xs"
+                />
+                <p className="text-[10px] text-slate-400 mt-1">Informational only — add individual units afterwards from the property card.</p>
               </div>
 
               <div className="flex gap-2 pt-4 border-t border-slate-100 dark:border-slate-800">
@@ -755,6 +799,102 @@ export default function App() {
                 <button 
                   type="button" 
                   onClick={() => setShowAddPropertyModal(false)}
+                  className="px-4 py-2.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-slate-200 text-xs font-bold uppercase"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Add Unit Modal */}
+      {showAddUnitModal && (
+        <div className="fixed inset-0 bg-slate-950/70 flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
+          <div className="bg-white dark:bg-[#1e293b] rounded-xl border border-slate-200 dark:border-slate-800 max-w-md w-full p-6 shadow-2xl">
+            <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">Add Unit</h3>
+            <p className="text-xs text-slate-500 dark:text-slate-400">Register a new unit under this property.</p>
+
+            <form onSubmit={handleAddUnitSubmit} className="space-y-4 mt-6">
+              <div>
+                <label htmlFor="new-unit-number" className="block text-[10px] font-bold text-slate-400 uppercase">UNIT NUMBER</label>
+                <input
+                  id="new-unit-number"
+                  type="text"
+                  required
+                  placeholder="e.g. 204"
+                  value={newUnitNumber}
+                  onChange={(e) => setNewUnitNumber(e.target.value)}
+                  className="w-full mt-1 px-3 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg text-xs"
+                />
+              </div>
+
+              <div className="grid grid-cols-3 gap-4">
+                <div>
+                  <label htmlFor="new-unit-bedrooms" className="block text-[10px] font-bold text-slate-400 uppercase">BEDS</label>
+                  <input
+                    id="new-unit-bedrooms"
+                    type="number"
+                    required
+                    min="0"
+                    value={newUnitBedrooms}
+                    onChange={(e) => setNewUnitBedrooms(Number(e.target.value))}
+                    className="w-full mt-1 px-3 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg text-xs"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="new-unit-bathrooms" className="block text-[10px] font-bold text-slate-400 uppercase">BATHS</label>
+                  <input
+                    id="new-unit-bathrooms"
+                    type="number"
+                    required
+                    min="0"
+                    value={newUnitBathrooms}
+                    onChange={(e) => setNewUnitBathrooms(Number(e.target.value))}
+                    className="w-full mt-1 px-3 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg text-xs"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="new-unit-sqft" className="block text-[10px] font-bold text-slate-400 uppercase">SQFT</label>
+                  <input
+                    id="new-unit-sqft"
+                    type="number"
+                    required
+                    min="0"
+                    value={newUnitSqft}
+                    onChange={(e) => setNewUnitSqft(Number(e.target.value))}
+                    className="w-full mt-1 px-3 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg text-xs"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label htmlFor="new-unit-rent" className="block text-[10px] font-bold text-slate-400 uppercase">BASE RENT ($)</label>
+                <input
+                  id="new-unit-rent"
+                  type="number"
+                  required
+                  min="0"
+                  value={newUnitBaseRent}
+                  onChange={(e) => setNewUnitBaseRent(Number(e.target.value))}
+                  className="w-full mt-1 px-3 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg text-xs"
+                />
+              </div>
+
+              <div className="flex gap-2 pt-4 border-t border-slate-100 dark:border-slate-800">
+                <button
+                  type="submit"
+                  className="flex-1 py-2.5 bg-sky-500 text-slate-950 font-bold rounded-lg hover:bg-sky-400 text-xs uppercase tracking-wider"
+                >
+                  Add Unit
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowAddUnitModal(false);
+                    setAddUnitPropertyId(null);
+                  }}
                   className="px-4 py-2.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-slate-200 text-xs font-bold uppercase"
                 >
                   Cancel

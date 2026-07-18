@@ -3,22 +3,24 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { 
-  LayoutDashboard, 
-  Building, 
-  CreditCard, 
-  FileText, 
-  HelpCircle, 
-  LogOut, 
-  ShieldAlert, 
+import {
+  LayoutDashboard,
+  Building,
+  CreditCard,
+  FileText,
+  HelpCircle,
+  LogOut,
   FolderOpen,
-  Wrench
+  Wrench,
+  Settings
 } from 'lucide-react';
 import { Persona, OwnerScreen, TenantScreen } from '../types';
 import React from 'react';
 
 interface SidebarProps {
   persona: Persona;
+  currentUserEmail: string;
+  currentUserName: string | null;
   activeOwnerScreen: OwnerScreen;
   activeTenantScreen: TenantScreen;
   onOwnerScreenChange: (s: OwnerScreen) => void;
@@ -28,8 +30,23 @@ interface SidebarProps {
   onServiceRequestClick: () => void;
 }
 
+function initialsFor(name: string | null, email: string): string {
+  if (name && name.trim().length > 0) {
+    return name
+      .trim()
+      .split(/\s+/)
+      .map((part) => part[0])
+      .slice(0, 2)
+      .join('')
+      .toUpperCase();
+  }
+  return (email[0] ?? '?').toUpperCase();
+}
+
 export default function Sidebar({
   persona,
+  currentUserEmail,
+  currentUserName,
   activeOwnerScreen,
   activeTenantScreen,
   onOwnerScreenChange,
@@ -38,7 +55,8 @@ export default function Sidebar({
   onGenerateReportClick,
   onServiceRequestClick,
 }: SidebarProps) {
-  
+  const displayName = currentUserName && currentUserName.trim().length > 0 ? currentUserName : currentUserEmail;
+
   const handleNavClick = (screen: any) => {
     if (persona === 'owner') {
       onOwnerScreenChange(screen as OwnerScreen);
@@ -78,24 +96,15 @@ export default function Sidebar({
 
         {/* Profile Info block */}
         <div className="p-4 mx-3 my-4 bg-white dark:bg-[#0f172a] border border-slate-200/60 dark:border-slate-800 rounded-xl flex items-center gap-3">
-          <img
-            src={persona === 'owner'
-              ? 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&q=80&w=120'
-              : 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=120'
-            }
-            alt="User avatar"
-            referrerPolicy="no-referrer"
-            className="h-10 w-10 rounded-full object-cover ring-2 ring-slate-100 dark:ring-slate-800"
-          />
+          <div className="h-10 w-10 shrink-0 rounded-full bg-sky-100 dark:bg-sky-950 text-sky-700 dark:text-sky-300 font-extrabold flex items-center justify-center text-sm ring-2 ring-slate-100 dark:ring-slate-800">
+            {initialsFor(currentUserName, currentUserEmail)}
+          </div>
           <div className="min-w-0">
             <p className="text-xs font-bold text-slate-900 dark:text-white truncate">
-              {persona === 'owner' ? 'Alex Thompson' : 'Alex Chen'}
+              {displayName}
             </p>
             <p className="text-xxs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wide truncate">
-              {persona === 'owner' ? 'PROPERTY MANAGER' : 'Tenant | Unit 402'}
-            </p>
-            <p className="text-xxs font-medium text-slate-500 dark:text-slate-400 truncate">
-              {persona === 'owner' ? 'Admin Account' : 'Oakwood Lofts'}
+              {persona === 'owner' ? 'PROPERTY MANAGER' : 'TENANT'}
             </p>
           </div>
         </div>
@@ -153,6 +162,18 @@ export default function Sidebar({
         {/* Footer actions */}
         <div className="border-t border-slate-200/60 dark:border-slate-800/60 pt-4 space-y-1">
           <button
+            id="sidebar-footer-settings"
+            type="button"
+            onClick={() => handleNavClick('settings')}
+            className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-xs font-semibold text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/30 transition-all cursor-pointer ${
+              currentActiveScreen === 'settings' ? 'bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white' : ''
+            }`}
+          >
+            <Settings size={16} />
+            Settings
+          </button>
+
+          <button
             id="sidebar-footer-help"
             type="button"
             onClick={() => handleNavClick('help')}
@@ -163,7 +184,7 @@ export default function Sidebar({
             <HelpCircle size={16} />
             Help Center
           </button>
-          
+
           <button
             id="sidebar-footer-logout"
             type="button"
