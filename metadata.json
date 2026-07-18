@@ -1,0 +1,6 @@
+{
+  "name": "PropManage Pro",
+  "description": "A high-fidelity property management system for property owners, managers, and tenants. Includes interactive dashboards, unit configuration, detailed payment trackers, and digital receipts in light and dark corporate modern styles.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
