@@ -4,7 +4,7 @@
  */
 
 import React from 'react';
-import { Printer, Download, X, Check, ShieldCheck, CreditCard } from 'lucide-react';
+import { Printer, X, ShieldCheck, CreditCard } from 'lucide-react';
 import { Payment } from '../types';
 
 interface InvoiceViewProps {
@@ -55,15 +55,6 @@ export default function InvoiceView({ payment, onClose }: InvoiceViewProps) {
               <Printer size={16} />
             </button>
             <button
-              id="btn-download-invoice"
-              type="button"
-              onClick={() => alert("Statement receipt downloaded as PDF file representation")}
-              className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 transition-colors cursor-pointer"
-              title="Download PDF"
-            >
-              <Download size={16} />
-            </button>
-            <button
               id="btn-close-invoice"
               type="button"
               onClick={onClose}
@@ -82,7 +73,7 @@ export default function InvoiceView({ payment, onClose }: InvoiceViewProps) {
           <div className="flex justify-between items-start">
             <div>
               <h3 className="text-xl font-extrabold text-slate-900 dark:text-white">
-                PropManage Pro
+                {payment.managerOrgName ?? 'PropManage Pro'}
               </h3>
               <p className="text-xxs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mt-1">
                 STATEMENT OF ACCOUNT
@@ -90,10 +81,10 @@ export default function InvoiceView({ payment, onClose }: InvoiceViewProps) {
             </div>
             <div className="text-right">
               <p className="text-xs font-bold text-slate-900 dark:text-white">
-                STMT-2023-{payment.unitNumber}{payment.id.split('-')[1] || '1104'}
+                PAY-{payment.id.slice(0, 8).toUpperCase()}
               </p>
               <p className="text-[10px] text-slate-400 dark:text-slate-500 font-semibold uppercase mt-1">
-                DATE GENERATED: {payment.month} 01
+                BILLING PERIOD: {payment.month}
               </p>
             </div>
           </div>
@@ -105,15 +96,10 @@ export default function InvoiceView({ payment, onClose }: InvoiceViewProps) {
                 FROM (MANAGER)
               </span>
               <p className="font-extrabold text-slate-800 dark:text-white">
-                PropManage Enterprise Ltd.
-              </p>
-              <p className="text-slate-500 dark:text-slate-400 mt-1 font-medium leading-relaxed">
-                450 Sansome St, Suite 1200<br />
-                San Francisco, CA 94111<br />
-                contact@promanagepro.com
+                {payment.managerOrgName ?? 'PropManage Pro'}
               </p>
             </div>
-            
+
             <div>
               <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest block mb-2">
                 TO (TENANT)
@@ -122,9 +108,9 @@ export default function InvoiceView({ payment, onClose }: InvoiceViewProps) {
                 {payment.tenantName}
               </p>
               <p className="text-slate-500 dark:text-slate-400 mt-1 font-medium leading-relaxed">
-                {payment.propertyName}, Unit {payment.unitNumber}<br />
-                San Francisco, CA 94115<br />
-                Active Resident
+                {payment.propertyName}, Unit {payment.unitNumber}
+                {payment.propertyAddress && <><br />{payment.propertyAddress}</>}
+                {payment.tenantEmail && <><br />{payment.tenantEmail}</>}
               </p>
             </div>
           </div>
@@ -156,24 +142,27 @@ export default function InvoiceView({ payment, onClose }: InvoiceViewProps) {
                   
                   {/* Utilities */}
                   {payment.utilityCharges > 0 && (
-                    <>
+                    payment.utilityBreakdown && payment.utilityBreakdown.length > 0 ? (
+                      payment.utilityBreakdown.map((item) => (
+                        <tr key={item.id}>
+                          <td className="px-4 py-3">
+                            Utility Recovery — {item.name}
+                          </td>
+                          <td className="px-4 py-3 text-right font-mono text-slate-950 dark:text-white">
+                            ${item.amount.toFixed(2)}
+                          </td>
+                        </tr>
+                      ))
+                    ) : (
                       <tr>
                         <td className="px-4 py-3">
-                          Utility Recovery — Electricity (Metered consumption)
+                          Utility Recovery
                         </td>
                         <td className="px-4 py-3 text-right font-mono text-slate-950 dark:text-white">
-                          ${(payment.utilityCharges * 0.7).toFixed(2)}
+                          ${payment.utilityCharges.toFixed(2)}
                         </td>
                       </tr>
-                      <tr>
-                        <td className="px-4 py-3">
-                          Utility Recovery — Water & Sewage
-                        </td>
-                        <td className="px-4 py-3 text-right font-mono text-slate-950 dark:text-white">
-                          ${(payment.utilityCharges * 0.3).toFixed(2)}
-                        </td>
-                      </tr>
-                    </>
+                    )
                   )}
 
                   {/* Total row */}
@@ -207,26 +196,26 @@ export default function InvoiceView({ payment, onClose }: InvoiceViewProps) {
               )}
             </div>
 
-            {payment.status === 'Paid' && (
+            {payment.status === 'Paid' && payment.datePaid && (
               <div className="flex items-center gap-4">
                 <div>
                   <span className="text-[9px] text-slate-400 uppercase tracking-widest block">DATE RECORDED</span>
-                  <span className="text-slate-800 dark:text-slate-300 font-bold">{payment.datePaid || payment.month + ' 02'}</span>
+                  <span className="text-slate-800 dark:text-slate-300 font-bold">{payment.datePaid}</span>
                 </div>
                 <div>
                   <span className="text-[9px] text-slate-400 uppercase tracking-widest block">METHOD</span>
                   <span className="text-slate-800 dark:text-slate-300 font-bold flex items-center gap-1">
-                    <CreditCard size={12} className="text-sky-500" /> ACH (...1988)
+                    <CreditCard size={12} className="text-sky-500" /> Manual / Bank Transfer
                   </span>
                 </div>
               </div>
             )}
           </div>
 
-          {/* Security stamp */}
+          {/* Footer note */}
           <div className="flex items-center gap-2 text-xxs text-slate-400 dark:text-slate-500 font-semibold justify-center">
             <ShieldCheck size={14} className="text-emerald-500" />
-            <span>Cryptographically sealed statement, certified by PropManage Ledger Protocol.</span>
+            <span>Statement generated by {payment.managerOrgName ?? 'PropManage Pro'}.</span>
           </div>
 
         </div>

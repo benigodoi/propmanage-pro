@@ -3,25 +3,23 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
-import { 
-  TrendingUp, 
-  Percent, 
-  DollarSign, 
-  AlertCircle, 
-  Building2, 
-  Calendar, 
-  ArrowUpRight, 
-  Download, 
+import React, { useState, useMemo } from 'react';
+import {
+  Percent,
+  DollarSign,
+  AlertCircle,
+  Building2,
   SlidersHorizontal,
+  Download,
   ChevronRight,
-  MoreVertical,
-  Plus
+  Home
 } from 'lucide-react';
-import { Property, Tenant } from '../types';
+import { Property, Tenant, Unit, Payment } from '../types';
 
 interface OwnerDashboardProps {
   properties: Property[];
+  units: Unit[];
+  payments: Payment[];
   tenants: Tenant[];
   onSelectProperty: (propertyId: string) => void;
   onOpenInvoice: (paymentId: string) => void;
@@ -30,6 +28,8 @@ interface OwnerDashboardProps {
 
 export default function OwnerDashboard({
   properties,
+  units,
+  payments,
   tenants,
   onSelectProperty,
   onOpenInvoice,
@@ -38,66 +38,36 @@ export default function OwnerDashboard({
   const [activeTab, setActiveTab] = useState<'overview' | 'financials' | 'tenants'>('overview');
   const [hoveredBar, setHoveredBar] = useState<number | null>(null);
 
-  // 6-Month Chart Data
-  const chartData = [
-    { month: 'JAN', revenue: 285000, color: '#000000', darkColor: '#38bdf8' },
-    { month: 'FEB', revenue: 290000, color: '#000000', darkColor: '#38bdf8' },
-    { month: 'MAR', revenue: 298000, color: '#000000', darkColor: '#38bdf8' },
-    { month: 'APR', revenue: 305000, color: '#000000', darkColor: '#38bdf8' },
-    { month: 'MAY', revenue: 310000, color: '#000000', darkColor: '#38bdf8' },
-    { month: 'JUN', revenue: 312450, color: '#000000', darkColor: '#38bdf8' },
-  ];
+  // Real billed-per-month chart, grouped from actual payments (most recent
+  // 6 distinct billing months present in the data, oldest to newest).
+  const chartData = useMemo(() => {
+    const totalsByMonth = new Map<string, number>();
+    payments.forEach((p) => {
+      totalsByMonth.set(p.month, (totalsByMonth.get(p.month) ?? 0) + p.totalDue);
+    });
+    return Array.from(totalsByMonth.entries())
+      .slice(0, 6)
+      .reverse()
+      .map(([month, revenue]) => ({ month, revenue }));
+  }, [payments]);
 
-  const maxRevenue = Math.max(...chartData.map(d => d.revenue));
+  const maxRevenue = Math.max(1, ...chartData.map(d => d.revenue));
 
-  // Recent Activity Data
-  const recentActivity = [
-    {
-      id: 'act-1',
-      paymentId: 'pay-5', // Map to Alex Chen Oct payment
-      tenantName: 'Sarah Johnson',
-      details: 'Unit 402, Oakwood Lofts',
-      amount: 2450,
-      time: 'Today, 2:40 PM',
-      type: 'payment',
-    },
-    {
-      id: 'act-2',
-      paymentId: 'pay-1', // Map to Alex Thompson Nov payment
-      tenantName: 'Marcus Chen',
-      details: 'Unit 115, Westside Hub',
-      amount: 1800,
-      time: 'Today, 11:15 AM',
-      type: 'payment',
-    },
-    {
-      id: 'act-3',
-      paymentId: 'pay-1',
-      tenantName: 'Linda Thompson',
-      details: 'Unit 12B, The Meridian',
-      amount: 3200,
-      time: 'Yesterday',
-      type: 'payment',
-    },
-    {
-      id: 'act-4',
-      paymentId: 'pay-3',
-      tenantName: 'Jordan Smith',
-      details: 'Unit 3, Grove Gardens',
-      amount: 1550,
-      time: 'Yesterday',
-      type: 'payment',
-    },
-    {
-      id: 'act-5',
-      paymentId: 'pay-5',
-      tenantName: 'Alex Rivera',
-      details: 'Unit 204, Oakwood Lofts',
-      amount: 2450,
-      time: 'Aug 2, 2023',
-      type: 'payment',
-    }
-  ];
+  // Recent Activity: the 5 most recently paid real payments.
+  const recentActivity = useMemo(() => {
+    return payments
+      .filter(p => p.status === 'Paid' && p.datePaid)
+      .sort((a, b) => new Date(b.datePaid as string).getTime() - new Date(a.datePaid as string).getTime())
+      .slice(0, 5);
+  }, [payments]);
+
+  // Headline metrics computed live from real data.
+  const totalUnits = units.length;
+  const occupiedUnits = units.filter(u => !!u.activeTenant).length;
+  const overallOccupancy = totalUnits > 0 ? Math.round((occupiedUnits / totalUnits) * 100) : 0;
+  const monthlyRevenue = properties.reduce((sum, p) => sum + p.monthlyRevenue, 0);
+  const pendingPayments = payments.filter(p => p.status === 'Pending' || p.status === 'Overdue');
+  const pendingTotal = pendingPayments.reduce((sum, p) => sum + p.totalDue, 0);
 
   return (
     <div className="space-y-8 animate-in fade-in duration-300">
@@ -160,17 +130,16 @@ export default function OwnerDashboard({
         <div className="bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-800 p-6 rounded-xl">
           <div className="flex justify-between items-start">
             <span className="text-xxs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
-              TOTAL PORTFOLIO VALUE
+              TOTAL UNITS
             </span>
             <span className="p-1.5 bg-emerald-50 dark:bg-emerald-950/30 rounded text-emerald-600 dark:text-emerald-400">
-              <TrendingUp size={14} />
+              <Home size={14} />
             </span>
           </div>
           <div className="mt-4">
-            <span className="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">$42.8M</span>
+            <span className="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">{totalUnits}</span>
             <div className="flex items-center gap-1.5 mt-2 text-xxs text-slate-500 dark:text-slate-400 font-medium">
-              <span className="text-emerald-500 font-bold">+2.4%</span>
-              <span>vs last month</span>
+              <span>across {properties.length} {properties.length === 1 ? 'property' : 'properties'}</span>
             </div>
           </div>
         </div>
@@ -186,10 +155,9 @@ export default function OwnerDashboard({
             </span>
           </div>
           <div className="mt-4">
-            <span className="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">94.2%</span>
+            <span className="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">{overallOccupancy}%</span>
             <div className="flex items-center gap-1.5 mt-2 text-xxs text-slate-500 dark:text-slate-400 font-medium">
-              <span className="text-emerald-500 font-bold">+0.8%</span>
-              <span>vs last month</span>
+              <span>{occupiedUnits} of {totalUnits} units occupied</span>
             </div>
           </div>
         </div>
@@ -205,10 +173,9 @@ export default function OwnerDashboard({
             </span>
           </div>
           <div className="mt-4">
-            <span className="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">$312,450</span>
+            <span className="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">${monthlyRevenue.toLocaleString()}</span>
             <div className="flex items-center gap-1.5 mt-2 text-xxs text-slate-500 dark:text-slate-400 font-medium">
-              <span className="text-emerald-500 font-bold">+12.1%</span>
-              <span>vs last month</span>
+              <span>from occupied units' base rent</span>
             </div>
           </div>
         </div>
@@ -224,12 +191,14 @@ export default function OwnerDashboard({
             </span>
           </div>
           <div className="mt-4">
-            <span className="text-3xl font-extrabold text-red-600 dark:text-red-400 tracking-tight">18</span>
+            <span className="text-3xl font-extrabold text-red-600 dark:text-red-400 tracking-tight">{pendingPayments.length}</span>
             <div className="flex items-center gap-2 mt-2 text-xxs font-medium">
-              <span className="px-1.5 py-0.5 bg-rose-100 dark:bg-rose-950/50 text-rose-700 dark:text-rose-400 font-bold rounded">
-                Action Req.
-              </span>
-              <span className="text-slate-500 dark:text-slate-400">Total: $24,200</span>
+              {pendingPayments.length > 0 && (
+                <span className="px-1.5 py-0.5 bg-rose-100 dark:bg-rose-950/50 text-rose-700 dark:text-rose-400 font-bold rounded">
+                  Action Req.
+                </span>
+              )}
+              <span className="text-slate-500 dark:text-slate-400">Total: ${pendingTotal.toLocaleString()}</span>
             </div>
           </div>
         </div>
@@ -266,55 +235,58 @@ export default function OwnerDashboard({
 
                 {/* Left side labels */}
                 <div className="absolute left-1 top-1 text-[10px] font-semibold text-slate-400 dark:text-slate-500 flex flex-col justify-between h-full py-2 pointer-events-none">
-                  <span>$320k</span>
-                  <span>$240k</span>
-                  <span>$160k</span>
-                  <span>$80k</span>
+                  <span>${Math.round(maxRevenue / 1000)}k</span>
+                  <span>${Math.round((maxRevenue * 0.75) / 1000)}k</span>
+                  <span>${Math.round((maxRevenue * 0.5) / 1000)}k</span>
+                  <span>${Math.round((maxRevenue * 0.25) / 1000)}k</span>
                   <span>$0</span>
                 </div>
 
                 {/* Bars Area */}
-                <div className="w-full h-full flex justify-around items-end pl-10 relative z-10">
-                  {chartData.map((d, index) => {
-                    const heightPercent = (d.revenue / maxRevenue) * 90; // scale to 90% max height
-                    const isHovered = hoveredBar === index;
-                    return (
-                      <div 
-                        key={d.month} 
-                        className="flex flex-col items-center group relative cursor-pointer"
-                        style={{ width: '12%' }}
-                        onMouseEnter={() => setHoveredBar(index)}
-                        onMouseLeave={() => setHoveredBar(null)}
-                      >
-                        {/* Interactive Tooltip popup */}
-                        {isHovered && (
-                          <div className="absolute -top-12 left-1/2 transform -translate-x-1/2 bg-slate-950 dark:bg-slate-800 text-white text-xxs font-bold px-2.5 py-1.5 rounded shadow-lg z-30 flex flex-col items-center gap-0.5 animate-bounce">
-                            <span>${d.revenue.toLocaleString()}</span>
-                            <div className="w-2 h-2 bg-slate-950 dark:bg-slate-800 rotate-45 transform -translate-y-0.5 absolute -bottom-1" />
-                          </div>
-                        )}
-
-                        {/* Bar Segment */}
-                        <div 
-                          className="w-full rounded-t-sm transition-all duration-300 relative overflow-hidden"
-                          style={{ 
-                            height: `${heightPercent}%`,
-                            backgroundColor: isHovered 
-                              ? '#0284c7' 
-                              : (typeof document !== 'undefined' && document.documentElement.classList.contains('dark') ? d.darkColor : d.color)
-                          }}
+                {chartData.length > 0 ? (
+                  <div className="w-full h-full flex justify-around items-end pl-10 relative z-10">
+                    {chartData.map((d, index) => {
+                      const heightPercent = (d.revenue / maxRevenue) * 90; // scale to 90% max height
+                      const isHovered = hoveredBar === index;
+                      return (
+                        <div
+                          key={d.month}
+                          className="flex flex-col items-center group relative cursor-pointer"
+                          style={{ width: '12%' }}
+                          onMouseEnter={() => setHoveredBar(index)}
+                          onMouseLeave={() => setHoveredBar(null)}
                         >
-                          <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
-                        </div>
+                          {/* Interactive Tooltip popup */}
+                          {isHovered && (
+                            <div className="absolute -top-12 left-1/2 transform -translate-x-1/2 bg-slate-950 dark:bg-slate-800 text-white text-xxs font-bold px-2.5 py-1.5 rounded shadow-lg z-30 flex flex-col items-center gap-0.5 animate-bounce whitespace-nowrap">
+                              <span>${d.revenue.toLocaleString()}</span>
+                              <div className="w-2 h-2 bg-slate-950 dark:bg-slate-800 rotate-45 transform -translate-y-0.5 absolute -bottom-1" />
+                            </div>
+                          )}
 
-                        {/* Label */}
-                        <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 mt-3 block tracking-wide">
-                          {d.month}
-                        </span>
-                      </div>
-                    );
-                  })}
-                </div>
+                          {/* Bar Segment */}
+                          <div
+                            className={`w-full rounded-t-sm transition-all duration-300 relative overflow-hidden ${
+                              isHovered ? 'bg-sky-600' : 'bg-slate-950 dark:bg-sky-400'
+                            }`}
+                            style={{ height: `${heightPercent}%` }}
+                          >
+                            <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
+                          </div>
+
+                          {/* Label */}
+                          <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 mt-3 block tracking-wide text-center">
+                            {d.month.split(' ')[0].slice(0, 3).toUpperCase()}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-xs text-slate-400 dark:text-slate-500 font-semibold">
+                    No billed payments yet — the chart fills in once payments exist.
+                  </div>
+                )}
               </div>
             </div>
 
@@ -324,17 +296,14 @@ export default function OwnerDashboard({
                 <h3 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider">
                   Recent Activity
                 </h3>
-                <span className="text-xxs font-bold text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 uppercase cursor-pointer">
-                  View All
-                </span>
               </div>
 
               {/* Activity List */}
               <div className="space-y-4 flex-1">
-                {recentActivity.map((act) => (
-                  <div 
-                    key={act.id} 
-                    onClick={() => onOpenInvoice(act.paymentId)}
+                {recentActivity.map((p) => (
+                  <div
+                    key={p.id}
+                    onClick={() => onOpenInvoice(p.id)}
                     className="flex justify-between items-center p-2.5 border border-transparent hover:border-slate-100 dark:hover:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-900/30 rounded-lg cursor-pointer transition-all duration-200 group"
                   >
                     <div className="flex items-center gap-3">
@@ -343,23 +312,28 @@ export default function OwnerDashboard({
                       </div>
                       <div className="min-w-0">
                         <p className="text-xs font-bold text-slate-900 dark:text-white group-hover:text-sky-500 dark:group-hover:text-sky-400 transition-colors">
-                          {act.tenantName}
+                          {p.tenantName}
                         </p>
                         <p className="text-xxs font-medium text-slate-400 dark:text-slate-500 truncate">
-                          {act.details}
+                          Unit {p.unitNumber}, {p.propertyName}
                         </p>
                       </div>
                     </div>
                     <div className="text-right">
                       <p className="text-xs font-extrabold text-emerald-600 dark:text-emerald-400 font-sans">
-                        +${act.amount.toLocaleString()}
+                        +${p.totalDue.toLocaleString()}
                       </p>
                       <p className="text-xxs font-medium text-slate-400 dark:text-slate-500">
-                        {act.time}
+                        {p.datePaid}
                       </p>
                     </div>
                   </div>
                 ))}
+                {recentActivity.length === 0 && (
+                  <p className="text-xs font-semibold text-slate-400 dark:text-slate-500 text-center py-8">
+                    No paid invoices yet.
+                  </p>
+                )}
               </div>
             </div>
 
@@ -471,54 +445,67 @@ export default function OwnerDashboard({
 
       {activeTab === 'financials' && (
         <div className="bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-800 p-6 rounded-xl space-y-6">
-          <h3 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider">
-            Detailed Financial Ledger Projections
-          </h3>
+          <div>
+            <h3 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider">
+              Billed vs. Collected
+            </h3>
+            <p className="text-xxs text-slate-400 dark:text-slate-500 mt-1">
+              Computed from real payment records. No expense tracking exists yet, so this shows billing and collection only.
+            </p>
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="p-4 bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-lg">
-              <span className="text-xxs font-bold text-slate-400 uppercase tracking-widest">Gross Annual Revenue</span>
-              <p className="text-2xl font-extrabold text-slate-900 dark:text-white mt-1">$3.75M</p>
+              <span className="text-xxs font-bold text-slate-400 uppercase tracking-widest">Total Billed</span>
+              <p className="text-2xl font-extrabold text-slate-900 dark:text-white mt-1">
+                ${payments.reduce((sum, p) => sum + p.totalDue, 0).toLocaleString()}
+              </p>
             </div>
             <div className="p-4 bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-lg">
-              <span className="text-xxs font-bold text-slate-400 uppercase tracking-widest">Operating Expenses (28%)</span>
-              <p className="text-2xl font-extrabold text-red-600 dark:text-red-400 mt-1">-$1.05M</p>
+              <span className="text-xxs font-bold text-slate-400 uppercase tracking-widest">Total Collected</span>
+              <p className="text-2xl font-extrabold text-emerald-600 dark:text-emerald-400 mt-1">
+                ${payments.reduce((sum, p) => sum + (p.status === 'Paid' ? p.totalDue : p.status === 'Partial' ? (p.partialAmountPaid ?? 0) : 0), 0).toLocaleString()}
+              </p>
             </div>
             <div className="p-4 bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-lg">
-              <span className="text-xxs font-bold text-slate-400 uppercase tracking-widest">Net Operating Income</span>
-              <p className="text-2xl font-extrabold text-emerald-600 dark:text-emerald-400 mt-1">+$2.70M</p>
+              <span className="text-xxs font-bold text-slate-400 uppercase tracking-widest">Outstanding</span>
+              <p className="text-2xl font-extrabold text-rose-500 mt-1">
+                ${pendingTotal.toLocaleString()}
+              </p>
             </div>
           </div>
           <div className="border-t border-slate-100 dark:border-slate-800 pt-6">
-            <h4 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wide mb-4">Ledger Table</h4>
+            <h4 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wide mb-4">By Property</h4>
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs">
                 <thead>
                   <tr className="bg-slate-50 dark:bg-slate-900 text-slate-400 font-bold uppercase border-b border-slate-100 dark:border-slate-800">
-                    <th className="px-4 py-2">Billing Item</th>
-                    <th className="px-4 py-2">Projected Monthly</th>
-                    <th className="px-4 py-2">Collected to Date</th>
-                    <th className="px-4 py-2">Pending Invoice Outflow</th>
+                    <th className="px-4 py-2">Property</th>
+                    <th className="px-4 py-2">Billed</th>
+                    <th className="px-4 py-2">Collected</th>
+                    <th className="px-4 py-2">Outstanding</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 dark:divide-slate-800/40">
-                  <tr>
-                    <td className="px-4 py-3 font-semibold text-slate-800 dark:text-slate-300">Oakwood Lofts Rent</td>
-                    <td className="px-4 py-3 font-mono">$112,400</td>
-                    <td className="px-4 py-3 text-emerald-600 font-mono font-semibold">$108,150</td>
-                    <td className="px-4 py-3 text-slate-400 font-mono">$4,250</td>
-                  </tr>
-                  <tr>
-                    <td className="px-4 py-3 font-semibold text-slate-800 dark:text-slate-300">The Meridian Rent</td>
-                    <td className="px-4 py-3 font-mono">$78,200</td>
-                    <td className="px-4 py-3 text-emerald-600 font-mono font-semibold">$78,200</td>
-                    <td className="px-4 py-3 text-slate-400 font-mono">—</td>
-                  </tr>
-                  <tr>
-                    <td className="px-4 py-3 font-semibold text-slate-800 dark:text-slate-300">Utility Add-on Recoveries</td>
-                    <td className="px-4 py-3 font-mono">$18,450</td>
-                    <td className="px-4 py-3 text-emerald-600 font-mono font-semibold">$12,320</td>
-                    <td className="px-4 py-3 text-rose-500 font-mono font-semibold">$6,130</td>
-                  </tr>
+                  {properties.map((prop) => {
+                    const propPayments = payments.filter(p => p.propertyName === prop.name);
+                    const billed = propPayments.reduce((sum, p) => sum + p.totalDue, 0);
+                    const collected = propPayments.reduce((sum, p) => sum + (p.status === 'Paid' ? p.totalDue : p.status === 'Partial' ? (p.partialAmountPaid ?? 0) : 0), 0);
+                    return (
+                      <tr key={prop.id}>
+                        <td className="px-4 py-3 font-semibold text-slate-800 dark:text-slate-300">{prop.name}</td>
+                        <td className="px-4 py-3 font-mono">${billed.toLocaleString()}</td>
+                        <td className="px-4 py-3 text-emerald-600 font-mono font-semibold">${collected.toLocaleString()}</td>
+                        <td className="px-4 py-3 text-rose-500 font-mono font-semibold">${(billed - collected).toLocaleString()}</td>
+                      </tr>
+                    );
+                  })}
+                  {properties.length === 0 && (
+                    <tr>
+                      <td colSpan={4} className="px-4 py-6 text-center text-slate-400 font-semibold">
+                        No properties yet.
+                      </td>
+                    </tr>
+                  )}
                 </tbody>
               </table>
             </div>

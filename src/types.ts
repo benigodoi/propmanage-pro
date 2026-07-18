@@ -6,8 +6,8 @@
 export type Theme = 'light' | 'dark';
 export type Persona = 'owner' | 'tenant';
 
-export type OwnerScreen = 'dashboard' | 'properties' | 'payments' | 'reports' | 'help';
-export type TenantScreen = 'dashboard' | 'property-details' | 'payments' | 'documents' | 'help';
+export type OwnerScreen = 'dashboard' | 'properties' | 'configure-unit' | 'payments' | 'reports' | 'settings' | 'help';
+export type TenantScreen = 'dashboard' | 'property-details' | 'payments' | 'documents' | 'settings' | 'help';
 
 export interface Property {
   id: string;
@@ -61,41 +61,20 @@ export interface Unit {
 export interface Payment {
   id: string;
   propertyName: string;
+  propertyAddress?: string;
   unitNumber: string;
   tenantName: string;
+  tenantEmail?: string;
+  managerOrgName?: string;
   month: string;
   totalDue: number;
   baseRent: number;
   utilityCharges: number;
+  utilityBreakdown?: UtilityItem[];
   status: 'Paid' | 'Overdue' | 'Pending' | 'Partial';
   datePaid?: string;
   partialAmountPaid?: number;
   breakdown: ('rent' | 'utilities')[];
-}
-
-export interface StatementItem {
-  description: string;
-  quantity: number;
-  unitPrice: number;
-  amount: number;
-}
-
-export interface Statement {
-  statementNo: string;
-  billingPeriod: string;
-  dateIssued: string;
-  datePaid: string;
-  tenantName: string;
-  tenantEmail: string;
-  tenantAddress: string;
-  unitNumber: string;
-  propertyName: string;
-  propertyAddress: string;
-  managerName: string;
-  managerAddress: string;
-  managerEmail: string;
-  items: StatementItem[];
-  notes: string;
 }
 
 export interface ServiceRequest {

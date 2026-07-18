@@ -43,7 +43,10 @@ export default function PaymentTracker({
   }, [payments]);
 
   const statusesList = ['All Statuses', 'Paid', 'Overdue', 'Pending', 'Partial'];
-  const monthsList = ['All Months', 'November 2023', 'October 2023'];
+  const monthsList = useMemo(() => {
+    const list = new Set(payments.map(p => p.month));
+    return ['All Months', ...Array.from(list)];
+  }, [payments]);
 
   // Filter logic
   const filteredPayments = useMemo(() => {
@@ -110,9 +113,9 @@ export default function PaymentTracker({
       showToast("Please select at least one invoice first");
       return;
     }
-    const todayStr = new Date().toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' });
+    const todayISO = new Date().toISOString().slice(0, 10);
     selectedRows.forEach(id => {
-      onUpdatePaymentStatus(id, 'Paid', todayStr);
+      onUpdatePaymentStatus(id, 'Paid', todayISO);
     });
     showToast(`Successfully marked ${selectedRows.length} payment(s) as Paid`);
     setSelectedRows([]);
