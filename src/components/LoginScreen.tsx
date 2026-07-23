@@ -3,10 +3,11 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
-import { Mail, Lock, Eye, EyeOff, LogIn, HelpCircle, ShieldCheck, Sun, Moon } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { Mail, Lock, Eye, EyeOff, LogIn, HelpCircle, ShieldCheck, Sun, Moon, ArrowLeft } from 'lucide-react';
 import { Theme } from '../types';
 import { supabase } from '../lib/supabaseClient';
+import { AUTH_NOTICE_KEY, AuthNotice } from '../lib/authNotice';
 
 interface LoginScreenProps {
   theme: Theme;
@@ -14,11 +15,27 @@ interface LoginScreenProps {
 }
 
 export default function LoginScreen({ theme, onThemeToggle }: LoginScreenProps) {
+  const [mode, setMode] = useState<'signin' | 'forgot'>('signin');
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [notice, setNotice] = useState<AuthNotice | null>(null);
+
+  const [forgotEmail, setForgotEmail] = useState('');
+  const [forgotSubmitting, setForgotSubmitting] = useState(false);
+  const [forgotSent, setForgotSent] = useState(false);
+  const [forgotError, setForgotError] = useState('');
+
+  useEffect(() => {
+    const stored = sessionStorage.getItem(AUTH_NOTICE_KEY) as AuthNotice | null;
+    if (stored === 'inactivity' || stored === 'password-reset') {
+      sessionStorage.removeItem(AUTH_NOTICE_KEY);
+      setNotice(stored);
+    }
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -40,6 +57,34 @@ export default function LoginScreen({ theme, onThemeToggle }: LoginScreenProps) 
     // On success, App's onAuthStateChange listener picks up the new
     // session and routes to the right persona automatically.
   };
+
+  const handleForgotSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setForgotError('');
+    setForgotSubmitting(true);
+
+    // Supabase doesn't reveal whether the email is registered, so the
+    // success message is shown regardless — this avoids leaking which
+    // addresses have accounts.
+    const { error: resetError } = await supabase.auth.resetPasswordForEmail(forgotEmail, {
+      redirectTo: window.location.origin,
+    });
+
+    setForgotSubmitting(false);
+
+    if (resetError) {
+      setForgotError(resetError.message);
+      return;
+    }
+
+    setForgotSent(true);
+  };
+
+  const noticeText = notice === 'inactivity'
+    ? 'You were signed out due to inactivity. Please sign in again.'
+    : notice === 'password-reset'
+      ? 'Password updated. Please sign in with your new password.'
+      : null;
 
   return (
     <div
@@ -88,88 +133,157 @@ export default function LoginScreen({ theme, onThemeToggle }: LoginScreenProps) 
           {/* Decorative background pulse */}
           <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-sky-400 via-indigo-500 to-sky-400 animate-pulse" />
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {error && (
-              <div className="p-3 text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900/50 rounded-lg">
-                {error}
-              </div>
-            )}
+          {mode === 'forgot' ? (
+            <form onSubmit={handleForgotSubmit} className="space-y-6">
+              <button
+                type="button"
+                onClick={() => { setMode('signin'); setForgotSent(false); setForgotError(''); }}
+                className="flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
+              >
+                <ArrowLeft size={14} /> Back to Sign In
+              </button>
 
-            {/* Email Field */}
-            <div>
-              <label htmlFor="login-email" className="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-2">
-                EMAIL ADDRESS
-              </label>
-              <div className="relative">
-                <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400 dark:text-slate-500">
-                  <Mail size={16} />
-                </span>
-                <input
-                  id="login-email"
-                  type="email"
-                  required
-                  placeholder="name@company.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 bg-slate-50 dark:bg-slate-950/50 border border-slate-200 dark:border-slate-800 rounded-lg text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-600 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500/50 focus:border-sky-500 transition-all"
-                />
-              </div>
-            </div>
+              {forgotSent ? (
+                <div className="p-3 text-sm text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900/50 rounded-lg">
+                  If an account exists for that email, we've sent a link to reset the password.
+                </div>
+              ) : (
+                <>
+                  <div>
+                    <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
+                      Enter your account email and we'll send you a link to reset your password.
+                    </p>
+                    {forgotError && (
+                      <div className="p-3 mb-4 text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900/50 rounded-lg">
+                        {forgotError}
+                      </div>
+                    )}
+                    <label htmlFor="forgot-email" className="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-2">
+                      EMAIL ADDRESS
+                    </label>
+                    <div className="relative">
+                      <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400 dark:text-slate-500">
+                        <Mail size={16} />
+                      </span>
+                      <input
+                        id="forgot-email"
+                        type="email"
+                        required
+                        placeholder="name@company.com"
+                        value={forgotEmail}
+                        onChange={(e) => setForgotEmail(e.target.value)}
+                        className="w-full pl-10 pr-4 py-3 bg-slate-50 dark:bg-slate-950/50 border border-slate-200 dark:border-slate-800 rounded-lg text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-600 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500/50 focus:border-sky-500 transition-all"
+                      />
+                    </div>
+                  </div>
 
-            {/* Password Field */}
-            <div>
-              <div className="flex justify-between items-center mb-2">
-                <label htmlFor="login-password" className="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
-                  PASSWORD
+                  <button
+                    type="submit"
+                    disabled={forgotSubmitting}
+                    className="w-full flex items-center justify-center gap-2 py-3.5 px-4 rounded-lg font-bold text-sm uppercase tracking-wider transition-all duration-200 shadow-md bg-slate-950 hover:bg-slate-900 dark:bg-sky-400 dark:hover:bg-sky-300 text-white dark:text-slate-950 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                  >
+                    {forgotSubmitting ? 'Sending…' : 'Send Reset Link'}
+                  </button>
+                </>
+              )}
+            </form>
+          ) : (
+            <form onSubmit={handleSubmit} className="space-y-6">
+              {noticeText && !error && (
+                <div className="p-3 text-sm text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/50 rounded-lg">
+                  {noticeText}
+                </div>
+              )}
+              {error && (
+                <div className="p-3 text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900/50 rounded-lg">
+                  {error}
+                </div>
+              )}
+
+              {/* Email Field */}
+              <div>
+                <label htmlFor="login-email" className="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-2">
+                  EMAIL ADDRESS
                 </label>
-                <a href="#forgot" className="text-xs font-semibold text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200">
-                  Forgot Password?
-                </a>
+                <div className="relative">
+                  <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400 dark:text-slate-500">
+                    <Mail size={16} />
+                  </span>
+                  <input
+                    id="login-email"
+                    type="email"
+                    required
+                    placeholder="name@company.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="w-full pl-10 pr-4 py-3 bg-slate-50 dark:bg-slate-950/50 border border-slate-200 dark:border-slate-800 rounded-lg text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-600 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500/50 focus:border-sky-500 transition-all"
+                  />
+                </div>
               </div>
-              <div className="relative">
-                <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400 dark:text-slate-500">
-                  <Lock size={16} />
-                </span>
-                <input
-                  id="login-password"
-                  type={showPassword ? 'text' : 'password'}
-                  required
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pl-10 pr-10 py-3 bg-slate-50 dark:bg-slate-950/50 border border-slate-200 dark:border-slate-800 rounded-lg text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-600 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500/50 focus:border-sky-500 transition-all"
-                />
-                <button
-                  id="toggle-password-visibility"
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300"
+
+              {/* Password Field */}
+              <div>
+                <div className="flex justify-between items-center mb-2">
+                  <label htmlFor="login-password" className="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
+                    PASSWORD
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => { setMode('forgot'); setError(''); }}
+                    className="text-xs font-semibold text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
+                  >
+                    Forgot Password?
+                  </button>
+                </div>
+                <div className="relative">
+                  <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400 dark:text-slate-500">
+                    <Lock size={16} />
+                  </span>
+                  <input
+                    id="login-password"
+                    type={showPassword ? 'text' : 'password'}
+                    required
+                    placeholder="••••••••"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="w-full pl-10 pr-10 py-3 bg-slate-50 dark:bg-slate-950/50 border border-slate-200 dark:border-slate-800 rounded-lg text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-600 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500/50 focus:border-sky-500 transition-all"
+                  />
+                  <button
+                    id="toggle-password-visibility"
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300"
+                  >
+                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
+                </div>
+              </div>
+
+              {/* Sign In Button */}
+              <button
+                id="btn-signin"
+                type="submit"
+                disabled={submitting}
+                className="w-full flex items-center justify-center gap-2 py-3.5 px-4 rounded-lg font-bold text-sm uppercase tracking-wider transition-all duration-200 shadow-md bg-slate-950 hover:bg-slate-900 dark:bg-sky-400 dark:hover:bg-sky-300 text-white dark:text-slate-950 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+              >
+                {submitting ? 'Signing In…' : 'Sign In'} <LogIn size={16} />
+              </button>
+            </form>
+          )}
+
+          {mode === 'signin' && (
+            <div className="mt-6 border-t border-slate-100 dark:border-slate-800 pt-4 text-center">
+              <span className="text-xs text-slate-600 dark:text-slate-400">
+                Access is invite-only during the beta.{' '}
+                <a
+                  href="mailto:beni.godoi@gbtitsolutions.com?subject=PropManage%20Pro%20%E2%80%94%20invite%20request"
+                  className="font-semibold text-slate-900 hover:underline dark:text-sky-400 dark:hover:text-sky-300"
                 >
-                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                </button>
-              </div>
+                  Contact us for an invite
+                </a>
+              </span>
             </div>
-
-            {/* Sign In Button */}
-            <button
-              id="btn-signin"
-              type="submit"
-              disabled={submitting}
-              className="w-full flex items-center justify-center gap-2 py-3.5 px-4 rounded-lg font-bold text-sm uppercase tracking-wider transition-all duration-200 shadow-md bg-slate-950 hover:bg-slate-900 dark:bg-sky-400 dark:hover:bg-sky-300 text-white dark:text-slate-950 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
-            >
-              {submitting ? 'Signing In…' : 'Sign In'} <LogIn size={16} />
-            </button>
-          </form>
-
-          {/* Register Info */}
-          <div className="mt-6 border-t border-slate-100 dark:border-slate-800 pt-4 text-center">
-            <span className="text-xs text-slate-600 dark:text-slate-400">
-              Don't have an account?{' '}
-              <a href="#register" className="font-semibold text-slate-900 hover:underline dark:text-sky-400 dark:hover:text-sky-300">
-                Register your property
-              </a>
-            </span>
-          </div>
+          )}
         </div>
       </div>
 

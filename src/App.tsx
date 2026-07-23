@@ -5,7 +5,7 @@
 
 import React, { useState, useEffect } from 'react';
 import type { Session } from '@supabase/supabase-js';
-import { supabase } from './lib/supabaseClient';
+import { supabase, initialAuthLinkType } from './lib/supabaseClient';
 import { listProperties, createProperty } from './lib/api/properties';
 import { listUnitsWithDetails, createUnit, updateUnit } from './lib/api/units';
 import { listActiveLeasesAsTenants } from './lib/api/leases';
@@ -24,6 +24,11 @@ import {
 
 // Importing Custom High-Fidelity Components
 import LoginScreen from './components/LoginScreen';
+import SessionTimeoutWarning from './components/SessionTimeoutWarning';
+import ResetPasswordScreen from './components/ResetPasswordScreen';
+import AcceptInviteScreen from './components/AcceptInviteScreen';
+import { useSessionTimeout } from './hooks/useSessionTimeout';
+import { AUTH_NOTICE_KEY } from './lib/authNotice';
 import Header from './components/Header';
 import Sidebar from './components/Sidebar';
 import OwnerDashboard from './components/OwnerDashboard';
@@ -59,6 +64,8 @@ export default function App() {
   });
   const [user, setUser] = useState<{ email: string; fullName: string | null; persona: Persona } | null>(null);
   const [session, setSession] = useState<Session | null>(null);
+  const [passwordRecovery, setPasswordRecovery] = useState(false);
+  const [showAcceptInvite, setShowAcceptInvite] = useState(() => initialAuthLinkType === 'invite');
   const [authLoading, setAuthLoading] = useState(true);
   const [profileLoading, setProfileLoading] = useState(false);
   const [dataLoading, setDataLoading] = useState(false);
@@ -110,8 +117,11 @@ export default function App() {
       setAuthLoading(false);
     });
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       setSession(session);
+      if (event === 'PASSWORD_RECOVERY') {
+        setPasswordRecovery(true);
+      }
     });
 
     return () => subscription.unsubscribe();
@@ -200,6 +210,13 @@ export default function App() {
   const handleLogout = async () => {
     await supabase.auth.signOut();
   };
+
+  const handleSessionTimeout = React.useCallback(() => {
+    sessionStorage.setItem(AUTH_NOTICE_KEY, 'inactivity');
+    supabase.auth.signOut();
+  }, []);
+
+  const { secondsRemaining, stayActive } = useSessionTimeout(!!session, handleSessionTimeout);
 
   // Helper action: Update specific payment status
   const handleUpdatePaymentStatus = async (id: string, status: 'Paid' | 'Overdue' | 'Pending' | 'Partial', datePaid?: string) => {
@@ -307,6 +324,36 @@ export default function App() {
     return units.find(u => u.propertyId === selectedPropertyId && u.unitNumber === selectedUnitNumber) || null;
   }, [units, selectedPropertyId, selectedUnitNumber]);
 
+  // An invite link creates a real session too (Supabase only special-cases
+  // 'recovery' as its own event; 'invite' just looks like a plain sign-in),
+  // so we gate on the URL-captured type instead and route to setup first.
+  if (showAcceptInvite && session) {
+    return (
+      <AcceptInviteScreen
+        theme={theme}
+        userEmail={session.user.email ?? ''}
+        onThemeToggle={handleThemeToggle}
+        onDone={() => setShowAcceptInvite(false)}
+      />
+    );
+  }
+
+  // A recovery link creates a real session, but we force the user through
+  // "set a new password" before letting them into the app with it.
+  if (passwordRecovery) {
+    return (
+      <ResetPasswordScreen
+        theme={theme}
+        onThemeToggle={handleThemeToggle}
+        onDone={async () => {
+          setPasswordRecovery(false);
+          sessionStorage.setItem(AUTH_NOTICE_KEY, 'password-reset');
+          await supabase.auth.signOut();
+        }}
+      />
+    );
+  }
+
   // Wait for the initial session check (and the first data fetch) before
   // deciding what to render, so a refresh with an existing session doesn't
   // flash the login screen or an empty dashboard.
@@ -329,8 +376,12 @@ export default function App() {
   }
 
   return (
-    <div className="flex h-screen overflow-hidden bg-[#fcf8fa] dark:bg-[#0f1418] text-[#1b1b1d] dark:text-[#dee3e8] font-sans transition-colors duration-300">
-      
+    <>
+      {secondsRemaining !== null && (
+        <SessionTimeoutWarning seconds={secondsRemaining} onStayActive={stayActive} />
+      )}
+      <div className="flex h-screen overflow-hidden bg-[#fcf8fa] dark:bg-[#0f1418] text-[#1b1b1d] dark:text-[#dee3e8] font-sans transition-colors duration-300">
+
       {/* Sidebar Navigation */}
       <Sidebar
         persona={user.persona}
@@ -976,6 +1027,7 @@ export default function App() {
         </div>
       )}
 
-    </div>
+      </div>
+    </>
   );
 }

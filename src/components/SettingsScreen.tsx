@@ -7,6 +7,8 @@ import React, { useEffect, useState } from 'react';
 import { User, Mail, Lock, ShieldCheck, Loader2 } from 'lucide-react';
 import { Persona } from '../types';
 import { getMyProfile, updateMyProfile, updateMyEmail, updatePassword } from '../lib/api/profile';
+import { isPasswordValid } from '../lib/password';
+import PasswordChecklist from './PasswordChecklist';
 
 interface SettingsScreenProps {
   persona: Persona;
@@ -86,8 +88,8 @@ export default function SettingsScreen({ persona, onProfileUpdated }: SettingsSc
   const handlePasswordSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setPasswordMessage(null);
-    if (newPassword.length < 8) {
-      setPasswordMessage({ text: 'Password must be at least 8 characters.', tone: 'error' });
+    if (!isPasswordValid(newPassword)) {
+      setPasswordMessage({ text: 'Password does not meet the requirements below.', tone: 'error' });
       return;
     }
     if (newPassword !== confirmPassword) {
@@ -229,6 +231,7 @@ export default function SettingsScreen({ persona, onProfileUpdated }: SettingsSc
             />
           </div>
         </div>
+        {newPassword.length > 0 && <PasswordChecklist password={newPassword} />}
         {passwordMessage && <FieldMessage message={passwordMessage.text} tone={passwordMessage.tone} />}
         <button
           type="submit"
