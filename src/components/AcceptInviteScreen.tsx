@@ -10,6 +10,7 @@ import { getMyProfile, updateMyProfile, updatePassword } from '../lib/api/profil
 import { supabase } from '../lib/supabaseClient';
 import { isPasswordValid } from '../lib/password';
 import PasswordChecklist from './PasswordChecklist';
+import { useLocalization } from '../contexts/LocalizationContext';
 
 interface AcceptInviteScreenProps {
   theme: Theme;
@@ -27,6 +28,7 @@ interface AcceptInviteScreenProps {
 //   independent new customer) — the invitee names their own organization,
 //   which calls the same create_organization RPC self-serve signup uses.
 export default function AcceptInviteScreen({ theme, userEmail, onThemeToggle, onDone }: AcceptInviteScreenProps) {
+  const { t } = useLocalization();
   const [loading, setLoading] = useState(true);
   const [isNewOrg, setIsNewOrg] = useState(false);
   const [orgName, setOrgName] = useState('');
@@ -57,19 +59,19 @@ export default function AcceptInviteScreen({ theme, userEmail, onThemeToggle, on
     e.preventDefault();
     setError('');
     if (isNewOrg && !orgName.trim()) {
-      setError('Please enter your company or organization name.');
+      setError(t('invite.enterOrgName'));
       return;
     }
     if (!fullName.trim()) {
-      setError('Please enter your name.');
+      setError(t('invite.enterYourName'));
       return;
     }
     if (!isPasswordValid(newPassword)) {
-      setError('Password does not meet the requirements below.');
+      setError(t('settings.passwordRequirementsNotMet'));
       return;
     }
     if (newPassword !== confirmPassword) {
-      setError('Passwords do not match.');
+      setError(t('settings.passwordsDoNotMatch'));
       return;
     }
     setSubmitting(true);
@@ -84,7 +86,7 @@ export default function AcceptInviteScreen({ theme, userEmail, onThemeToggle, on
       await updatePassword(newPassword);
       onDone();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to complete setup.');
+      setError(err instanceof Error ? err.message : t('invite.setupFailed'));
       setSubmitting(false);
     }
   };
@@ -105,7 +107,7 @@ export default function AcceptInviteScreen({ theme, userEmail, onThemeToggle, on
           type="button"
           onClick={onThemeToggle}
           className="p-1.5 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-slate-200/50 dark:hover:bg-slate-800/60 transition-colors cursor-pointer flex items-center justify-center"
-          title={theme === 'light' ? 'Switch to Dark Mode' : 'Switch to Light Mode'}
+          title={theme === 'light' ? t('header.switchToDark') : t('header.switchToLight')}
         >
           {theme === 'light' ? <Moon size={16} /> : <Sun size={16} className="text-amber-400" />}
         </button>
@@ -114,10 +116,10 @@ export default function AcceptInviteScreen({ theme, userEmail, onThemeToggle, on
       <div className="w-full max-w-md my-auto">
         <div className="text-center mb-8">
           <h1 className="text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white font-sans">
-            Welcome{!isNewOrg && orgName ? ` to ${orgName}` : ''}
+            {!isNewOrg && orgName ? t('invite.welcomeTo', { orgName }) : t('invite.welcome')}
           </h1>
           <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
-            {userEmail ? `Finish setting up ${userEmail} to get started.` : 'Finish setting up your account to get started.'}
+            {userEmail ? t('invite.finishSetupFor', { email: userEmail }) : t('invite.finishSetup')}
           </p>
         </div>
 
@@ -125,7 +127,7 @@ export default function AcceptInviteScreen({ theme, userEmail, onThemeToggle, on
           <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-sky-400 via-indigo-500 to-sky-400 animate-pulse" />
 
           {loading ? (
-            <p className="text-sm text-slate-500 dark:text-slate-400 text-center py-4">Loading your invite…</p>
+            <p className="text-sm text-slate-500 dark:text-slate-400 text-center py-4">{t('invite.loadingInvite')}</p>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-6">
               {error && (
@@ -137,7 +139,7 @@ export default function AcceptInviteScreen({ theme, userEmail, onThemeToggle, on
               {isNewOrg && (
                 <div>
                   <label htmlFor="invite-org-name" className="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-2">
-                    COMPANY / ORGANIZATION NAME
+                    {t('invite.orgNameLabel')}
                   </label>
                   <div className="relative">
                     <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400 dark:text-slate-500">
@@ -158,7 +160,7 @@ export default function AcceptInviteScreen({ theme, userEmail, onThemeToggle, on
 
               <div>
                 <label htmlFor="invite-full-name" className="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-2">
-                  YOUR NAME
+                  {t('invite.yourName')}
                 </label>
                 <div className="relative">
                   <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400 dark:text-slate-500">
@@ -178,7 +180,7 @@ export default function AcceptInviteScreen({ theme, userEmail, onThemeToggle, on
 
               <div>
                 <label htmlFor="invite-new-password" className="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-2">
-                  CHOOSE A PASSWORD
+                  {t('invite.choosePassword')}
                 </label>
                 <div className="relative">
                   <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400 dark:text-slate-500">
@@ -198,7 +200,7 @@ export default function AcceptInviteScreen({ theme, userEmail, onThemeToggle, on
 
               <div>
                 <label htmlFor="invite-confirm-password" className="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-2">
-                  CONFIRM PASSWORD
+                  {t('settings.confirmPassword')}
                 </label>
                 <div className="relative">
                   <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400 dark:text-slate-500">
@@ -223,7 +225,7 @@ export default function AcceptInviteScreen({ theme, userEmail, onThemeToggle, on
                 disabled={submitting}
                 className="w-full flex items-center justify-center gap-2 py-3.5 px-4 rounded-lg font-bold text-sm uppercase tracking-wider transition-all duration-200 shadow-md bg-slate-950 hover:bg-slate-900 dark:bg-sky-400 dark:hover:bg-sky-300 text-white dark:text-slate-950 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
               >
-                {submitting ? 'Setting up…' : 'Complete Setup'}
+                {submitting ? t('invite.settingUp') : t('invite.completeSetup')}
               </button>
             </form>
           )}

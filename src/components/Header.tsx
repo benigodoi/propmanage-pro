@@ -6,6 +6,8 @@
 import { Search, Bell, Settings, Sun, Moon } from 'lucide-react';
 import { Persona, Theme } from '../types';
 import React, { useState } from 'react';
+import PreferencesSelector from './PreferencesSelector';
+import { useLocalization } from '../contexts/LocalizationContext';
 
 interface HeaderProps {
   persona: Persona;
@@ -46,6 +48,7 @@ export default function Header({
   onSearchChange,
 }: HeaderProps) {
   const [showNotifications, setShowNotifications] = useState(false);
+  const { t } = useLocalization();
 
   const displayName = currentUserName && currentUserName.trim().length > 0 ? currentUserName : currentUserEmail;
 
@@ -62,7 +65,7 @@ export default function Header({
             <input
               id="search-portfolio"
               type="text"
-              placeholder={persona === 'owner' ? 'Search portfolio...' : 'Search portal...'}
+              placeholder={persona === 'owner' ? t('header.searchPortfolio') : t('header.searchPortal')}
               value={searchQuery}
               onChange={(e) => onSearchChange(e.target.value)}
               className="w-full pl-10 pr-4 py-2 text-sm bg-slate-50 dark:bg-slate-950/50 border border-slate-200/80 dark:border-slate-800 rounded-lg text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500/30 focus:border-sky-500 transition-all"
@@ -79,10 +82,12 @@ export default function Header({
             type="button"
             onClick={onThemeToggle}
             className="p-2 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-colors cursor-pointer"
-            title={theme === 'light' ? 'Switch to Dark Mode' : 'Switch to Light Mode'}
+            title={theme === 'light' ? t('header.switchToDark') : t('header.switchToLight')}
           >
             {theme === 'light' ? <Moon size={20} /> : <Sun size={20} className="text-amber-400" />}
           </button>
+
+          <PreferencesSelector />
 
           {/* Notifications Panel */}
           <div className="relative">
@@ -98,10 +103,10 @@ export default function Header({
             {showNotifications && (
               <div className="absolute right-0 mt-2 w-80 rounded-xl bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-800 shadow-2xl py-2 z-50 animate-in fade-in slide-in-from-top-1">
                 <div className="flex justify-between items-center px-4 py-2 border-b border-slate-100 dark:border-slate-800">
-                  <span className="font-bold text-sm text-slate-900 dark:text-white">Notifications</span>
+                  <span className="font-bold text-sm text-slate-900 dark:text-white">{t('header.notifications')}</span>
                 </div>
                 <div className="px-4 py-6 text-center text-xs text-slate-400 dark:text-slate-500">
-                  No notifications yet.
+                  {t('header.noNotifications')}
                 </div>
               </div>
             )}
@@ -113,7 +118,7 @@ export default function Header({
             type="button"
             onClick={onSettingsClick}
             className="p-2 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-colors cursor-pointer"
-            title="Settings"
+            title={t('header.settings')}
           >
             <Settings size={20} />
           </button>
@@ -125,7 +130,7 @@ export default function Header({
                 {displayName}
               </p>
               <p className="text-xxs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wide">
-                {persona === 'owner' ? 'Admin / Owner' : 'Tenant'}
+                {persona === 'owner' ? t('header.adminOwner') : t('header.tenant')}
               </p>
             </div>
             <div className="h-9 w-9 rounded-full bg-sky-100 dark:bg-sky-950 text-sky-700 dark:text-sky-300 font-extrabold flex items-center justify-center text-xs ring-2 ring-slate-100 dark:ring-slate-800">
@@ -142,7 +147,7 @@ export default function Header({
                 onClick={onAddPropertyClick}
                 className="ml-2 px-4 py-2 bg-slate-950 dark:bg-sky-400 hover:bg-slate-900 dark:hover:bg-sky-300 text-white dark:text-slate-950 rounded-lg text-xs font-bold uppercase tracking-wider transition-all cursor-pointer"
               >
-                Add Property
+                {t('header.addProperty')}
               </button>
             ) : (
               <button
@@ -151,7 +156,7 @@ export default function Header({
                 onClick={onServiceRequestClick}
                 className="ml-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-bold uppercase tracking-wider transition-all cursor-pointer"
               >
-                Service Request
+                {t('header.serviceRequest')}
               </button>
             )}
           </div>

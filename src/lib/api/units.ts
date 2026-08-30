@@ -5,6 +5,8 @@
 
 import { supabase } from '../supabaseClient';
 import { getCurrentOrgId } from './context';
+import { tenantContactFieldsFromLeaseRow } from './leases';
+import { syncUnpaidPaymentsForUnit } from './payments';
 import type { Tenant, Unit, UtilityItem } from '../../types';
 
 export async function listUnitsWithDetails(): Promise<Unit[]> {
@@ -15,7 +17,7 @@ export async function listUnitsWithDetails(): Promise<Unit[]> {
        properties ( name ),
        utility_items ( id, name, amount ),
        leases (
-         id, status, lease_start, lease_end,
+         id, status, lease_start, lease_end, tenant_name, tenant_email, tenant_phone,
          tenant:profiles ( id, full_name, email, phone ),
          lease_docs ( id, name, size, doc_date )
        )`,
@@ -27,12 +29,9 @@ export async function listUnitsWithDetails(): Promise<Unit[]> {
   return (data ?? []).map((row: any) => {
     const activeLease = (row.leases ?? []).find((l: any) => l.status === 'Active');
 
-    const activeTenant: Tenant | undefined = activeLease?.tenant
+    const activeTenant: Tenant | undefined = activeLease
       ? {
-          id: activeLease.tenant.id,
-          name: activeLease.tenant.full_name ?? activeLease.tenant.email ?? 'Unnamed tenant',
-          email: activeLease.tenant.email ?? '',
-          phone: activeLease.tenant.phone ?? '',
+          ...tenantContactFieldsFromLeaseRow(activeLease),
           leaseStart: activeLease.lease_start,
           leaseEnd: activeLease.lease_end ?? '',
           status: activeLease.status as Tenant['status'],
@@ -123,4 +122,13 @@ export async function updateUnit(
 
   const failed = results.find((r) => r.error);
   if (failed?.error) throw failed.error;
+
+  await syncUnpaidPaymentsForUnit(unitId, input.baseRent);
+}
+
+// Deletes the unit outright — leases, utility_items, service_requests,
+// etc. all cascade via the existing `on delete cascade` FKs.
+export async function deleteUnit(unitId: string): Promise<void> {
+  const { error } = await supabase.from('units').delete().eq('id', unitId);
+  if (error) throw error;
 }

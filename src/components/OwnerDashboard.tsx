@@ -12,9 +12,14 @@ import {
   SlidersHorizontal,
   Download,
   ChevronRight,
-  Home
+  Home,
+  Plus,
+  KeyRound,
+  Trash2
 } from 'lucide-react';
 import { Property, Tenant, Unit, Payment } from '../types';
+import { useLocalization } from '../contexts/LocalizationContext';
+import { enumLabel } from '../lib/i18n';
 
 interface OwnerDashboardProps {
   properties: Property[];
@@ -24,6 +29,9 @@ interface OwnerDashboardProps {
   onSelectProperty: (propertyId: string) => void;
   onOpenInvoice: (paymentId: string) => void;
   onAddPropertyClick: () => void;
+  onAddTenantClick: () => void;
+  onInviteToPortalClick: (tenant: Tenant) => void;
+  onDeleteTenantClick: (tenant: Tenant) => void;
 }
 
 export default function OwnerDashboard({
@@ -34,7 +42,11 @@ export default function OwnerDashboard({
   onSelectProperty,
   onOpenInvoice,
   onAddPropertyClick,
+  onAddTenantClick,
+  onInviteToPortalClick,
+  onDeleteTenantClick,
 }: OwnerDashboardProps) {
+  const { t, locale, formatMoney } = useLocalization();
   const [activeTab, setActiveTab] = useState<'overview' | 'financials' | 'tenants'>('overview');
   const [hoveredBar, setHoveredBar] = useState<number | null>(null);
 
@@ -71,15 +83,15 @@ export default function OwnerDashboard({
 
   return (
     <div className="space-y-8 animate-in fade-in duration-300">
-      
+
       {/* Title & Tabs */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
           <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white font-sans">
-            Portfolio Overview
+            {t('dashboard.title')}
           </h2>
           <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">
-            Real-time performance metrics for your assets.
+            {t('dashboard.subtitle')}
           </p>
         </div>
 
@@ -95,7 +107,7 @@ export default function OwnerDashboard({
                 : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white'
             }`}
           >
-            Overview
+            {t('dashboard.tabOverview')}
           </button>
           <button
             id="tab-financials"
@@ -107,7 +119,7 @@ export default function OwnerDashboard({
                 : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white'
             }`}
           >
-            Financials
+            {t('dashboard.tabFinancials')}
           </button>
           <button
             id="tab-tenants"
@@ -119,7 +131,7 @@ export default function OwnerDashboard({
                 : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white'
             }`}
           >
-            Tenants
+            {t('dashboard.tabTenants')}
           </button>
         </div>
       </div>
@@ -130,7 +142,7 @@ export default function OwnerDashboard({
         <div className="bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-800 p-6 rounded-xl">
           <div className="flex justify-between items-start">
             <span className="text-xxs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
-              TOTAL UNITS
+              {t('dashboard.totalUnits')}
             </span>
             <span className="p-1.5 bg-emerald-50 dark:bg-emerald-950/30 rounded text-emerald-600 dark:text-emerald-400">
               <Home size={14} />
@@ -139,7 +151,7 @@ export default function OwnerDashboard({
           <div className="mt-4">
             <span className="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">{totalUnits}</span>
             <div className="flex items-center gap-1.5 mt-2 text-xxs text-slate-500 dark:text-slate-400 font-medium">
-              <span>across {properties.length} {properties.length === 1 ? 'property' : 'properties'}</span>
+              <span>{t(properties.length === 1 ? 'dashboard.acrossOneProperty' : 'dashboard.acrossProperties', { count: properties.length })}</span>
             </div>
           </div>
         </div>
@@ -148,7 +160,7 @@ export default function OwnerDashboard({
         <div className="bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-800 p-6 rounded-xl">
           <div className="flex justify-between items-start">
             <span className="text-xxs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
-              OCCUPANCY RATE
+              {t('dashboard.occupancyRate')}
             </span>
             <span className="p-1.5 bg-emerald-50 dark:bg-emerald-950/30 rounded text-emerald-600 dark:text-emerald-400">
               <Percent size={14} />
@@ -157,7 +169,7 @@ export default function OwnerDashboard({
           <div className="mt-4">
             <span className="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">{overallOccupancy}%</span>
             <div className="flex items-center gap-1.5 mt-2 text-xxs text-slate-500 dark:text-slate-400 font-medium">
-              <span>{occupiedUnits} of {totalUnits} units occupied</span>
+              <span>{t('dashboard.unitsOccupied', { occupied: occupiedUnits, total: totalUnits })}</span>
             </div>
           </div>
         </div>
@@ -166,16 +178,16 @@ export default function OwnerDashboard({
         <div className="bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-800 p-6 rounded-xl">
           <div className="flex justify-between items-start">
             <span className="text-xxs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
-              REVENUE (MONTHLY)
+              {t('dashboard.revenueMonthly')}
             </span>
             <span className="p-1.5 bg-emerald-50 dark:bg-emerald-950/30 rounded text-emerald-600 dark:text-emerald-400">
               <DollarSign size={14} />
             </span>
           </div>
           <div className="mt-4">
-            <span className="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">${monthlyRevenue.toLocaleString()}</span>
+            <span className="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">{formatMoney(monthlyRevenue)}</span>
             <div className="flex items-center gap-1.5 mt-2 text-xxs text-slate-500 dark:text-slate-400 font-medium">
-              <span>from occupied units' base rent</span>
+              <span>{t('dashboard.fromOccupiedUnits')}</span>
             </div>
           </div>
         </div>
@@ -184,7 +196,7 @@ export default function OwnerDashboard({
         <div className="bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-800 p-6 rounded-xl">
           <div className="flex justify-between items-start">
             <span className="text-xxs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
-              PENDING PAYMENTS
+              {t('dashboard.pendingPayments')}
             </span>
             <span className="p-1.5 bg-rose-50 dark:bg-rose-950/30 rounded text-rose-600 dark:text-rose-400">
               <AlertCircle size={14} />
@@ -195,10 +207,10 @@ export default function OwnerDashboard({
             <div className="flex items-center gap-2 mt-2 text-xxs font-medium">
               {pendingPayments.length > 0 && (
                 <span className="px-1.5 py-0.5 bg-rose-100 dark:bg-rose-950/50 text-rose-700 dark:text-rose-400 font-bold rounded">
-                  Action Req.
+                  {t('dashboard.actionRequired')}
                 </span>
               )}
-              <span className="text-slate-500 dark:text-slate-400">Total: ${pendingTotal.toLocaleString()}</span>
+              <span className="text-slate-500 dark:text-slate-400">{t('dashboard.total')}: {formatMoney(pendingTotal)}</span>
             </div>
           </div>
         </div>
@@ -208,22 +220,22 @@ export default function OwnerDashboard({
         <>
           {/* Main Content Grid: Chart & Recent Activity */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            
+
             {/* Chart Widget */}
             <div className="lg:col-span-2 bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-800 p-6 rounded-xl">
               <div className="flex justify-between items-center mb-6">
                 <h3 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider">
-                  Revenue History (6 Months)
+                  {t('dashboard.revenueHistory')}
                 </h3>
                 <div className="flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-400 font-medium">
                   <span className="w-2.5 h-2.5 rounded-full bg-slate-950 dark:bg-sky-400" />
-                  <span>Revenue</span>
+                  <span>{t('dashboard.revenue')}</span>
                 </div>
               </div>
 
               {/* Custom SVG Chart with full responsiveness and Hover Effects */}
               <div className="relative h-64 w-full flex items-end pt-6 pb-2 px-2">
-                
+
                 {/* Y-Axis lines and markers */}
                 <div className="absolute inset-y-0 left-0 right-0 flex flex-col justify-between pointer-events-none text-slate-300 dark:text-slate-800">
                   <div className="border-b border-dashed border-slate-200 dark:border-slate-800 w-full h-0" />
@@ -235,11 +247,11 @@ export default function OwnerDashboard({
 
                 {/* Left side labels */}
                 <div className="absolute left-1 top-1 text-[10px] font-semibold text-slate-400 dark:text-slate-500 flex flex-col justify-between h-full py-2 pointer-events-none">
-                  <span>${Math.round(maxRevenue / 1000)}k</span>
-                  <span>${Math.round((maxRevenue * 0.75) / 1000)}k</span>
-                  <span>${Math.round((maxRevenue * 0.5) / 1000)}k</span>
-                  <span>${Math.round((maxRevenue * 0.25) / 1000)}k</span>
-                  <span>$0</span>
+                  <span>{formatMoney(Math.round(maxRevenue / 1000) * 1000)}</span>
+                  <span>{formatMoney(Math.round((maxRevenue * 0.75) / 1000) * 1000)}</span>
+                  <span>{formatMoney(Math.round((maxRevenue * 0.5) / 1000) * 1000)}</span>
+                  <span>{formatMoney(Math.round((maxRevenue * 0.25) / 1000) * 1000)}</span>
+                  <span>{formatMoney(0)}</span>
                 </div>
 
                 {/* Bars Area */}
@@ -251,7 +263,7 @@ export default function OwnerDashboard({
                       return (
                         <div
                           key={d.month}
-                          className="flex flex-col items-center group relative cursor-pointer"
+                          className="flex flex-col items-center justify-end h-full group relative cursor-pointer"
                           style={{ width: '12%' }}
                           onMouseEnter={() => setHoveredBar(index)}
                           onMouseLeave={() => setHoveredBar(null)}
@@ -259,7 +271,7 @@ export default function OwnerDashboard({
                           {/* Interactive Tooltip popup */}
                           {isHovered && (
                             <div className="absolute -top-12 left-1/2 transform -translate-x-1/2 bg-slate-950 dark:bg-slate-800 text-white text-xxs font-bold px-2.5 py-1.5 rounded shadow-lg z-30 flex flex-col items-center gap-0.5 animate-bounce whitespace-nowrap">
-                              <span>${d.revenue.toLocaleString()}</span>
+                              <span>{formatMoney(d.revenue)}</span>
                               <div className="w-2 h-2 bg-slate-950 dark:bg-slate-800 rotate-45 transform -translate-y-0.5 absolute -bottom-1" />
                             </div>
                           )}
@@ -284,7 +296,7 @@ export default function OwnerDashboard({
                   </div>
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-xs text-slate-400 dark:text-slate-500 font-semibold">
-                    No billed payments yet — the chart fills in once payments exist.
+                    {t('dashboard.noBilledPayments')}
                   </div>
                 )}
               </div>
@@ -294,7 +306,7 @@ export default function OwnerDashboard({
             <div className="bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-800 p-6 rounded-xl flex flex-col">
               <div className="flex justify-between items-center mb-6">
                 <h3 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider">
-                  Recent Activity
+                  {t('dashboard.recentActivity')}
                 </h3>
               </div>
 
@@ -315,13 +327,13 @@ export default function OwnerDashboard({
                           {p.tenantName}
                         </p>
                         <p className="text-xxs font-medium text-slate-400 dark:text-slate-500 truncate">
-                          Unit {p.unitNumber}, {p.propertyName}
+                          {t('dashboard.unitAt', { unit: p.unitNumber, property: p.propertyName })}
                         </p>
                       </div>
                     </div>
                     <div className="text-right">
                       <p className="text-xs font-extrabold text-emerald-600 dark:text-emerald-400 font-sans">
-                        +${p.totalDue.toLocaleString()}
+                        +{formatMoney(p.totalDue)}
                       </p>
                       <p className="text-xxs font-medium text-slate-400 dark:text-slate-500">
                         {p.datePaid}
@@ -331,7 +343,7 @@ export default function OwnerDashboard({
                 ))}
                 {recentActivity.length === 0 && (
                   <p className="text-xs font-semibold text-slate-400 dark:text-slate-500 text-center py-8">
-                    No paid invoices yet.
+                    {t('dashboard.noPaidInvoices')}
                   </p>
                 )}
               </div>
@@ -341,11 +353,11 @@ export default function OwnerDashboard({
 
           {/* Portfolio Assets Table */}
           <div className="bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm">
-            
+
             {/* Header section */}
             <div className="flex justify-between items-center px-6 py-4 border-b border-slate-100 dark:border-slate-800">
               <h3 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider">
-                Portfolio Assets
+                {t('dashboard.portfolioAssets')}
               </h3>
               <div className="flex gap-2">
                 <button type="button" className="p-1.5 rounded hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 transition-colors">
@@ -362,17 +374,17 @@ export default function OwnerDashboard({
               <table className="w-full text-left border-collapse">
                 <thead>
                   <tr className="bg-slate-50 dark:bg-slate-900 text-xxs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest border-b border-slate-100 dark:border-slate-800">
-                    <th className="px-6 py-3">PROPERTY ADDRESS</th>
-                    <th className="px-6 py-3">UNITS</th>
-                    <th className="px-6 py-3">OCCUPANCY</th>
-                    <th className="px-6 py-3">MONTHLY REVENUE</th>
-                    <th className="px-6 py-3 text-right">ACTION</th>
+                    <th className="px-6 py-3">{t('dashboard.propertyAddress')}</th>
+                    <th className="px-6 py-3">{t('dashboard.units')}</th>
+                    <th className="px-6 py-3">{t('dashboard.occupancy')}</th>
+                    <th className="px-6 py-3">{t('dashboard.monthlyRevenue')}</th>
+                    <th className="px-6 py-3 text-right">{t('dashboard.action')}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 dark:divide-slate-800/40 text-xs">
                   {properties.map((prop) => (
-                    <tr 
-                      key={prop.id} 
+                    <tr
+                      key={prop.id}
                       className="hover:bg-slate-50/50 dark:hover:bg-slate-800/20 transition-colors group"
                     >
                       <td className="px-6 py-4 flex items-center gap-4">
@@ -389,12 +401,12 @@ export default function OwnerDashboard({
                         </div>
                       </td>
                       <td className="px-6 py-4 font-bold text-slate-700 dark:text-slate-300">
-                        {prop.unitsCount} Units
+                        {t('dashboard.unitsCount', { count: prop.unitsCount })}
                       </td>
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
                           <div className="w-24 bg-slate-100 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden">
-                            <div 
+                            <div
                               className={`h-full rounded-full ${
                                 prop.occupancyRate >= 90 ? 'bg-emerald-500' : 'bg-amber-500'
                               }`}
@@ -407,7 +419,7 @@ export default function OwnerDashboard({
                         </div>
                       </td>
                       <td className="px-6 py-4 font-extrabold text-slate-900 dark:text-white font-sans">
-                        ${prop.monthlyRevenue.toLocaleString()}
+                        {formatMoney(prop.monthlyRevenue)}
                       </td>
                       <td className="px-6 py-4 text-right">
                         <button
@@ -416,7 +428,7 @@ export default function OwnerDashboard({
                           onClick={() => onSelectProperty(prop.id)}
                           className="px-3 py-1.5 rounded-md text-xxs font-bold uppercase tracking-wider bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors cursor-pointer"
                         >
-                          Configure Unit
+                          {t('dashboard.configureUnit')}
                         </button>
                       </td>
                     </tr>
@@ -429,13 +441,13 @@ export default function OwnerDashboard({
             {properties.length === 0 && (
               <div className="text-center py-12">
                 <Building2 className="mx-auto text-slate-300 dark:text-slate-700 mb-2" size={32} />
-                <p className="text-sm font-semibold text-slate-600 dark:text-slate-400">No properties added yet</p>
+                <p className="text-sm font-semibold text-slate-600 dark:text-slate-400">{t('dashboard.noPropertiesYet')}</p>
                 <button
                   type="button"
                   onClick={onAddPropertyClick}
                   className="mt-2 text-xs font-bold text-sky-500 hover:underline"
                 >
-                  Create your first property asset
+                  {t('dashboard.createFirstProperty')}
                 </button>
               </div>
             )}
@@ -447,42 +459,42 @@ export default function OwnerDashboard({
         <div className="bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-800 p-6 rounded-xl space-y-6">
           <div>
             <h3 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider">
-              Billed vs. Collected
+              {t('dashboard.billedVsCollected')}
             </h3>
             <p className="text-xxs text-slate-400 dark:text-slate-500 mt-1">
-              Computed from real payment records. No expense tracking exists yet, so this shows billing and collection only.
+              {t('dashboard.financialsNote')}
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="p-4 bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-lg">
-              <span className="text-xxs font-bold text-slate-400 uppercase tracking-widest">Total Billed</span>
+              <span className="text-xxs font-bold text-slate-400 uppercase tracking-widest">{t('dashboard.totalBilled')}</span>
               <p className="text-2xl font-extrabold text-slate-900 dark:text-white mt-1">
-                ${payments.reduce((sum, p) => sum + p.totalDue, 0).toLocaleString()}
+                {formatMoney(payments.reduce((sum, p) => sum + p.totalDue, 0))}
               </p>
             </div>
             <div className="p-4 bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-lg">
-              <span className="text-xxs font-bold text-slate-400 uppercase tracking-widest">Total Collected</span>
+              <span className="text-xxs font-bold text-slate-400 uppercase tracking-widest">{t('dashboard.totalCollected')}</span>
               <p className="text-2xl font-extrabold text-emerald-600 dark:text-emerald-400 mt-1">
-                ${payments.reduce((sum, p) => sum + (p.status === 'Paid' ? p.totalDue : p.status === 'Partial' ? (p.partialAmountPaid ?? 0) : 0), 0).toLocaleString()}
+                {formatMoney(payments.reduce((sum, p) => sum + (p.status === 'Paid' ? p.totalDue : p.status === 'Partial' ? (p.partialAmountPaid ?? 0) : 0), 0))}
               </p>
             </div>
             <div className="p-4 bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-lg">
-              <span className="text-xxs font-bold text-slate-400 uppercase tracking-widest">Outstanding</span>
+              <span className="text-xxs font-bold text-slate-400 uppercase tracking-widest">{t('dashboard.outstanding')}</span>
               <p className="text-2xl font-extrabold text-rose-500 mt-1">
-                ${pendingTotal.toLocaleString()}
+                {formatMoney(pendingTotal)}
               </p>
             </div>
           </div>
           <div className="border-t border-slate-100 dark:border-slate-800 pt-6">
-            <h4 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wide mb-4">By Property</h4>
+            <h4 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wide mb-4">{t('dashboard.byProperty')}</h4>
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs">
                 <thead>
                   <tr className="bg-slate-50 dark:bg-slate-900 text-slate-400 font-bold uppercase border-b border-slate-100 dark:border-slate-800">
-                    <th className="px-4 py-2">Property</th>
-                    <th className="px-4 py-2">Billed</th>
-                    <th className="px-4 py-2">Collected</th>
-                    <th className="px-4 py-2">Outstanding</th>
+                    <th className="px-4 py-2">{t('dashboard.property')}</th>
+                    <th className="px-4 py-2">{t('dashboard.billed')}</th>
+                    <th className="px-4 py-2">{t('dashboard.collected')}</th>
+                    <th className="px-4 py-2">{t('dashboard.outstanding')}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 dark:divide-slate-800/40">
@@ -493,16 +505,16 @@ export default function OwnerDashboard({
                     return (
                       <tr key={prop.id}>
                         <td className="px-4 py-3 font-semibold text-slate-800 dark:text-slate-300">{prop.name}</td>
-                        <td className="px-4 py-3 font-mono">${billed.toLocaleString()}</td>
-                        <td className="px-4 py-3 text-emerald-600 font-mono font-semibold">${collected.toLocaleString()}</td>
-                        <td className="px-4 py-3 text-rose-500 font-mono font-semibold">${(billed - collected).toLocaleString()}</td>
+                        <td className="px-4 py-3 font-mono">{formatMoney(billed)}</td>
+                        <td className="px-4 py-3 text-emerald-600 font-mono font-semibold">{formatMoney(collected)}</td>
+                        <td className="px-4 py-3 text-rose-500 font-mono font-semibold">{formatMoney(billed - collected)}</td>
                       </tr>
                     );
                   })}
                   {properties.length === 0 && (
                     <tr>
                       <td colSpan={4} className="px-4 py-6 text-center text-slate-400 font-semibold">
-                        No properties yet.
+                        {t('dashboard.noPropertiesYetShort')}
                       </td>
                     </tr>
                   )}
@@ -517,42 +529,83 @@ export default function OwnerDashboard({
         <div className="bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm">
           <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
             <h3 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider">
-              Tenant Registry Index
+              {t('dashboard.tenantRegistry')}
             </h3>
-            <span className="text-xxs font-bold text-slate-400 bg-slate-100 dark:bg-slate-900 px-3 py-1 rounded-full uppercase">
-              {tenants.length} Active Leases
-            </span>
+            <div className="flex items-center gap-3">
+              <span className="text-xxs font-bold text-slate-400 bg-slate-100 dark:bg-slate-900 px-3 py-1 rounded-full uppercase">
+                {t('dashboard.activeLeases', { count: tenants.length })}
+              </span>
+              <button
+                type="button"
+                onClick={onAddTenantClick}
+                className="px-4 py-2 bg-slate-950 dark:bg-sky-400 hover:bg-slate-900 dark:hover:bg-sky-300 text-white dark:text-slate-950 rounded-lg text-xs font-bold uppercase tracking-wider flex items-center gap-1 cursor-pointer"
+              >
+                <Plus size={14} /> {t('dashboard.addTenant')}
+              </button>
+            </div>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
               <thead>
                 <tr className="bg-slate-50 dark:bg-slate-900 text-slate-400 font-bold uppercase border-b border-slate-100 dark:border-slate-800">
-                  <th className="px-6 py-3">Tenant Name</th>
-                  <th className="px-6 py-3">Property / Unit</th>
-                  <th className="px-6 py-3">Lease Start</th>
-                  <th className="px-6 py-3">Lease End</th>
-                  <th className="px-6 py-3">Status</th>
+                  <th className="px-6 py-3">{t('dashboard.tenantName')}</th>
+                  <th className="px-6 py-3">{t('dashboard.propertyUnit')}</th>
+                  <th className="px-6 py-3">{t('dashboard.leaseStart')}</th>
+                  <th className="px-6 py-3">{t('dashboard.leaseEnd')}</th>
+                  <th className="px-6 py-3">{t('dashboard.status')}</th>
+                  <th className="px-6 py-3">{t('dashboard.portalAccess')}</th>
+                  <th className="px-6 py-3 text-center">{t('dashboard.actions')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800/40 font-medium">
-                {tenants.map((t) => (
-                  <tr key={t.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/20 transition-colors">
+                {tenants.map((tn) => (
+                  <tr key={tn.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/20 transition-colors">
                     <td className="px-6 py-4">
                       <div>
-                        <p className="font-extrabold text-slate-900 dark:text-white">{t.name}</p>
-                        <p className="text-xxs text-slate-400 mt-0.5">{t.email}</p>
+                        <p className="font-extrabold text-slate-900 dark:text-white">{tn.name}</p>
+                        <p className="text-xxs text-slate-400 mt-0.5">{tn.email}</p>
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      <p className="text-slate-800 dark:text-slate-300 font-bold">{t.propertyName}</p>
-                      <p className="text-xxs text-slate-400">Unit {t.unitNumber}</p>
+                      <p className="text-slate-800 dark:text-slate-300 font-bold">{tn.propertyName}</p>
+                      <p className="text-xxs text-slate-400">{t('dashboard.unitLabel', { unit: tn.unitNumber })}</p>
                     </td>
-                    <td className="px-6 py-4 font-mono text-slate-500 dark:text-slate-400">{t.leaseStart}</td>
-                    <td className="px-6 py-4 font-mono text-slate-500 dark:text-slate-400">{t.leaseEnd}</td>
+                    <td className="px-6 py-4 font-mono text-slate-500 dark:text-slate-400">{tn.leaseStart}</td>
+                    <td className="px-6 py-4 font-mono text-slate-500 dark:text-slate-400">{tn.leaseEnd}</td>
                     <td className="px-6 py-4">
                       <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400">
-                        {t.status}
+                        {enumLabel(locale, tn.status)}
                       </span>
+                    </td>
+                    <td className="px-6 py-4">
+                      {tn.hasPortalAccess ? (
+                        <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-sky-50 dark:bg-sky-950/40 text-sky-700 dark:text-sky-300">
+                          {t('dashboard.hasAccess')}
+                        </span>
+                      ) : (
+                        <div className="flex items-center gap-2">
+                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400">
+                            {t('dashboard.noAccess')}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => onInviteToPortalClick(tn)}
+                            className="text-xxs font-bold text-sky-500 hover:underline flex items-center gap-1 cursor-pointer"
+                          >
+                            <KeyRound size={11} /> {t('dashboard.inviteToPortal')}
+                          </button>
+                        </div>
+                      )}
+                    </td>
+                    <td className="px-6 py-4 text-center">
+                      <button
+                        type="button"
+                        onClick={() => onDeleteTenantClick(tn)}
+                        className="p-1.5 hover:bg-red-50 dark:hover:bg-red-950/20 text-red-500 rounded transition-colors cursor-pointer"
+                        title={t('dashboard.removeTenant')}
+                      >
+                        <Trash2 size={14} />
+                      </button>
                     </td>
                   </tr>
                 ))}

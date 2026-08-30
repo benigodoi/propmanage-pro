@@ -6,6 +6,9 @@
 import { supabase } from '../supabaseClient';
 import { getCurrentUserId } from './context';
 
+export type Locale = 'en' | 'ro';
+export type CurrencyCode = 'EUR' | 'RON';
+
 export interface MyProfile {
   fullName: string | null;
   email: string | null;
@@ -13,13 +16,15 @@ export interface MyProfile {
   role: 'admin' | 'tenant';
   orgId: string;
   orgName: string;
+  locale: Locale;
+  currency: CurrencyCode;
 }
 
 export async function getMyProfile(): Promise<MyProfile> {
   const userId = await getCurrentUserId();
   const { data, error } = await supabase
     .from('profiles')
-    .select('full_name, email, phone, role, org_id, organizations ( name )')
+    .select('full_name, email, phone, role, org_id, locale, currency, organizations ( name )')
     .eq('id', userId)
     .single();
   if (error || !data) throw error ?? new Error('Profile not found');
@@ -31,7 +36,18 @@ export async function getMyProfile(): Promise<MyProfile> {
     role: data.role as MyProfile['role'],
     orgId: data.org_id,
     orgName: (data as any).organizations?.name ?? '',
+    locale: (data as any).locale === 'ro' ? 'ro' : 'en',
+    currency: (data as any).currency === 'RON' ? 'RON' : 'EUR',
   };
+}
+
+export async function updateMyPreferences(input: { locale: Locale; currency: CurrencyCode }): Promise<void> {
+  const userId = await getCurrentUserId();
+  const { error } = await supabase
+    .from('profiles')
+    .update({ locale: input.locale, currency: input.currency })
+    .eq('id', userId);
+  if (error) throw error;
 }
 
 export async function updateMyProfile(input: { fullName: string; phone: string }): Promise<void> {
