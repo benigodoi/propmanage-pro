@@ -9,15 +9,15 @@ export const PASSWORD_MIN_LENGTH = 10;
 
 export interface PasswordRule {
   id: string;
-  label: string;
   test: (password: string) => boolean;
 }
 
+// Display labels for these live in src/lib/i18n (password.rule.<id>), keyed by id.
 export const passwordRules: PasswordRule[] = [
-  { id: 'length', label: `At least ${PASSWORD_MIN_LENGTH} characters`, test: (p) => p.length >= PASSWORD_MIN_LENGTH },
-  { id: 'lower', label: 'One lowercase letter', test: (p) => /[a-z]/.test(p) },
-  { id: 'upper', label: 'One uppercase letter', test: (p) => /[A-Z]/.test(p) },
-  { id: 'digit', label: 'One number', test: (p) => /\d/.test(p) },
+  { id: 'length', test: (p) => p.length >= PASSWORD_MIN_LENGTH },
+  { id: 'lower', test: (p) => /[a-z]/.test(p) },
+  { id: 'upper', test: (p) => /[A-Z]/.test(p) },
+  { id: 'digit', test: (p) => /\d/.test(p) },
 ];
 
 export function isPasswordValid(password: string): boolean {

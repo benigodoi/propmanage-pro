@@ -9,6 +9,7 @@ import { Theme } from '../types';
 import { updatePassword } from '../lib/api/profile';
 import { isPasswordValid } from '../lib/password';
 import PasswordChecklist from './PasswordChecklist';
+import { useLocalization } from '../contexts/LocalizationContext';
 
 interface ResetPasswordScreenProps {
   theme: Theme;
@@ -17,6 +18,7 @@ interface ResetPasswordScreenProps {
 }
 
 export default function ResetPasswordScreen({ theme, onThemeToggle, onDone }: ResetPasswordScreenProps) {
+  const { t } = useLocalization();
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
@@ -26,11 +28,11 @@ export default function ResetPasswordScreen({ theme, onThemeToggle, onDone }: Re
     e.preventDefault();
     setError('');
     if (!isPasswordValid(newPassword)) {
-      setError('Password does not meet the requirements below.');
+      setError(t('settings.passwordRequirementsNotMet'));
       return;
     }
     if (newPassword !== confirmPassword) {
-      setError('Passwords do not match.');
+      setError(t('settings.passwordsDoNotMatch'));
       return;
     }
     setSubmitting(true);
@@ -38,7 +40,7 @@ export default function ResetPasswordScreen({ theme, onThemeToggle, onDone }: Re
       await updatePassword(newPassword);
       onDone();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to update password.');
+      setError(err instanceof Error ? err.message : t('settings.passwordUpdateFailed'));
       setSubmitting(false);
     }
   };
@@ -59,7 +61,7 @@ export default function ResetPasswordScreen({ theme, onThemeToggle, onDone }: Re
           type="button"
           onClick={onThemeToggle}
           className="p-1.5 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-slate-200/50 dark:hover:bg-slate-800/60 transition-colors cursor-pointer flex items-center justify-center"
-          title={theme === 'light' ? 'Switch to Dark Mode' : 'Switch to Light Mode'}
+          title={theme === 'light' ? t('header.switchToDark') : t('header.switchToLight')}
         >
           {theme === 'light' ? <Moon size={16} /> : <Sun size={16} className="text-amber-400" />}
         </button>
@@ -68,10 +70,10 @@ export default function ResetPasswordScreen({ theme, onThemeToggle, onDone }: Re
       <div className="w-full max-w-md my-auto">
         <div className="text-center mb-8">
           <h1 className="text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white font-sans">
-            Set a New Password
+            {t('resetPassword.title')}
           </h1>
           <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
-            Choose a new password for your account.
+            {t('resetPassword.subtitle')}
           </p>
         </div>
 
@@ -87,7 +89,7 @@ export default function ResetPasswordScreen({ theme, onThemeToggle, onDone }: Re
 
             <div>
               <label htmlFor="reset-new-password" className="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-2">
-                NEW PASSWORD
+                {t('settings.newPassword')}
               </label>
               <div className="relative">
                 <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400 dark:text-slate-500">
@@ -107,7 +109,7 @@ export default function ResetPasswordScreen({ theme, onThemeToggle, onDone }: Re
 
             <div>
               <label htmlFor="reset-confirm-password" className="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-2">
-                CONFIRM PASSWORD
+                {t('settings.confirmPassword')}
               </label>
               <div className="relative">
                 <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400 dark:text-slate-500">
@@ -132,7 +134,7 @@ export default function ResetPasswordScreen({ theme, onThemeToggle, onDone }: Re
               disabled={submitting}
               className="w-full flex items-center justify-center gap-2 py-3.5 px-4 rounded-lg font-bold text-sm uppercase tracking-wider transition-all duration-200 shadow-md bg-slate-950 hover:bg-slate-900 dark:bg-sky-400 dark:hover:bg-sky-300 text-white dark:text-slate-950 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              {submitting ? 'Saving…' : 'Set New Password'}
+              {submitting ? t('common.saving') : t('resetPassword.submit')}
             </button>
           </form>
         </div>
@@ -140,7 +142,7 @@ export default function ResetPasswordScreen({ theme, onThemeToggle, onDone }: Re
 
       <div className="w-full max-w-md flex justify-center gap-6 text-xs text-slate-500 dark:text-slate-400 mt-6 border-t border-slate-200/50 dark:border-slate-800/50 pt-4">
         <span className="flex items-center gap-1">
-          <ShieldCheck size={14} /> Your session will end after this — sign in with your new password.
+          <ShieldCheck size={14} /> {t('resetPassword.sessionNote')}
         </span>
       </div>
     </div>

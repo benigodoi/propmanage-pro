@@ -95,7 +95,10 @@ export type Database = {
           lease_start: string
           org_id: string
           status: string
-          tenant_id: string
+          tenant_id: string | null
+          tenant_name: string | null
+          tenant_email: string | null
+          tenant_phone: string | null
           unit_id: string
         }
         Insert: {
@@ -105,7 +108,10 @@ export type Database = {
           lease_start: string
           org_id: string
           status: string
-          tenant_id: string
+          tenant_id?: string | null
+          tenant_name?: string | null
+          tenant_email?: string | null
+          tenant_phone?: string | null
           unit_id: string
         }
         Update: {
@@ -115,7 +121,10 @@ export type Database = {
           lease_start?: string
           org_id?: string
           status?: string
-          tenant_id?: string
+          tenant_id?: string | null
+          tenant_name?: string | null
+          tenant_email?: string | null
+          tenant_phone?: string | null
           unit_id?: string
         }
         Relationships: [
@@ -172,7 +181,7 @@ export type Database = {
           org_id: string
           partial_amount_paid: number | null
           status: string
-          tenant_id: string
+          tenant_id: string | null
           total_due: number
           unit_id: string
           utility_charges: number
@@ -188,7 +197,7 @@ export type Database = {
           org_id: string
           partial_amount_paid?: number | null
           status: string
-          tenant_id: string
+          tenant_id?: string | null
           total_due?: number
           unit_id: string
           utility_charges?: number
@@ -204,7 +213,7 @@ export type Database = {
           org_id?: string
           partial_amount_paid?: number | null
           status?: string
-          tenant_id?: string
+          tenant_id?: string | null
           total_due?: number
           unit_id?: string
           utility_charges?: number
@@ -243,27 +252,33 @@ export type Database = {
       profiles: {
         Row: {
           created_at: string
+          currency: string
           email: string | null
           full_name: string | null
           id: string
+          locale: string
           org_id: string
           phone: string | null
           role: string
         }
         Insert: {
           created_at?: string
+          currency?: string
           email?: string | null
           full_name?: string | null
           id: string
+          locale?: string
           org_id: string
           phone?: string | null
           role: string
         }
         Update: {
           created_at?: string
+          currency?: string
           email?: string | null
           full_name?: string | null
           id?: string
+          locale?: string
           org_id?: string
           phone?: string | null
           role?: string

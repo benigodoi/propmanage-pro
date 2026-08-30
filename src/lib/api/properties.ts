@@ -61,3 +61,10 @@ export async function createProperty(input: { name: string; address: string; uni
     iconType: data.icon_type as Property['iconType'],
   };
 }
+
+// Deletes the property outright — units, leases, payments, service
+// requests, etc. all cascade via the existing `on delete cascade` FKs.
+export async function deleteProperty(propertyId: string): Promise<void> {
+  const { error } = await supabase.from('properties').delete().eq('id', propertyId);
+  if (error) throw error;
+}

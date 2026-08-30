@@ -8,6 +8,7 @@ import { Mail, Lock, Eye, EyeOff, LogIn, HelpCircle, ShieldCheck, Sun, Moon, Arr
 import { Theme } from '../types';
 import { supabase } from '../lib/supabaseClient';
 import { AUTH_NOTICE_KEY, AuthNotice } from '../lib/authNotice';
+import { useLocalization } from '../contexts/LocalizationContext';
 
 interface LoginScreenProps {
   theme: Theme;
@@ -15,6 +16,7 @@ interface LoginScreenProps {
 }
 
 export default function LoginScreen({ theme, onThemeToggle }: LoginScreenProps) {
+  const { t, locale, setLocale } = useLocalization();
   const [mode, setMode] = useState<'signin' | 'forgot'>('signin');
 
   const [email, setEmail] = useState('');
@@ -81,9 +83,9 @@ export default function LoginScreen({ theme, onThemeToggle }: LoginScreenProps) 
   };
 
   const noticeText = notice === 'inactivity'
-    ? 'You were signed out due to inactivity. Please sign in again.'
+    ? t('login.noticeInactivity')
     : notice === 'password-reset'
-      ? 'Password updated. Please sign in with your new password.'
+      ? t('login.noticePasswordReset')
       : null;
 
   return (
@@ -104,11 +106,19 @@ export default function LoginScreen({ theme, onThemeToggle }: LoginScreenProps) 
         </span>
         <div className="flex items-center gap-2">
           <button
+            type="button"
+            onClick={() => setLocale(locale === 'en' ? 'ro' : 'en')}
+            className="px-2 py-1.5 rounded-lg text-xs font-bold text-slate-500 dark:text-slate-400 hover:bg-slate-200/50 dark:hover:bg-slate-800/60 transition-colors cursor-pointer"
+            title={t('preferences.title')}
+          >
+            {locale === 'en' ? 'EN' : 'RO'}
+          </button>
+          <button
             id="login-theme-toggle"
             type="button"
             onClick={onThemeToggle}
             className="p-1.5 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-slate-200/50 dark:hover:bg-slate-800/60 transition-colors cursor-pointer flex items-center justify-center"
-            title={theme === 'light' ? 'Switch to Dark Mode' : 'Switch to Light Mode'}
+            title={theme === 'light' ? t('header.switchToDark') : t('header.switchToLight')}
           >
             {theme === 'light' ? <Moon size={16} /> : <Sun size={16} className="text-amber-400" />}
           </button>
@@ -125,7 +135,7 @@ export default function LoginScreen({ theme, onThemeToggle }: LoginScreenProps) 
             PropManage Pro
           </h1>
           <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
-            Streamlined asset management for professionals.
+            {t('login.tagline')}
           </p>
         </div>
 
@@ -140,18 +150,18 @@ export default function LoginScreen({ theme, onThemeToggle }: LoginScreenProps) 
                 onClick={() => { setMode('signin'); setForgotSent(false); setForgotError(''); }}
                 className="flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
               >
-                <ArrowLeft size={14} /> Back to Sign In
+                <ArrowLeft size={14} /> {t('login.backToSignIn')}
               </button>
 
               {forgotSent ? (
                 <div className="p-3 text-sm text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900/50 rounded-lg">
-                  If an account exists for that email, we've sent a link to reset the password.
+                  {t('login.forgotSent')}
                 </div>
               ) : (
                 <>
                   <div>
                     <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
-                      Enter your account email and we'll send you a link to reset your password.
+                      {t('login.forgotIntro')}
                     </p>
                     {forgotError && (
                       <div className="p-3 mb-4 text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900/50 rounded-lg">
@@ -159,7 +169,7 @@ export default function LoginScreen({ theme, onThemeToggle }: LoginScreenProps) 
                       </div>
                     )}
                     <label htmlFor="forgot-email" className="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-2">
-                      EMAIL ADDRESS
+                      {t('login.emailAddress')}
                     </label>
                     <div className="relative">
                       <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400 dark:text-slate-500">
@@ -182,7 +192,7 @@ export default function LoginScreen({ theme, onThemeToggle }: LoginScreenProps) 
                     disabled={forgotSubmitting}
                     className="w-full flex items-center justify-center gap-2 py-3.5 px-4 rounded-lg font-bold text-sm uppercase tracking-wider transition-all duration-200 shadow-md bg-slate-950 hover:bg-slate-900 dark:bg-sky-400 dark:hover:bg-sky-300 text-white dark:text-slate-950 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
                   >
-                    {forgotSubmitting ? 'Sending…' : 'Send Reset Link'}
+                    {forgotSubmitting ? t('login.sending') : t('login.sendResetLink')}
                   </button>
                 </>
               )}
@@ -203,7 +213,7 @@ export default function LoginScreen({ theme, onThemeToggle }: LoginScreenProps) 
               {/* Email Field */}
               <div>
                 <label htmlFor="login-email" className="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-2">
-                  EMAIL ADDRESS
+                  {t('login.emailAddress')}
                 </label>
                 <div className="relative">
                   <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400 dark:text-slate-500">
@@ -225,14 +235,14 @@ export default function LoginScreen({ theme, onThemeToggle }: LoginScreenProps) 
               <div>
                 <div className="flex justify-between items-center mb-2">
                   <label htmlFor="login-password" className="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
-                    PASSWORD
+                    {t('login.password')}
                   </label>
                   <button
                     type="button"
                     onClick={() => { setMode('forgot'); setError(''); }}
                     className="text-xs font-semibold text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
                   >
-                    Forgot Password?
+                    {t('login.forgotPassword')}
                   </button>
                 </div>
                 <div className="relative">
@@ -266,7 +276,7 @@ export default function LoginScreen({ theme, onThemeToggle }: LoginScreenProps) 
                 disabled={submitting}
                 className="w-full flex items-center justify-center gap-2 py-3.5 px-4 rounded-lg font-bold text-sm uppercase tracking-wider transition-all duration-200 shadow-md bg-slate-950 hover:bg-slate-900 dark:bg-sky-400 dark:hover:bg-sky-300 text-white dark:text-slate-950 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
               >
-                {submitting ? 'Signing In…' : 'Sign In'} <LogIn size={16} />
+                {submitting ? t('login.signingIn') : t('login.signIn')} <LogIn size={16} />
               </button>
             </form>
           )}
@@ -274,12 +284,12 @@ export default function LoginScreen({ theme, onThemeToggle }: LoginScreenProps) 
           {mode === 'signin' && (
             <div className="mt-6 border-t border-slate-100 dark:border-slate-800 pt-4 text-center">
               <span className="text-xs text-slate-600 dark:text-slate-400">
-                Access is invite-only during the beta.{' '}
+                {t('login.inviteOnly')}{' '}
                 <a
                   href="mailto:beni.godoi@gbtitsolutions.com?subject=PropManage%20Pro%20%E2%80%94%20invite%20request"
                   className="font-semibold text-slate-900 hover:underline dark:text-sky-400 dark:hover:text-sky-300"
                 >
-                  Contact us for an invite
+                  {t('login.contactForInvite')}
                 </a>
               </span>
             </div>
@@ -290,11 +300,11 @@ export default function LoginScreen({ theme, onThemeToggle }: LoginScreenProps) 
       {/* Footer */}
       <div className="w-full max-w-md flex justify-center gap-6 text-xs text-slate-500 dark:text-slate-400 mt-6 border-t border-slate-200/50 dark:border-slate-800/50 pt-4">
         <a href="#help" className="flex items-center gap-1 hover:text-slate-700 dark:hover:text-slate-200">
-          <HelpCircle size={14} /> Help Center
+          <HelpCircle size={14} /> {t('sidebar.helpCenter')}
         </a>
         <span className="text-slate-300 dark:text-slate-700">|</span>
         <a href="#privacy" className="flex items-center gap-1 hover:text-slate-700 dark:hover:text-slate-200">
-          <ShieldCheck size={14} /> Privacy Policy
+          <ShieldCheck size={14} /> {t('login.privacyPolicy')}
         </a>
       </div>
     </div>

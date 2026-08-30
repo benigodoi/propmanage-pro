@@ -36,6 +36,10 @@ export interface Tenant {
   status: 'Active' | 'Pending' | 'Terminated';
   unitNumber?: string;
   propertyName?: string;
+  /** False for a renter added purely for tracking, with no login of their own. */
+  hasPortalAccess: boolean;
+  /** The lease row this tenant came from — needed to grant portal access later. */
+  leaseId?: string;
 }
 
 export interface UtilityItem {

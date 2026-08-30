@@ -4,11 +4,13 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { User, Mail, Lock, ShieldCheck, Loader2 } from 'lucide-react';
+import { User, Mail, Lock, ShieldCheck, Loader2, Globe } from 'lucide-react';
 import { Persona } from '../types';
 import { getMyProfile, updateMyProfile, updateMyEmail, updatePassword } from '../lib/api/profile';
 import { isPasswordValid } from '../lib/password';
 import PasswordChecklist from './PasswordChecklist';
+import { useLocalization } from '../contexts/LocalizationContext';
+import type { Locale, CurrencyCode } from '../lib/api/profile';
 
 interface SettingsScreenProps {
   persona: Persona;
@@ -24,6 +26,7 @@ function FieldMessage({ message, tone }: { message: string; tone: 'success' | 'e
 }
 
 export default function SettingsScreen({ persona, onProfileUpdated }: SettingsScreenProps) {
+  const { t, locale, currency, setLocale, setCurrency, rate } = useLocalization();
   const [loading, setLoading] = useState(true);
   const [orgName, setOrgName] = useState('');
 
@@ -61,10 +64,10 @@ export default function SettingsScreen({ persona, onProfileUpdated }: SettingsSc
     setProfileMessage(null);
     try {
       await updateMyProfile({ fullName, phone });
-      setProfileMessage({ text: 'Profile updated.', tone: 'success' });
+      setProfileMessage({ text: t('settings.profileUpdated'), tone: 'success' });
       onProfileUpdated();
     } catch (err) {
-      setProfileMessage({ text: err instanceof Error ? err.message : 'Failed to update profile.', tone: 'error' });
+      setProfileMessage({ text: err instanceof Error ? err.message : t('settings.profileUpdateFailed'), tone: 'error' });
     } finally {
       setProfileSaving(false);
     }
@@ -76,10 +79,10 @@ export default function SettingsScreen({ persona, onProfileUpdated }: SettingsSc
     setEmailMessage(null);
     try {
       await updateMyEmail(email);
-      setEmailMessage({ text: 'Email updated. Check your inbox to confirm the new address.', tone: 'success' });
+      setEmailMessage({ text: t('settings.emailUpdated'), tone: 'success' });
       onProfileUpdated();
     } catch (err) {
-      setEmailMessage({ text: err instanceof Error ? err.message : 'Failed to update email.', tone: 'error' });
+      setEmailMessage({ text: err instanceof Error ? err.message : t('settings.emailUpdateFailed'), tone: 'error' });
     } finally {
       setEmailSaving(false);
     }
@@ -89,21 +92,21 @@ export default function SettingsScreen({ persona, onProfileUpdated }: SettingsSc
     e.preventDefault();
     setPasswordMessage(null);
     if (!isPasswordValid(newPassword)) {
-      setPasswordMessage({ text: 'Password does not meet the requirements below.', tone: 'error' });
+      setPasswordMessage({ text: t('settings.passwordRequirementsNotMet'), tone: 'error' });
       return;
     }
     if (newPassword !== confirmPassword) {
-      setPasswordMessage({ text: 'Passwords do not match.', tone: 'error' });
+      setPasswordMessage({ text: t('settings.passwordsDoNotMatch'), tone: 'error' });
       return;
     }
     setPasswordSaving(true);
     try {
       await updatePassword(newPassword);
-      setPasswordMessage({ text: 'Password updated.', tone: 'success' });
+      setPasswordMessage({ text: t('settings.passwordUpdated'), tone: 'success' });
       setNewPassword('');
       setConfirmPassword('');
     } catch (err) {
-      setPasswordMessage({ text: err instanceof Error ? err.message : 'Failed to update password.', tone: 'error' });
+      setPasswordMessage({ text: err instanceof Error ? err.message : t('settings.passwordUpdateFailed'), tone: 'error' });
     } finally {
       setPasswordSaving(false);
     }
@@ -120,8 +123,8 @@ export default function SettingsScreen({ persona, onProfileUpdated }: SettingsSc
   return (
     <div className="space-y-6 animate-in fade-in duration-300 max-w-2xl">
       <div>
-        <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">Settings</h2>
-        <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">Manage your profile, email, and password.</p>
+        <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">{t('settings.title')}</h2>
+        <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">{t('settings.subtitle')}</p>
       </div>
 
       {/* Read-only context */}
@@ -130,9 +133,57 @@ export default function SettingsScreen({ persona, onProfileUpdated }: SettingsSc
           <ShieldCheck size={20} />
         </div>
         <div>
-          <p className="text-xs font-bold text-slate-900 dark:text-white">{orgName || 'Organization'}</p>
+          <p className="text-xs font-bold text-slate-900 dark:text-white">{orgName || t('settings.organization')}</p>
           <p className="text-xxs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wide">
-            {persona === 'owner' ? 'Admin' : 'Tenant'} account
+            {persona === 'owner' ? t('settings.adminAccount') : t('settings.tenantAccount')}
+          </p>
+        </div>
+      </div>
+
+      {/* Preferences card */}
+      <div className="bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-800 p-6 rounded-xl space-y-4">
+        <h3 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
+          <Globe size={16} className="text-sky-500" /> {t('preferences.title')}
+        </h3>
+        <div>
+          <p className="block text-[10px] font-bold text-slate-400 uppercase mb-2">{t('preferences.language')}</p>
+          <div className="flex gap-2">
+            {(['en', 'ro'] as Locale[]).map((opt) => (
+              <button
+                key={opt}
+                type="button"
+                onClick={() => setLocale(opt)}
+                className={`px-4 py-2 rounded-lg text-xs font-semibold transition-colors cursor-pointer ${
+                  locale === opt
+                    ? 'bg-slate-950 dark:bg-sky-400 text-white dark:text-slate-950'
+                    : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
+                }`}
+              >
+                {t(opt === 'en' ? 'preferences.english' : 'preferences.romanian')}
+              </button>
+            ))}
+          </div>
+        </div>
+        <div>
+          <p className="block text-[10px] font-bold text-slate-400 uppercase mb-2">{t('preferences.currency')}</p>
+          <div className="flex gap-2">
+            {(['EUR', 'RON'] as CurrencyCode[]).map((opt) => (
+              <button
+                key={opt}
+                type="button"
+                onClick={() => setCurrency(opt)}
+                className={`px-4 py-2 rounded-lg text-xs font-semibold transition-colors cursor-pointer ${
+                  currency === opt
+                    ? 'bg-slate-950 dark:bg-sky-400 text-white dark:text-slate-950'
+                    : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
+                }`}
+              >
+                {opt === 'EUR' ? t('preferences.euro') : t('preferences.ron')}
+              </button>
+            ))}
+          </div>
+          <p className="text-xs text-slate-400 dark:text-slate-500 mt-2">
+            {t('preferences.rateNote', { rate: rate.toFixed(2) })}
           </p>
         </div>
       </div>
@@ -140,21 +191,21 @@ export default function SettingsScreen({ persona, onProfileUpdated }: SettingsSc
       {/* Profile form */}
       <form onSubmit={handleProfileSubmit} className="bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-800 p-6 rounded-xl space-y-4">
         <h3 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
-          <User size={16} className="text-sky-500" /> Profile
+          <User size={16} className="text-sky-500" /> {t('settings.profile')}
         </h3>
         <div>
-          <label htmlFor="settings-full-name" className="block text-[10px] font-bold text-slate-400 uppercase mb-1">FULL NAME</label>
+          <label htmlFor="settings-full-name" className="block text-[10px] font-bold text-slate-400 uppercase mb-1">{t('settings.fullName')}</label>
           <input
             id="settings-full-name"
             type="text"
             value={fullName}
             onChange={(e) => setFullName(e.target.value)}
-            placeholder="Your name"
+            placeholder={t('settings.yourName')}
             className="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg text-sm"
           />
         </div>
         <div>
-          <label htmlFor="settings-phone" className="block text-[10px] font-bold text-slate-400 uppercase mb-1">PHONE</label>
+          <label htmlFor="settings-phone" className="block text-[10px] font-bold text-slate-400 uppercase mb-1">{t('settings.phone')}</label>
           <input
             id="settings-phone"
             type="tel"
@@ -170,17 +221,17 @@ export default function SettingsScreen({ persona, onProfileUpdated }: SettingsSc
           disabled={profileSaving}
           className="px-4 py-2 bg-slate-950 hover:bg-slate-900 dark:bg-sky-400 dark:hover:bg-sky-300 text-white dark:text-slate-950 rounded-lg text-xs font-bold uppercase tracking-wider disabled:opacity-60"
         >
-          {profileSaving ? 'Saving…' : 'Save Profile'}
+          {profileSaving ? t('common.saving') : t('settings.saveProfile')}
         </button>
       </form>
 
       {/* Email form */}
       <form onSubmit={handleEmailSubmit} className="bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-800 p-6 rounded-xl space-y-4">
         <h3 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
-          <Mail size={16} className="text-sky-500" /> Email
+          <Mail size={16} className="text-sky-500" /> {t('settings.email')}
         </h3>
         <div>
-          <label htmlFor="settings-email" className="block text-[10px] font-bold text-slate-400 uppercase mb-1">EMAIL ADDRESS</label>
+          <label htmlFor="settings-email" className="block text-[10px] font-bold text-slate-400 uppercase mb-1">{t('settings.emailAddress')}</label>
           <input
             id="settings-email"
             type="email"
@@ -196,18 +247,18 @@ export default function SettingsScreen({ persona, onProfileUpdated }: SettingsSc
           disabled={emailSaving}
           className="px-4 py-2 bg-slate-950 hover:bg-slate-900 dark:bg-sky-400 dark:hover:bg-sky-300 text-white dark:text-slate-950 rounded-lg text-xs font-bold uppercase tracking-wider disabled:opacity-60"
         >
-          {emailSaving ? 'Saving…' : 'Update Email'}
+          {emailSaving ? t('common.saving') : t('settings.updateEmail')}
         </button>
       </form>
 
       {/* Password form */}
       <form onSubmit={handlePasswordSubmit} className="bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-800 p-6 rounded-xl space-y-4">
         <h3 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
-          <Lock size={16} className="text-sky-500" /> Password
+          <Lock size={16} className="text-sky-500" /> {t('settings.password')}
         </h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label htmlFor="settings-new-password" className="block text-[10px] font-bold text-slate-400 uppercase mb-1">NEW PASSWORD</label>
+            <label htmlFor="settings-new-password" className="block text-[10px] font-bold text-slate-400 uppercase mb-1">{t('settings.newPassword')}</label>
             <input
               id="settings-new-password"
               type="password"
@@ -219,7 +270,7 @@ export default function SettingsScreen({ persona, onProfileUpdated }: SettingsSc
             />
           </div>
           <div>
-            <label htmlFor="settings-confirm-password" className="block text-[10px] font-bold text-slate-400 uppercase mb-1">CONFIRM PASSWORD</label>
+            <label htmlFor="settings-confirm-password" className="block text-[10px] font-bold text-slate-400 uppercase mb-1">{t('settings.confirmPassword')}</label>
             <input
               id="settings-confirm-password"
               type="password"
@@ -238,7 +289,7 @@ export default function SettingsScreen({ persona, onProfileUpdated }: SettingsSc
           disabled={passwordSaving}
           className="px-4 py-2 bg-slate-950 hover:bg-slate-900 dark:bg-sky-400 dark:hover:bg-sky-300 text-white dark:text-slate-950 rounded-lg text-xs font-bold uppercase tracking-wider disabled:opacity-60"
         >
-          {passwordSaving ? 'Saving…' : 'Update Password'}
+          {passwordSaving ? t('common.saving') : t('settings.updatePassword')}
         </button>
       </form>
     </div>

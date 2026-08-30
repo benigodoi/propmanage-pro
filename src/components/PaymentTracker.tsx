@@ -4,18 +4,20 @@
  */
 
 import React, { useState, useMemo } from 'react';
-import { 
-  Filter, 
-  RotateCcw, 
-  Send, 
-  CheckCircle, 
-  MoreVertical, 
-  ChevronLeft, 
-  ChevronRight, 
+import {
+  Filter,
+  RotateCcw,
+  Send,
+  CheckCircle,
+  MoreVertical,
+  ChevronLeft,
+  ChevronRight,
   HelpCircle,
   FileSpreadsheet
 } from 'lucide-react';
 import { Payment } from '../types';
+import { useLocalization } from '../contexts/LocalizationContext';
+import { enumLabel } from '../lib/i18n';
 
 interface PaymentTrackerProps {
   payments: Payment[];
@@ -23,37 +25,42 @@ interface PaymentTrackerProps {
   onOpenInvoice: (paymentId: string) => void;
 }
 
+const ALL_PROPERTIES = 'All Properties';
+const ALL_STATUSES = 'All Statuses';
+const ALL_MONTHS = 'All Months';
+
 export default function PaymentTracker({
   payments,
   onUpdatePaymentStatus,
   onOpenInvoice,
 }: PaymentTrackerProps) {
-  
+  const { t, locale, formatMoney } = useLocalization();
+
   // Filter States
-  const [selectedProperty, setSelectedProperty] = useState<string>('All Properties');
-  const [selectedStatus, setSelectedStatus] = useState<string>('All Statuses');
-  const [selectedMonth, setSelectedMonth] = useState<string>('All Months');
+  const [selectedProperty, setSelectedProperty] = useState<string>(ALL_PROPERTIES);
+  const [selectedStatus, setSelectedStatus] = useState<string>(ALL_STATUSES);
+  const [selectedMonth, setSelectedMonth] = useState<string>(ALL_MONTHS);
   const [selectedRows, setSelectedRows] = useState<string[]>([]);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
-  
+
   // Unique dropdown list generators
   const propertiesList = useMemo(() => {
     const list = new Set(payments.map(p => p.propertyName));
-    return ['All Properties', ...Array.from(list)];
+    return [ALL_PROPERTIES, ...Array.from(list)];
   }, [payments]);
 
-  const statusesList = ['All Statuses', 'Paid', 'Overdue', 'Pending', 'Partial'];
+  const statusesList = [ALL_STATUSES, 'Paid', 'Overdue', 'Pending', 'Partial'];
   const monthsList = useMemo(() => {
     const list = new Set(payments.map(p => p.month));
-    return ['All Months', ...Array.from(list)];
+    return [ALL_MONTHS, ...Array.from(list)];
   }, [payments]);
 
   // Filter logic
   const filteredPayments = useMemo(() => {
     return payments.filter(p => {
-      const matchProp = selectedProperty === 'All Properties' || p.propertyName === selectedProperty;
-      const matchStatus = selectedStatus === 'All Statuses' || p.status === selectedStatus;
-      const matchMonth = selectedMonth === 'All Months' || p.month === selectedMonth;
+      const matchProp = selectedProperty === ALL_PROPERTIES || p.propertyName === selectedProperty;
+      const matchStatus = selectedStatus === ALL_STATUSES || p.status === selectedStatus;
+      const matchMonth = selectedMonth === ALL_MONTHS || p.month === selectedMonth;
       return matchProp && matchStatus && matchMonth;
     });
   }, [payments, selectedProperty, selectedStatus, selectedMonth]);
@@ -110,30 +117,30 @@ export default function PaymentTracker({
   // Action Triggers
   const handleMarkAsPaidSelected = () => {
     if (selectedRows.length === 0) {
-      showToast("Please select at least one invoice first");
+      showToast(t('payments.selectAtLeastOne'));
       return;
     }
     const todayISO = new Date().toISOString().slice(0, 10);
     selectedRows.forEach(id => {
       onUpdatePaymentStatus(id, 'Paid', todayISO);
     });
-    showToast(`Successfully marked ${selectedRows.length} payment(s) as Paid`);
+    showToast(t('payments.markedPaidSuccess', { count: selectedRows.length }));
     setSelectedRows([]);
   };
 
   const handleSendReminderSelected = () => {
     if (selectedRows.length === 0) {
-      showToast("Please select at least one invoice first");
+      showToast(t('payments.selectAtLeastOne'));
       return;
     }
-    showToast(`Reminders sent successfully to ${selectedRows.length} tenant(s)`);
+    showToast(t('payments.remindersSent', { count: selectedRows.length }));
     setSelectedRows([]);
   };
 
   const handleResetFilters = () => {
-    setSelectedProperty('All Properties');
-    setSelectedStatus('All Statuses');
-    setSelectedMonth('All Months');
+    setSelectedProperty(ALL_PROPERTIES);
+    setSelectedStatus(ALL_STATUSES);
+    setSelectedMonth(ALL_MONTHS);
     setSelectedRows([]);
   };
 
@@ -146,7 +153,7 @@ export default function PaymentTracker({
 
   return (
     <div className="space-y-6 animate-in fade-in duration-300 relative">
-      
+
       {/* Toast Alert Popups */}
       {toastMessage && (
         <div className="fixed top-20 right-6 z-50 bg-slate-900 text-white text-xs font-bold px-4 py-3 rounded-lg shadow-2xl flex items-center gap-2 border border-slate-700 animate-bounce">
@@ -159,10 +166,10 @@ export default function PaymentTracker({
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
-            Payment Tracker
+            {t('payments.title')}
           </h2>
           <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">
-            Monitor and manage all rental income and utility reimbursements.
+            {t('payments.subtitle')}
           </p>
         </div>
 
@@ -175,9 +182,9 @@ export default function PaymentTracker({
             className="px-4 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-lg text-xs font-bold uppercase tracking-wider transition-all flex items-center gap-2 cursor-pointer"
           >
             <Send size={14} />
-            Send Reminder
+            {t('payments.sendReminder')}
           </button>
-          
+
           <button
             id="btn-mark-paid-tracker"
             type="button"
@@ -185,7 +192,7 @@ export default function PaymentTracker({
             className="px-4 py-2 bg-slate-950 hover:bg-slate-900 dark:bg-sky-400 dark:hover:bg-sky-300 text-white dark:text-slate-950 rounded-lg text-xs font-bold uppercase tracking-wider transition-all flex items-center gap-2 shadow-sm cursor-pointer"
           >
             <CheckCircle size={14} />
-            Mark as Paid
+            {t('payments.markAsPaid')}
           </button>
         </div>
       </div>
@@ -193,11 +200,11 @@ export default function PaymentTracker({
       {/* Filters Card */}
       <div className="bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-800 p-4 rounded-xl shadow-sm">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 items-end">
-          
+
           {/* Property Filter */}
           <div>
             <label htmlFor="filter-property" className="block text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1.5">
-              PROPERTY
+              {t('payments.property')}
             </label>
             <select
               id="filter-property"
@@ -206,7 +213,7 @@ export default function PaymentTracker({
               className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-950/50 border border-slate-200 dark:border-slate-800 rounded-lg text-xs font-semibold text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-sky-500/30"
             >
               {propertiesList.map(prop => (
-                <option key={prop} value={prop}>{prop}</option>
+                <option key={prop} value={prop}>{prop === ALL_PROPERTIES ? t('payments.allProperties') : prop}</option>
               ))}
             </select>
           </div>
@@ -214,7 +221,7 @@ export default function PaymentTracker({
           {/* Status Filter */}
           <div>
             <label htmlFor="filter-status" className="block text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1.5">
-              STATUS
+              {t('dashboard.status')}
             </label>
             <select
               id="filter-status"
@@ -223,7 +230,7 @@ export default function PaymentTracker({
               className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-950/50 border border-slate-200 dark:border-slate-800 rounded-lg text-xs font-semibold text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-sky-500/30"
             >
               {statusesList.map(st => (
-                <option key={st} value={st}>{st}</option>
+                <option key={st} value={st}>{st === ALL_STATUSES ? t('payments.allStatuses') : enumLabel(locale, st)}</option>
               ))}
             </select>
           </div>
@@ -231,7 +238,7 @@ export default function PaymentTracker({
           {/* Month/Year Filter */}
           <div>
             <label htmlFor="filter-month" className="block text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1.5">
-              MONTH/YEAR
+              {t('payments.monthYear')}
             </label>
             <select
               id="filter-month"
@@ -240,7 +247,7 @@ export default function PaymentTracker({
               className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-950/50 border border-slate-200 dark:border-slate-800 rounded-lg text-xs font-semibold text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-sky-500/30"
             >
               {monthsList.map(m => (
-                <option key={m} value={m}>{m}</option>
+                <option key={m} value={m}>{m === ALL_MONTHS ? t('payments.allMonths') : m}</option>
               ))}
             </select>
           </div>
@@ -253,7 +260,7 @@ export default function PaymentTracker({
             className="w-full px-4 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700/50 rounded-lg text-xs font-bold text-slate-700 dark:text-slate-300 transition-colors flex items-center justify-center gap-2 h-[38px] cursor-pointer"
           >
             <RotateCcw size={14} />
-            Reset Filters
+            {t('payments.resetFilters')}
           </button>
 
         </div>
@@ -264,40 +271,40 @@ export default function PaymentTracker({
         {/* KPI 1 */}
         <div className="bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-800 p-5 rounded-xl">
           <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
-            TOTAL EXPECTED
+            {t('payments.totalExpected')}
           </span>
           <p className="text-2xl font-extrabold text-slate-900 dark:text-white mt-1.5 font-sans">
-            ${stats.totalExpected.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            {formatMoney(stats.totalExpected)}
           </p>
         </div>
 
         {/* KPI 2 */}
         <div className="bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-800 p-5 rounded-xl">
           <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
-            TOTAL RECEIVED
+            {t('payments.totalReceived')}
           </span>
           <p className="text-2xl font-extrabold text-slate-900 dark:text-white mt-1.5 font-sans">
-            ${stats.totalReceived.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            {formatMoney(stats.totalReceived)}
           </p>
         </div>
 
         {/* KPI 3 */}
         <div className="bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-800 p-5 rounded-xl">
           <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest text-red-600 dark:text-red-400">
-            TOTAL OVERDUE
+            {t('payments.totalOverdue')}
           </span>
           <p className="text-2xl font-extrabold text-red-600 dark:text-red-400 mt-1.5 font-sans">
-            ${stats.totalOverdue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            {formatMoney(stats.totalOverdue)}
           </p>
         </div>
 
         {/* KPI 4 */}
         <div className="bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-800 p-5 rounded-xl">
           <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
-            UTILITY RECOVERIES
+            {t('payments.utilityRecoveries')}
           </span>
           <p className="text-2xl font-extrabold text-slate-900 dark:text-white mt-1.5 font-sans">
-            ${stats.utilityRecoveries.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            {formatMoney(stats.utilityRecoveries)}
           </p>
         </div>
       </div>
@@ -317,22 +324,22 @@ export default function PaymentTracker({
                     className="rounded border-slate-300 text-sky-600 focus:ring-sky-500"
                   />
                 </th>
-                <th className="px-6 py-4">PROPERTY / UNIT</th>
-                <th className="px-6 py-4">TENANT</th>
-                <th className="px-6 py-4">MONTH</th>
-                <th className="px-6 py-4">TOTAL DUE</th>
-                <th className="px-6 py-4">BREAKDOWN</th>
-                <th className="px-6 py-4">STATUS</th>
-                <th className="px-6 py-4">DATE PAID</th>
-                <th className="px-6 py-4 text-center">ACTIONS</th>
+                <th className="px-6 py-4">{t('payments.propertyUnit')}</th>
+                <th className="px-6 py-4">{t('payments.tenant')}</th>
+                <th className="px-6 py-4">{t('payments.month')}</th>
+                <th className="px-6 py-4">{t('payments.totalDue')}</th>
+                <th className="px-6 py-4">{t('payments.breakdown')}</th>
+                <th className="px-6 py-4">{t('dashboard.status')}</th>
+                <th className="px-6 py-4">{t('payments.datePaid')}</th>
+                <th className="px-6 py-4 text-center">{t('dashboard.actions')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800/40 text-xs">
               {filteredPayments.map((p) => {
                 const isSelected = selectedRows.includes(p.id);
                 return (
-                  <tr 
-                    key={p.id} 
+                  <tr
+                    key={p.id}
                     className={`transition-colors hover:bg-slate-50/50 dark:hover:bg-slate-800/10 ${
                       isSelected ? 'bg-slate-50/70 dark:bg-sky-950/20' : ''
                     }`}
@@ -351,7 +358,7 @@ export default function PaymentTracker({
                     {/* Property / Unit */}
                     <td className="px-6 py-4">
                       <p className="font-extrabold text-slate-900 dark:text-white">{p.propertyName}</p>
-                      <p className="text-xxs text-slate-400 dark:text-slate-500 mt-0.5">Unit {p.unitNumber}</p>
+                      <p className="text-xxs text-slate-400 dark:text-slate-500 mt-0.5">{t('dashboard.unitLabel', { unit: p.unitNumber })}</p>
                     </td>
 
                     {/* Tenant */}
@@ -366,19 +373,19 @@ export default function PaymentTracker({
 
                     {/* Total Due */}
                     <td className="px-6 py-4 font-extrabold text-slate-900 dark:text-white font-sans text-sm">
-                      ${p.totalDue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      {formatMoney(p.totalDue)}
                     </td>
 
                     {/* Breakdown */}
                     <td className="px-6 py-4 space-x-1 whitespace-nowrap">
                       {p.breakdown.includes('rent') && (
                         <span className="px-2 py-0.5 bg-sky-100 dark:bg-sky-950/40 text-sky-700 dark:text-sky-300 rounded font-bold text-[9px] uppercase tracking-wide">
-                          Rent
+                          {enumLabel(locale, 'rent')}
                         </span>
                       )}
                       {p.breakdown.includes('utilities') && (
                         <span className="px-2 py-0.5 bg-amber-100 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 rounded font-bold text-[9px] uppercase tracking-wide">
-                          Utilities
+                          {enumLabel(locale, 'utilities')}
                         </span>
                       )}
                     </td>
@@ -387,26 +394,26 @@ export default function PaymentTracker({
                     <td className="px-6 py-4">
                       {p.status === 'Paid' && (
                         <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400">
-                          ● Paid
+                          ● {enumLabel(locale, 'Paid')}
                         </span>
                       )}
                       {p.status === 'Overdue' && (
                         <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-400">
-                          ● Overdue
+                          ● {enumLabel(locale, 'Overdue')}
                         </span>
                       )}
                       {p.status === 'Pending' && (
                         <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400">
-                          ● Pending
+                          ● {enumLabel(locale, 'Pending')}
                         </span>
                       )}
                       {p.status === 'Partial' && (
                         <div className="flex flex-col">
                           <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-sky-50 dark:bg-sky-950/40 text-sky-700 dark:text-sky-400 self-start">
-                            ● Partial
+                            ● {enumLabel(locale, 'Partial')}
                           </span>
                           <span className="text-[10px] text-slate-400 mt-0.5 ml-1">
-                            (${p.partialAmountPaid} paid)
+                            {t('payments.paidAmount', { amount: formatMoney(p.partialAmountPaid ?? 0) })}
                           </span>
                         </div>
                       )}
@@ -426,7 +433,7 @@ export default function PaymentTracker({
                           onClick={() => onOpenInvoice(p.id)}
                           className="px-2.5 py-1 rounded bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-[10px] font-bold uppercase tracking-wider cursor-pointer"
                         >
-                          Invoice
+                          {t('payments.invoice')}
                         </button>
                       </div>
                     </td>
@@ -441,7 +448,7 @@ export default function PaymentTracker({
         {/* Footer info/pagination */}
         <div className="px-6 py-4 bg-slate-50 dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 flex justify-between items-center">
           <span className="text-xxs text-slate-400 dark:text-slate-500 font-semibold uppercase tracking-wider">
-            Showing {filteredPayments.length} of {payments.length} entries
+            {t('payments.showingEntries', { shown: filteredPayments.length, total: payments.length })}
           </span>
 
           <div className="flex items-center gap-2">
@@ -451,7 +458,7 @@ export default function PaymentTracker({
               disabled
               className="p-1.5 rounded bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-400 select-none opacity-50 text-xs font-bold"
             >
-              Previous
+              {t('payments.previous')}
             </button>
             <button
               id="btn-next-page"
@@ -459,7 +466,7 @@ export default function PaymentTracker({
               disabled
               className="p-1.5 rounded bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-400 select-none opacity-50 text-xs font-bold"
             >
-              Next
+              {t('payments.next')}
             </button>
           </div>
         </div>
@@ -468,19 +475,19 @@ export default function PaymentTracker({
       {/* Legend & Utility Notice footer */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-4 bg-slate-50 dark:bg-[#0f172a] border border-slate-200/50 dark:border-slate-800 rounded-xl gap-4">
         <div className="flex flex-wrap gap-4 text-xxs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">
-          <span className="text-slate-400">LEGEND:</span>
+          <span className="text-slate-400">{t('payments.legend')}:</span>
           <div className="flex items-center gap-1.5">
             <span className="w-3.5 h-3.5 rounded bg-sky-100 dark:bg-sky-950/40 block border border-sky-200 dark:border-sky-800" />
-            <span>Base Rent Only</span>
+            <span>{t('payments.baseRentOnly')}</span>
           </div>
           <div className="flex items-center gap-1.5">
             <span className="w-3.5 h-3.5 rounded bg-amber-100 dark:bg-amber-950/40 block border border-amber-200 dark:border-amber-800" />
-            <span>Rent + Utilities Included</span>
+            <span>{t('payments.rentPlusUtilities')}</span>
           </div>
         </div>
         <div className="flex items-center gap-1.5 text-xxs text-slate-400 dark:text-slate-500 font-semibold italic">
           <HelpCircle size={14} className="text-slate-400" />
-          <span>Utility charges are calculated based on monthly meter readings.</span>
+          <span>{t('payments.utilityNote')}</span>
         </div>
       </div>
 

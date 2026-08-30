@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { Persona, OwnerScreen, TenantScreen } from '../types';
 import React from 'react';
+import { useLocalization } from '../contexts/LocalizationContext';
 
 interface SidebarProps {
   persona: Persona;
@@ -55,6 +56,7 @@ export default function Sidebar({
   onGenerateReportClick,
   onServiceRequestClick,
 }: SidebarProps) {
+  const { t } = useLocalization();
   const displayName = currentUserName && currentUserName.trim().length > 0 ? currentUserName : currentUserEmail;
 
   const handleNavClick = (screen: any) => {
@@ -66,17 +68,17 @@ export default function Sidebar({
   };
 
   const ownerNavItems = [
-    { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { id: 'properties', label: 'Properties', icon: Building },
-    { id: 'payments', label: 'Payments', icon: CreditCard },
-    { id: 'reports', label: 'Reports', icon: FileText },
+    { id: 'dashboard', label: t('sidebar.dashboard'), icon: LayoutDashboard },
+    { id: 'properties', label: t('sidebar.properties'), icon: Building },
+    { id: 'payments', label: t('sidebar.payments'), icon: CreditCard },
+    { id: 'reports', label: t('sidebar.reports'), icon: FileText },
   ];
 
   const tenantNavItems = [
-    { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { id: 'property-details', label: 'Property Details', icon: Building },
-    { id: 'payments', label: 'Payments', icon: CreditCard },
-    { id: 'documents', label: 'Documents', icon: FolderOpen },
+    { id: 'dashboard', label: t('sidebar.dashboard'), icon: LayoutDashboard },
+    { id: 'property-details', label: t('sidebar.propertyDetails'), icon: Building },
+    { id: 'payments', label: t('sidebar.payments'), icon: CreditCard },
+    { id: 'documents', label: t('sidebar.documents'), icon: FolderOpen },
   ];
 
   const currentNavItems = persona === 'owner' ? ownerNavItems : tenantNavItems;
@@ -104,7 +106,7 @@ export default function Sidebar({
               {displayName}
             </p>
             <p className="text-xxs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wide truncate">
-              {persona === 'owner' ? 'PROPERTY MANAGER' : 'TENANT'}
+              {persona === 'owner' ? t('sidebar.propertyManager') : t('sidebar.tenant')}
             </p>
           </div>
         </div>
@@ -145,7 +147,7 @@ export default function Sidebar({
             onClick={onGenerateReportClick}
             className="w-full py-3 px-4 bg-slate-950 hover:bg-slate-900 dark:bg-sky-400 dark:hover:bg-sky-300 text-white dark:text-slate-950 rounded-lg text-xs font-bold uppercase tracking-wider transition-all text-center shadow-sm cursor-pointer"
           >
-            Generate Reports
+            {t('sidebar.generateReports')}
           </button>
         ) : (
           <button
@@ -155,7 +157,7 @@ export default function Sidebar({
             className="w-full py-3 px-4 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-bold uppercase tracking-wider transition-all text-center shadow-sm flex items-center justify-center gap-2 cursor-pointer"
           >
             <Wrench size={14} />
-            Service Request
+            {t('sidebar.serviceRequest')}
           </button>
         )}
 
@@ -170,7 +172,7 @@ export default function Sidebar({
             }`}
           >
             <Settings size={16} />
-            Settings
+            {t('sidebar.settings')}
           </button>
 
           <button
@@ -182,7 +184,7 @@ export default function Sidebar({
             }`}
           >
             <HelpCircle size={16} />
-            Help Center
+            {t('sidebar.helpCenter')}
           </button>
 
           <button
@@ -192,7 +194,7 @@ export default function Sidebar({
             className="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-xs font-semibold text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/20 transition-all text-left cursor-pointer"
           >
             <LogOut size={16} />
-            Log Out
+            {t('sidebar.logOut')}
           </button>
         </div>
       </div>

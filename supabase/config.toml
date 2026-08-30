@@ -220,6 +220,12 @@ web3 = 30
 # secret = ""
 
 [auth.email]
+# NOTE: the Email provider's own on/off toggle (Authentication > Providers >
+# Email > "Enable Email provider") is NOT a config.toml key in this CLI
+# version ("enabled" here fails config parsing) — it's dashboard-only. A
+# past `config push` regressed it anyway once, breaking all email/password
+# logins; see memory `config_push_caution`. If it ever gets disabled again,
+# fix it in the dashboard, not here.
 # Allow/disallow new user signups via email to your project.
 # Disabled: invite-only beta, see [auth] enable_signup above.
 enable_signup = false
