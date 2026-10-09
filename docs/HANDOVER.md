@@ -70,7 +70,7 @@ docs/                      # this file, PROJECT_STATUS.md
   - `anon` has **no** table privileges (migration 0010), including default privileges for future tables.
   - `authenticated` has no TRUNCATE / REFERENCES / TRIGGER.
   - The SECURITY DEFINER helpers (`current_org_id`, `is_admin`, `current_user_role`, `create_organization`) are executable by `authenticated` only; the RLS policies and onboarding need them, so the advisor warnings about them are expected. `roll_payments` is cron-only. Trigger functions (`handle_new_user`, `rls_auto_enable`) aren't executable by any client role (0011).
-- **New tables:** they get RLS automatically (`rls_auto_enable` event trigger), but you still need to write policies **and** `grant select/insert/update/delete ... to authenticated` explicitly.
+- **New tables:** on the live project they get RLS automatically (the `ensure_rls` event trigger → `rls_auto_enable()`). That comes from Supabase's dashboard "automatic RLS" setting, **not** from the migrations, so a fresh project needs it switched on (or `enable row level security` in each migration). Either way you still need to write policies **and** `grant select/insert/update/delete ... to authenticated` explicitly.
 - **Auth:** signup is disabled (verified live: `/auth/v1/signup` → `signup_disabled`). Email is the only provider, and email confirmation is on.
 - **Edge Function:** `invite-tenant` verifies the JWT and admin role, and derives `org_id`/`role` server-side. `redirectTo` is checked by Supabase against the redirect allowlist.
 - **Headers** (`vercel.json`):
