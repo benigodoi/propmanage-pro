@@ -7,6 +7,7 @@ import React, { useState, useMemo } from 'react';
 import {
   Filter,
   RotateCcw,
+  AlertTriangle,
   Send,
   CheckCircle,
   MoreVertical,
@@ -128,6 +129,26 @@ export default function PaymentTracker({
     setSelectedRows([]);
   };
 
+  const handleMarkAsOverdueSelected = () => {
+    if (selectedRows.length === 0) {
+      showToast(t('payments.selectAtLeastOne'));
+      return;
+    }
+    selectedRows.forEach(id => {
+      onUpdatePaymentStatus(id, 'Overdue');
+    });
+    showToast(t('payments.markedOverdueSuccess', { count: selectedRows.length }));
+    setSelectedRows([]);
+  };
+
+  // Per-row status change. Paid stamps today's date; any other status
+  // clears date_paid (updatePaymentStatus nulls it when no date is given).
+  const handleRowStatusChange = (payment: Payment, status: Payment['status']) => {
+    if (status === payment.status) return;
+    const todayISO = new Date().toISOString().slice(0, 10);
+    onUpdatePaymentStatus(payment.id, status, status === 'Paid' ? todayISO : undefined);
+  };
+
   const handleSendReminderSelected = () => {
     if (selectedRows.length === 0) {
       showToast(t('payments.selectAtLeastOne'));
@@ -183,6 +204,16 @@ export default function PaymentTracker({
           >
             <Send size={14} />
             {t('payments.sendReminder')}
+          </button>
+
+          <button
+            id="btn-mark-overdue-tracker"
+            type="button"
+            onClick={handleMarkAsOverdueSelected}
+            className="px-4 py-2 bg-rose-50 hover:bg-rose-100 dark:bg-rose-500/10 dark:hover:bg-rose-500/20 text-rose-700 dark:text-rose-400 rounded-lg text-xs font-bold uppercase tracking-wider transition-all flex items-center gap-2 cursor-pointer"
+          >
+            <AlertTriangle size={14} />
+            {t('payments.markAsOverdue')}
           </button>
 
           <button
@@ -426,7 +457,21 @@ export default function PaymentTracker({
 
                     {/* Actions */}
                     <td className="px-6 py-4 text-center">
-                      <div className="flex justify-center gap-1">
+                      <div className="flex justify-center items-center gap-1">
+                        <select
+                          id={`select-payment-status-${p.id}`}
+                          value={p.status}
+                          onChange={(e) => handleRowStatusChange(p, e.target.value as Payment['status'])}
+                          title={t('payments.changeStatus')}
+                          aria-label={t('payments.changeStatus')}
+                          className="px-1.5 py-1 rounded bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 text-[10px] font-bold uppercase tracking-wider cursor-pointer"
+                        >
+                          {(['Pending', 'Overdue', 'Paid'] as const).map((s) => (
+                            <option key={s} value={s}>{enumLabel(locale, s)}</option>
+                          ))}
+                          {/* Partial needs an amount, so it can't be picked here — only shown when already set. */}
+                          {p.status === 'Partial' && <option value="Partial" disabled>{enumLabel(locale, 'Partial')}</option>}
+                        </select>
                         <button
                           id={`btn-open-invoice-${p.id}`}
                           type="button"

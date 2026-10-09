@@ -91,9 +91,9 @@ export interface GeneratePaymentsInput {
 }
 
 // Generates one payment row per month for a lease, from its start month
-// through the current month (an open-ended lease is capped at "now" —
-// future months need generating some other way, there's no monthly cron
-// yet). Past months land as 'Overdue', the current month as 'Pending',
+// through the current month (an open-ended lease is capped at "now"; later
+// months are added by the daily roll_payments() pg_cron job, migration
+// 0008). Past months land as 'Overdue', the current month as 'Pending',
 // mirroring what an admin would expect to see un-paid on day one.
 export async function generatePaymentsForLease(input: GeneratePaymentsInput): Promise<void> {
   const { data: utilityItems, error: utilErr } = await supabase

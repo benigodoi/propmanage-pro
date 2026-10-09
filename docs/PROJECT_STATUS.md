@@ -20,7 +20,7 @@ first 1–2 outside manager testers.
 - **Dashboard:** units, occupancy, monthly revenue, pending payments, 6-month revenue chart, portfolio table.
 - **Properties & units:** create/delete. Per-unit configuration of rent and utility items; editing a unit re-syncs its unpaid payment rows.
 - **Tenants:** add a tenant to a unit with or without portal access. Access can be granted later ("Invite to Portal"). The invite is a copyable link by default, with optional email.
-- **Payments:** generated automatically per lease from lease start through the current month. Payment tracker with filters, mark as paid, and invoice view.
+- **Payments:** generated per lease from lease start through the current month. A daily job (`roll_payments()`, pg_cron, 00:05 UTC) adds each new month and marks unpaid past months as Overdue. Payment tracker with filters, per-row status (Pending / Overdue / Paid), bulk mark paid/overdue, and invoice view.
 - **Service requests:** inbox at `/service-requests` with a status filter and inline status changes (Pending / In Progress / Completed). The sidebar shows a pending-count badge.
 - **Notifications (bell):** new requests, overdue payments, payments awaiting, payments received (last 30 days).
 
@@ -40,7 +40,6 @@ first 1–2 outside manager testers.
 | Area | State |
 |---|---|
 | Online rent payments | Not built. The tenant sees "Online payments aren't set up yet". |
-| Automatic "Overdue" | Payments only become Overdue when the owner marks them. Nothing ages them automatically. |
 | Reports page | Download buttons are placeholders (they show a "simulating" toast). |
 | "Send reminder" (Payments) | Placeholder toast; nothing is sent. |
 | Header search box | Input exists, but nothing filters on it. |
@@ -54,12 +53,11 @@ first 1–2 outside manager testers.
 ## Suggested next steps (rough priority)
 
 1. **Onboard the beta testers.** Generate their invite links (see `HANDOVER.md`) and collect feedback.
-2. **Automatic overdue status.** A scheduled job or DB function that marks `Pending` payments past their due date as `Overdue`.
-3. **Custom SMTP** (e.g. Resend), so invite and notification emails reach outside addresses. Then raise `auth.rate_limit.email_sent`.
-4. **Real reports:** PDF/XLS export for rent roll, overdue balances and maintenance.
-5. **Lease document upload** to Supabase Storage.
-6. **Header search** wired to properties, units and tenants.
-7. **Cleanup:** remove the unused AI Studio deps, and add tests around the API layer and notifications.
+2. **Custom SMTP** (e.g. Resend), so invite and notification emails reach outside addresses. Then raise `auth.rate_limit.email_sent`.
+3. **Real reports:** PDF/XLS export for rent roll, overdue balances and maintenance.
+4. **Lease document upload** to Supabase Storage.
+5. **Header search** wired to properties, units and tenants.
+6. **Cleanup:** remove the unused AI Studio deps, and add tests around the API layer and notifications.
 
 ## Changelog (high level)
 
@@ -72,3 +70,4 @@ first 1–2 outside manager testers.
 | 2026-10-09 | #5 | Invite Edge Function CORS fix, service request views (owner + tenant), preference saving fix (migration 0007), Vercel config, manager invite script |
 | 2026-10-09 | #6 | Routing edge-case tests |
 | 2026-10-09 | #7 | Notifications panel, `text-xxs` + dark-mode tint fixes, Vercel URL in `config.toml`, these docs |
+| 2026-10-09 | — | Payment status controls, daily payment roll-over job (migration 0008) |

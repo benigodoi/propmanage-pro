@@ -45,7 +45,7 @@ src/
     screenRouting.ts       # URL <-> screen mapping (URL is the source of truth)
     currency.ts            # EUR/RON conversion + formatting
 supabase/
-  migrations/0001…0007     # schema, RLS, grants — apply with `npx supabase db push`
+  migrations/0001…0008     # schema, RLS, grants, payment roll-over job — apply with `npx supabase db push`
   functions/invite-tenant/ # Edge Function: grants a tenant portal access
   config.toml              # mirrors live auth config — see the warning below
 scripts/invite-manager.ts  # generates manager (beta tester) invite links
@@ -59,6 +59,7 @@ docs/                      # this file, PROJECT_STATUS.md
 - **Profile updates:** users have a **column-level** UPDATE grant on `profiles`: `full_name, phone, email, locale, currency` (migrations `0002`, `0007`). Any new user-editable profile column needs its own `grant update (...)` migration, or saves will fail with "permission denied". Never grant `role` or `org_id`.
 - **Tenants without portal access:** a lease can have `tenant_id = null`, with contact details stored on the lease (`tenant_name/email/phone`). Granting access later links `tenant_id` and relinks payments.
 - **Money:** always stored in EUR. Currency only affects display.
+- **Payments roll-over:** `public.roll_payments()` runs daily via pg_cron (job `roll-payments-daily`, migration 0008). It flips past-month `Pending` to `Overdue` and adds missing months after each active lease's latest payment, using the unit's *current* rent and utilities. It's idempotent; to run it by hand: `npx supabase db query --linked "select public.roll_payments()"`. API roles can't execute it. Check runs with `select * from cron.job_run_details order by start_time desc limit 5`.
 
 ## Auth and onboarding flows
 

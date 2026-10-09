@@ -120,7 +120,7 @@ export default function Header({
       case 'payment-overdue':
       case 'payment-due': {
         const title = t(
-          n.kind === 'payment-received' ? 'notifications.paymentReceived'
+          n.kind === 'payment-received' ? (persona === 'owner' ? 'notifications.paymentReceived' : 'notifications.paymentConfirmed')
             : n.kind === 'payment-overdue' ? 'notifications.paymentOverdue'
             : persona === 'owner' ? 'notifications.paymentAwaiting' : 'notifications.paymentDue',
         );
