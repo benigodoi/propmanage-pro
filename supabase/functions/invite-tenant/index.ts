@@ -23,14 +23,35 @@ interface InviteTenantRequest {
   redirectTo: string;
 }
 
+// Called straight from the browser via supabase.functions.invoke, so every
+// response (including errors) needs CORS headers, and the preflight OPTIONS
+// request must succeed — otherwise the client only sees a generic
+// "Failed to send a request to the Edge Function".
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+};
+
+function json(body: unknown, status = 200): Response {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+  });
+}
+
 Deno.serve(async (req) => {
+  if (req.method === 'OPTIONS') {
+    return new Response('ok', { headers: corsHeaders });
+  }
+
   if (req.method !== 'POST') {
-    return new Response(JSON.stringify({ error: 'Method not allowed' }), { status: 405 });
+    return json({ error: 'Method not allowed' }, 405);
   }
 
   const authHeader = req.headers.get('Authorization');
   if (!authHeader) {
-    return new Response(JSON.stringify({ error: 'Missing Authorization header' }), { status: 401 });
+    return json({ error: 'Missing Authorization header' }, 401);
   }
 
   const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
@@ -43,7 +64,7 @@ Deno.serve(async (req) => {
 
   const { data: userData, error: userErr } = await callerClient.auth.getUser();
   if (userErr || !userData.user) {
-    return new Response(JSON.stringify({ error: 'Not authenticated' }), { status: 401 });
+    return json({ error: 'Not authenticated' }, 401);
   }
 
   const { data: profile, error: profileErr } = await callerClient
@@ -53,18 +74,18 @@ Deno.serve(async (req) => {
     .single();
 
   if (profileErr || !profile || profile.role !== 'admin') {
-    return new Response(JSON.stringify({ error: 'Admin access required' }), { status: 403 });
+    return json({ error: 'Admin access required' }, 403);
   }
 
   let body: InviteTenantRequest;
   try {
     body = await req.json();
   } catch {
-    return new Response(JSON.stringify({ error: 'Invalid JSON body' }), { status: 400 });
+    return json({ error: 'Invalid JSON body' }, 400);
   }
 
   if (!body.email || !body.fullName || !body.redirectTo) {
-    return new Response(JSON.stringify({ error: 'email, fullName and redirectTo are required' }), { status: 400 });
+    return json({ error: 'email, fullName and redirectTo are required' }, 400);
   }
 
   const serviceClient = createClient(supabaseUrl, serviceRoleKey);
@@ -82,11 +103,9 @@ Deno.serve(async (req) => {
       redirectTo: body.redirectTo,
     });
     if (error || !data.user) {
-      return new Response(JSON.stringify({ error: error?.message ?? 'Failed to invite tenant' }), { status: 400 });
+      return json({ error: error?.message ?? 'Failed to invite tenant' }, 400);
     }
-    return new Response(JSON.stringify({ userId: data.user.id, actionLink: null }), {
-      headers: { 'Content-Type': 'application/json' },
-    });
+    return json({ userId: data.user.id, actionLink: null });
   }
 
   const { data, error } = await serviceClient.auth.admin.generateLink({
@@ -95,11 +114,8 @@ Deno.serve(async (req) => {
     options: { data: metadata, redirectTo: body.redirectTo },
   });
   if (error || !data.user) {
-    return new Response(JSON.stringify({ error: error?.message ?? 'Failed to create tenant account' }), { status: 400 });
+    return json({ error: error?.message ?? 'Failed to create tenant account' }, 400);
   }
 
-  return new Response(
-    JSON.stringify({ userId: data.user.id, actionLink: data.properties?.action_link ?? null }),
-    { headers: { 'Content-Type': 'application/json' } },
-  );
+  return json({ userId: data.user.id, actionLink: data.properties?.action_link ?? null });
 });

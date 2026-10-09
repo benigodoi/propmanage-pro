@@ -6,7 +6,7 @@
 export type Theme = 'light' | 'dark';
 export type Persona = 'owner' | 'tenant';
 
-export type OwnerScreen = 'dashboard' | 'properties' | 'configure-unit' | 'payments' | 'reports' | 'settings' | 'help';
+export type OwnerScreen = 'dashboard' | 'properties' | 'configure-unit' | 'payments' | 'service-requests' | 'reports' | 'settings' | 'help';
 export type TenantScreen = 'dashboard' | 'property-details' | 'payments' | 'documents' | 'settings' | 'help';
 
 export interface Property {
@@ -88,4 +88,7 @@ export interface ServiceRequest {
   status: 'Pending' | 'In Progress' | 'Completed';
   dateCreated: string;
   description: string;
+  tenantName: string;
+  unitNumber: string;
+  propertyName: string;
 }
