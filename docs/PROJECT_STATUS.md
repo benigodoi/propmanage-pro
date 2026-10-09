@@ -48,7 +48,6 @@ first 1–2 outside manager testers.
 | Notifications | Derived client-side and refreshed on page load or tab focus, not realtime. Read state is per-browser (localStorage). |
 | In-app manager invites | None. Managers are invited with `scripts/invite-manager.ts`. |
 | Tests | Only `src/lib/screenRouting.test.ts`. No component or API tests. |
-| Unused deps | `@google/genai` and `express` are left over from the AI Studio template. |
 
 ## Suggested next steps (rough priority)
 
@@ -57,7 +56,8 @@ first 1–2 outside manager testers.
 3. **Real reports:** PDF/XLS export for rent roll, overdue balances and maintenance.
 4. **Lease document upload** to Supabase Storage.
 5. **Header search** wired to properties, units and tenants.
-6. **Cleanup:** remove the unused AI Studio deps, and add tests around the API layer and notifications.
+6. **Tests:** cover the API layer and notifications.
+7. **Enforce the CSP:** switch `Content-Security-Policy-Report-Only` in `vercel.json` to `Content-Security-Policy` once the browser console shows no CSP reports.
 
 ## Changelog (high level)
 
@@ -70,4 +70,5 @@ first 1–2 outside manager testers.
 | 2026-10-09 | #5 | Invite Edge Function CORS fix, service request views (owner + tenant), preference saving fix (migration 0007), Vercel config, manager invite script |
 | 2026-10-09 | #6 | Routing edge-case tests |
 | 2026-10-09 | #7 | Notifications panel, `text-xxs` + dark-mode tint fixes, Vercel URL in `config.toml`, these docs |
-| 2026-10-09 | — | Payment status controls, daily payment roll-over job (migration 0008) |
+| 2026-10-09 | #8 | Payment status controls, daily payment roll-over job (migrations 0008–0009) |
+| 2026-10-09 | — | Security hardening: DB privileges (0010), security headers, dependency cleanup |

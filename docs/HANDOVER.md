@@ -45,7 +45,7 @@ src/
     screenRouting.ts       # URL <-> screen mapping (URL is the source of truth)
     currency.ts            # EUR/RON conversion + formatting
 supabase/
-  migrations/0001…0009     # schema, RLS, grants, payment roll-over job — apply with `npx supabase db push`
+  migrations/0001…0011     # schema, RLS, grants, payment roll-over job, security hardening — apply with `npx supabase db push`
   functions/invite-tenant/ # Edge Function: grants a tenant portal access
   config.toml              # mirrors live auth config — see the warning below
 scripts/invite-manager.ts  # generates manager (beta tester) invite links
@@ -60,6 +60,26 @@ docs/                      # this file, PROJECT_STATUS.md
 - **Tenants without portal access:** a lease can have `tenant_id = null`, with contact details stored on the lease (`tenant_name/email/phone`). Granting access later links `tenant_id` and relinks payments.
 - **Money:** always stored in EUR. Currency only affects display.
 - **Payments roll-over:** `public.roll_payments()` runs daily via pg_cron (job `roll-payments-daily`, migration 0008). It flips past-month `Pending` to `Overdue` and adds missing months after each active lease's latest payment, using the unit's *current* rent and utilities. It's idempotent; to run it by hand: `npx supabase db query --linked "select public.roll_payments()"`. API roles can't execute it. Check runs with `select * from cron.job_run_details order by start_time desc limit 5`.
+
+## Security model (audited 2026-10-09)
+
+- **What's public:** the repo and the frontend bundle. The bundle holds only `VITE_SUPABASE_URL` and the *publishable* key, which are safe by design. Anything prefixed `VITE_` is shipped to browsers, so never put a secret in one.
+- **Secrets:** the service-role key exists only in Supabase (Edge Function secret) and is pasted locally for `scripts/invite-manager.ts`. `.env*` is gitignored. Git history was checked: no secrets were ever committed.
+- **Database:**
+  - RLS is enabled on every table.
+  - `anon` has **no** table privileges (migration 0010), including default privileges for future tables.
+  - `authenticated` has no TRUNCATE / REFERENCES / TRIGGER.
+  - The SECURITY DEFINER helpers (`current_org_id`, `is_admin`, `current_user_role`, `create_organization`) are executable by `authenticated` only; the RLS policies and onboarding need them, so the advisor warnings about them are expected. `roll_payments` is cron-only. Trigger functions (`handle_new_user`, `rls_auto_enable`) aren't executable by any client role (0011).
+- **New tables:** they get RLS automatically (`rls_auto_enable` event trigger), but you still need to write policies **and** `grant select/insert/update/delete ... to authenticated` explicitly.
+- **Auth:** signup is disabled (verified live: `/auth/v1/signup` → `signup_disabled`). Email is the only provider, and email confirmation is on.
+- **Edge Function:** `invite-tenant` verifies the JWT and admin role, and derives `org_id`/`role` server-side. `redirectTo` is checked by Supabase against the redirect allowlist.
+- **Headers** (`vercel.json`):
+  - Enforced: HSTS (Vercel default), `X-Frame-Options: DENY`, `nosniff`, Referrer-Policy, Permissions-Policy.
+  - The CSP is **report-only** for now. Check the browser console for CSP warnings, then rename the header to `Content-Security-Policy`. If you add an external host (fonts, images, APIs), add it to the CSP.
+- **Accepted risks (by design):**
+  - An admin sees the tenant's invite link, so they could open the tenant's account before the tenant does.
+  - Session limits are client-side only (Free tier).
+  - There's no CAPTCHA on login; Supabase's built-in auth rate limits apply.
 
 ## Auth and onboarding flows
 
