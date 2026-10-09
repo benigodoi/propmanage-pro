@@ -41,6 +41,7 @@ import TenantDashboard from './components/TenantDashboard';
 import ServiceRequestsInbox from './components/ServiceRequestsInbox';
 import MyServiceRequestsModal from './components/MyServiceRequestsModal';
 import { buildNotifications, AppNotification } from './lib/notifications';
+import { localDateISO } from './lib/dates';
 import InvoiceView from './components/InvoiceView';
 import SettingsScreen from './components/SettingsScreen';
 import Toast, { ToastState, ToastVariant } from './components/Toast';
@@ -128,7 +129,7 @@ export default function App() {
   const [newTenantFullName, setNewTenantFullName] = useState('');
   const [newTenantEmail, setNewTenantEmail] = useState('');
   const [newTenantPhone, setNewTenantPhone] = useState('');
-  const [newTenantLeaseStart, setNewTenantLeaseStart] = useState(() => new Date().toISOString().slice(0, 10));
+  const [newTenantLeaseStart, setNewTenantLeaseStart] = useState(() => localDateISO());
   const [newTenantLeaseEnd, setNewTenantLeaseEnd] = useState('');
   const [newTenantBaseRent, setNewTenantBaseRent] = useState(0);
   const [newTenantGrantAccess, setNewTenantGrantAccess] = useState(false);
@@ -290,14 +291,18 @@ export default function App() {
   const { secondsRemaining, stayActive } = useSessionTimeout(!!session, handleSessionTimeout);
 
   // Helper action: Update specific payment status
-  const handleUpdatePaymentStatus = async (id: string, status: 'Paid' | 'Overdue' | 'Pending' | 'Partial', datePaid?: string) => {
+  // Resolves true on success so callers can show their own confirmation
+  // only once the update has actually landed.
+  const handleUpdatePaymentStatus = async (ids: string[], status: Payment['status'], datePaid?: string): Promise<boolean> => {
     try {
-      await updatePaymentStatus(id, status, datePaid);
+      await updatePaymentStatus(ids, status, datePaid);
       const freshPayments = await listPayments();
       setPayments(freshPayments);
+      return true;
     } catch (err) {
       console.error('Failed to update payment status', err);
       showToast(t('errors.updatePaymentStatus'), 'error');
+      return false;
     }
   };
 
@@ -432,7 +437,7 @@ export default function App() {
         setNewTenantFullName('');
         setNewTenantEmail('');
         setNewTenantPhone('');
-        setNewTenantLeaseStart(new Date().toISOString().slice(0, 10));
+        setNewTenantLeaseStart(localDateISO());
         setNewTenantLeaseEnd('');
         setNewTenantBaseRent(0);
         setNewTenantGrantAccess(false);

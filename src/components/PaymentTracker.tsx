@@ -19,10 +19,12 @@ import {
 import { Payment } from '../types';
 import { useLocalization } from '../contexts/LocalizationContext';
 import { enumLabel } from '../lib/i18n';
+import { localDateISO, localMonthStartISO } from '../lib/dates';
 
 interface PaymentTrackerProps {
   payments: Payment[];
-  onUpdatePaymentStatus: (id: string, status: 'Paid' | 'Overdue' | 'Pending' | 'Partial', datePaid?: string) => void;
+  /** Resolves true on success (failures are already reported by the caller). */
+  onUpdatePaymentStatus: (ids: string[], status: Payment['status'], datePaid?: string) => Promise<boolean>;
   onOpenInvoice: (paymentId: string) => void;
 }
 
@@ -116,38 +118,40 @@ export default function PaymentTracker({
   };
 
   // Action Triggers
-  const handleMarkAsPaidSelected = () => {
+  const handleMarkAsPaidSelected = async () => {
     if (selectedRows.length === 0) {
       showToast(t('payments.selectAtLeastOne'));
       return;
     }
-    const todayISO = new Date().toISOString().slice(0, 10);
-    selectedRows.forEach(id => {
-      onUpdatePaymentStatus(id, 'Paid', todayISO);
-    });
-    showToast(t('payments.markedPaidSuccess', { count: selectedRows.length }));
-    setSelectedRows([]);
+    const ids = selectedRows;
+    if (await onUpdatePaymentStatus(ids, 'Paid', localDateISO())) {
+      showToast(t('payments.markedPaidSuccess', { count: ids.length }));
+      setSelectedRows([]);
+    }
   };
 
-  const handleMarkAsOverdueSelected = () => {
+  const handleMarkAsOverdueSelected = async () => {
     if (selectedRows.length === 0) {
       showToast(t('payments.selectAtLeastOne'));
       return;
     }
-    selectedRows.forEach(id => {
-      onUpdatePaymentStatus(id, 'Overdue');
-    });
-    showToast(t('payments.markedOverdueSuccess', { count: selectedRows.length }));
-    setSelectedRows([]);
+    const ids = selectedRows;
+    if (await onUpdatePaymentStatus(ids, 'Overdue')) {
+      showToast(t('payments.markedOverdueSuccess', { count: ids.length }));
+      setSelectedRows([]);
+    }
   };
 
   // Per-row status change. Paid stamps today's date; any other status
   // clears date_paid (updatePaymentStatus nulls it when no date is given).
   const handleRowStatusChange = (payment: Payment, status: Payment['status']) => {
     if (status === payment.status) return;
-    const todayISO = new Date().toISOString().slice(0, 10);
-    onUpdatePaymentStatus(payment.id, status, status === 'Paid' ? todayISO : undefined);
+    onUpdatePaymentStatus([payment.id], status, status === 'Paid' ? localDateISO() : undefined);
   };
+
+  // An unpaid payment for a month that has ended is overdue by definition —
+  // the daily roll_payments() job would flip "Pending" straight back.
+  const currentMonthStart = localMonthStartISO();
 
   const handleSendReminderSelected = () => {
     if (selectedRows.length === 0) {
@@ -467,7 +471,13 @@ export default function PaymentTracker({
                           className="px-1.5 py-1 rounded bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 text-[10px] font-bold uppercase tracking-wider cursor-pointer"
                         >
                           {(['Pending', 'Overdue', 'Paid'] as const).map((s) => (
-                            <option key={s} value={s}>{enumLabel(locale, s)}</option>
+                            <option
+                              key={s}
+                              value={s}
+                              disabled={s === 'Pending' && p.monthIso < currentMonthStart}
+                            >
+                              {enumLabel(locale, s)}
+                            </option>
                           ))}
                           {/* Partial needs an amount, so it can't be picked here — only shown when already set. */}
                           {p.status === 'Partial' && <option value="Partial" disabled>{enumLabel(locale, 'Partial')}</option>}

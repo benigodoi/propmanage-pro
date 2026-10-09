@@ -45,7 +45,7 @@ src/
     screenRouting.ts       # URL <-> screen mapping (URL is the source of truth)
     currency.ts            # EUR/RON conversion + formatting
 supabase/
-  migrations/0001…0008     # schema, RLS, grants, payment roll-over job — apply with `npx supabase db push`
+  migrations/0001…0009     # schema, RLS, grants, payment roll-over job — apply with `npx supabase db push`
   functions/invite-tenant/ # Edge Function: grants a tenant portal access
   config.toml              # mirrors live auth config — see the warning below
 scripts/invite-manager.ts  # generates manager (beta tester) invite links
