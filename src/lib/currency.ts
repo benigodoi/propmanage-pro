@@ -7,8 +7,10 @@ import type { Locale } from './i18n/translate';
 
 export type CurrencyCode = 'EUR' | 'RON';
 
-// Used until a live rate has been fetched, and as a safety net if the fetch fails.
-export const FALLBACK_EUR_RON_RATE = 4.98;
+// Used until a live rate has been fetched, and as a safety net if the fetch
+// fails. Keep roughly current (was 5.34 on 2026-10-09) — a stale value
+// silently skews every RON amount when the rate API is unreachable.
+export const FALLBACK_EUR_RON_RATE = 5.34;
 
 const RATE_CACHE_KEY = 'fx:EUR_RON';
 const RATE_CACHE_MAX_AGE_MS = 24 * 60 * 60 * 1000;
@@ -52,7 +54,7 @@ export async function fetchEurRonRate(): Promise<number> {
   }
 
   try {
-    const res = await fetch('https://api.frankfurter.app/latest?from=EUR&to=RON');
+    const res = await fetch('https://api.frankfurter.dev/v1/latest?from=EUR&to=RON');
     if (!res.ok) throw new Error(`Rate fetch failed: ${res.status}`);
     const data = await res.json();
     const rate = data?.rates?.RON;

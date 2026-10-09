@@ -57,7 +57,6 @@ first 1–2 outside manager testers.
 4. **Lease document upload** to Supabase Storage.
 5. **Header search** wired to properties, units and tenants.
 6. **Tests:** cover the API layer and notifications.
-7. **Enforce the CSP:** switch `Content-Security-Policy-Report-Only` in `vercel.json` to `Content-Security-Policy` once the browser console shows no CSP reports.
 
 ## Changelog (high level)
 

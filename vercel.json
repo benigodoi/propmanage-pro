@@ -10,8 +10,8 @@
         { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
         { "key": "Permissions-Policy", "value": "camera=(), microphone=(), geolocation=(), payment=()" },
         {
-          "key": "Content-Security-Policy-Report-Only",
-          "value": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://images.unsplash.com; connect-src 'self' https://yphvhtdldifrckkeyqgw.supabase.co wss://yphvhtdldifrckkeyqgw.supabase.co https://api.frankfurter.app; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'"
+          "key": "Content-Security-Policy",
+          "value": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://images.unsplash.com; connect-src 'self' https://yphvhtdldifrckkeyqgw.supabase.co wss://yphvhtdldifrckkeyqgw.supabase.co https://api.frankfurter.dev; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'"
         }
       ]
     }
