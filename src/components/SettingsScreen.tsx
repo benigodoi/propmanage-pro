@@ -129,7 +129,7 @@ export default function SettingsScreen({ persona, onProfileUpdated }: SettingsSc
 
       {/* Read-only context */}
       <div className="bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-800 p-6 rounded-xl flex items-center gap-4">
-        <div className="w-10 h-10 rounded-lg bg-sky-50 dark:bg-sky-950/20 flex items-center justify-center text-sky-500 shrink-0">
+        <div className="w-10 h-10 rounded-lg bg-sky-50 dark:bg-sky-500/10 flex items-center justify-center text-sky-500 shrink-0">
           <ShieldCheck size={20} />
         </div>
         <div>

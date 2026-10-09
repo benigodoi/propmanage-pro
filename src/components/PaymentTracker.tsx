@@ -341,7 +341,7 @@ export default function PaymentTracker({
                   <tr
                     key={p.id}
                     className={`transition-colors hover:bg-slate-50/50 dark:hover:bg-slate-800/10 ${
-                      isSelected ? 'bg-slate-50/70 dark:bg-sky-950/20' : ''
+                      isSelected ? 'bg-slate-50/70 dark:bg-sky-500/10' : ''
                     }`}
                   >
                     {/* Checkbox */}
@@ -379,12 +379,12 @@ export default function PaymentTracker({
                     {/* Breakdown */}
                     <td className="px-6 py-4 space-x-1 whitespace-nowrap">
                       {p.breakdown.includes('rent') && (
-                        <span className="px-2 py-0.5 bg-sky-100 dark:bg-sky-950/40 text-sky-700 dark:text-sky-300 rounded font-bold text-[9px] uppercase tracking-wide">
+                        <span className="px-2 py-0.5 bg-sky-100 dark:bg-sky-500/15 text-sky-700 dark:text-sky-300 rounded font-bold text-[9px] uppercase tracking-wide">
                           {enumLabel(locale, 'rent')}
                         </span>
                       )}
                       {p.breakdown.includes('utilities') && (
-                        <span className="px-2 py-0.5 bg-amber-100 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 rounded font-bold text-[9px] uppercase tracking-wide">
+                        <span className="px-2 py-0.5 bg-amber-100 dark:bg-amber-500/15 text-amber-700 dark:text-amber-400 rounded font-bold text-[9px] uppercase tracking-wide">
                           {enumLabel(locale, 'utilities')}
                         </span>
                       )}
@@ -393,23 +393,23 @@ export default function PaymentTracker({
                     {/* Status */}
                     <td className="px-6 py-4">
                       {p.status === 'Paid' && (
-                        <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400">
+                        <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-emerald-50 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-400">
                           ● {enumLabel(locale, 'Paid')}
                         </span>
                       )}
                       {p.status === 'Overdue' && (
-                        <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-400">
+                        <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-rose-50 dark:bg-rose-500/15 text-rose-700 dark:text-rose-400">
                           ● {enumLabel(locale, 'Overdue')}
                         </span>
                       )}
                       {p.status === 'Pending' && (
-                        <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400">
+                        <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-amber-50 dark:bg-amber-500/15 text-amber-700 dark:text-amber-400">
                           ● {enumLabel(locale, 'Pending')}
                         </span>
                       )}
                       {p.status === 'Partial' && (
                         <div className="flex flex-col">
-                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-sky-50 dark:bg-sky-950/40 text-sky-700 dark:text-sky-400 self-start">
+                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-sky-50 dark:bg-sky-500/15 text-sky-700 dark:text-sky-400 self-start">
                             ● {enumLabel(locale, 'Partial')}
                           </span>
                           <span className="text-[10px] text-slate-400 mt-0.5 ml-1">
@@ -477,11 +477,11 @@ export default function PaymentTracker({
         <div className="flex flex-wrap gap-4 text-xxs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">
           <span className="text-slate-400">{t('payments.legend')}:</span>
           <div className="flex items-center gap-1.5">
-            <span className="w-3.5 h-3.5 rounded bg-sky-100 dark:bg-sky-950/40 block border border-sky-200 dark:border-sky-800" />
+            <span className="w-3.5 h-3.5 rounded bg-sky-100 dark:bg-sky-500/15 block border border-sky-200 dark:border-sky-800" />
             <span>{t('payments.baseRentOnly')}</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <span className="w-3.5 h-3.5 rounded bg-amber-100 dark:bg-amber-950/40 block border border-amber-200 dark:border-amber-800" />
+            <span className="w-3.5 h-3.5 rounded bg-amber-100 dark:bg-amber-500/15 block border border-amber-200 dark:border-amber-800" />
             <span>{t('payments.rentPlusUtilities')}</span>
           </div>
         </div>

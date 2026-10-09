@@ -413,6 +413,18 @@ const en: Dictionary = {
     addProperty: 'Add Property',
     serviceRequest: 'Service Request',
   },
+  notifications: {
+    srNew: 'New service request',
+    srInProgress: 'Your request is in progress',
+    srCompleted: 'Your request is completed',
+    paymentReceived: 'Payment received',
+    paymentOverdue: 'Payment overdue',
+    paymentDue: 'Rent due',
+    paymentAwaiting: 'Awaiting payment',
+    srDetailOwner: '{{title}} · {{property}}, Unit {{unit}} · {{tenant}}',
+    paymentDetailOwner: '{{tenant}} · {{month}} · {{amount}}',
+    paymentDetailTenant: '{{month}} · {{amount}}',
+  },
   preferences: {
     title: 'Language & currency',
     language: 'Language',

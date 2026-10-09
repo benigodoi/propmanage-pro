@@ -18,9 +18,9 @@ const STATUSES: ServiceRequest['status'][] = ['Pending', 'In Progress', 'Complet
 const ALL_STATUSES = 'all';
 
 export const serviceRequestStatusBadgeClass: Record<ServiceRequest['status'], string> = {
-  Pending: 'bg-amber-100 text-amber-800 dark:bg-amber-950/50 dark:text-amber-300',
-  'In Progress': 'bg-sky-100 text-sky-800 dark:bg-sky-950/50 dark:text-sky-300',
-  Completed: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-300',
+  Pending: 'bg-amber-100 text-amber-800 dark:bg-amber-500/15 dark:text-amber-300',
+  'In Progress': 'bg-sky-100 text-sky-800 dark:bg-sky-500/15 dark:text-sky-300',
+  Completed: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-500/15 dark:text-emerald-300',
 };
 
 // Owner-side view of tenant-submitted service requests. RLS already scopes

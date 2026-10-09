@@ -154,7 +154,7 @@ export default function LoginScreen({ theme, onThemeToggle }: LoginScreenProps) 
               </button>
 
               {forgotSent ? (
-                <div className="p-3 text-sm text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900/50 rounded-lg">
+                <div className="p-3 text-sm text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-900/50 rounded-lg">
                   {t('login.forgotSent')}
                 </div>
               ) : (
@@ -164,7 +164,7 @@ export default function LoginScreen({ theme, onThemeToggle }: LoginScreenProps) 
                       {t('login.forgotIntro')}
                     </p>
                     {forgotError && (
-                      <div className="p-3 mb-4 text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900/50 rounded-lg">
+                      <div className="p-3 mb-4 text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-900/50 rounded-lg">
                         {forgotError}
                       </div>
                     )}
@@ -200,12 +200,12 @@ export default function LoginScreen({ theme, onThemeToggle }: LoginScreenProps) 
           ) : (
             <form onSubmit={handleSubmit} className="space-y-6">
               {noticeText && !error && (
-                <div className="p-3 text-sm text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/50 rounded-lg">
+                <div className="p-3 text-sm text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-900/50 rounded-lg">
                   {noticeText}
                 </div>
               )}
               {error && (
-                <div className="p-3 text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900/50 rounded-lg">
+                <div className="p-3 text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-900/50 rounded-lg">
                   {error}
                 </div>
               )}

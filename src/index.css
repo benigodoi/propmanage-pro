@@ -3,6 +3,10 @@
 
 @theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  /* `text-xxs` isn't a Tailwind default — without this it silently falls
+     back to the inherited size, blowing up badges and captions. */
+  --text-xxs: 0.625rem;
+  --text-xxs--line-height: 0.875rem;
 }
 
 @variant dark (&:where(.dark, .dark *));

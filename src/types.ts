@@ -71,12 +71,16 @@ export interface Payment {
   tenantEmail?: string;
   managerOrgName?: string;
   month: string;
+  /** Raw `YYYY-MM-DD` billing month, for sorting/date math (`month` is a display label). */
+  monthIso: string;
   totalDue: number;
   baseRent: number;
   utilityCharges: number;
   utilityBreakdown?: UtilityItem[];
   status: 'Paid' | 'Overdue' | 'Pending' | 'Partial';
   datePaid?: string;
+  /** Raw `YYYY-MM-DD`, for date math (`datePaid` is a display label). */
+  datePaidIso?: string;
   partialAmountPaid?: number;
   breakdown: ('rent' | 'utilities')[];
 }
