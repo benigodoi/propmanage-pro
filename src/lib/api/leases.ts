@@ -66,7 +66,13 @@ async function inviteTenantAccount(input: {
       redirectTo: window.location.origin,
     },
   });
-  if (error) throw error;
+  if (error) {
+    // On a non-2xx response the function's own { error } message is only
+    // available on the raw Response — surface it instead of the SDK's
+    // generic "Edge Function returned a non-2xx status code".
+    const message = await error.context?.json?.().then((b: any) => b?.error).catch(() => null);
+    throw message ? new Error(message) : error;
+  }
   if (data?.error) throw new Error(data.error);
   return { userId: data.userId, actionLink: data.actionLink ?? null };
 }

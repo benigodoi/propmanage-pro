@@ -21,7 +21,7 @@ interface TenantDashboardProps {
   payments: Payment[];
   serviceRequests: ServiceRequest[];
   onOpenInvoice: (id: string) => void;
-  onOpenServiceRequest: () => void;
+  onOpenServiceRequests: () => void;
 }
 
 function monthsLeft(leaseEnd: string): number | null {
@@ -37,7 +37,7 @@ export default function TenantDashboard({
   payments,
   serviceRequests,
   onOpenInvoice,
-  onOpenServiceRequest
+  onOpenServiceRequests
 }: TenantDashboardProps) {
   const { t, locale, formatMoney } = useLocalization();
   // RLS already scopes `units`/`payments`/`serviceRequests` to this tenant's
@@ -143,12 +143,12 @@ export default function TenantDashboard({
             <div className="flex flex-col gap-4">
               {/* KPI 1: Active Requests */}
               <div
-                onClick={onOpenServiceRequest}
+                onClick={onOpenServiceRequests}
                 className="flex-1 bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-800 rounded-xl p-5 shadow-sm flex items-center justify-between group cursor-pointer hover:border-slate-300 dark:hover:border-slate-700 transition-colors"
               >
                 <div>
                   <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest block mb-1">{t('tenantDashboard.activeRequests')}</span>
-                  <p className="text-xl font-extrabold text-slate-900 dark:text-white group-hover:text-sky-500 dark:group-hover:text-sky-400 transition-colors">{t('tenantDashboard.pendingCount', { count: activeRequestsCount })}</p>
+                  <p className="text-xl font-extrabold text-slate-900 dark:text-white group-hover:text-sky-500 dark:group-hover:text-sky-400 transition-colors">{t('tenantDashboard.openCount', { count: activeRequestsCount })}</p>
                 </div>
                 <div className="w-10 h-10 rounded-lg bg-amber-50 dark:bg-amber-950/20 flex items-center justify-center text-amber-500">
                   <Zap size={20} />

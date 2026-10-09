@@ -12,7 +12,7 @@ import { listProperties, createProperty, deleteProperty } from './lib/api/proper
 import { listUnitsWithDetails, createUnit, updateUnit, deleteUnit } from './lib/api/units';
 import { listActiveLeasesAsTenants, addTenant, inviteTenantToPortal, deleteTenant } from './lib/api/leases';
 import { listPayments, updatePaymentStatus } from './lib/api/payments';
-import { listServiceRequests, createServiceRequest } from './lib/api/serviceRequests';
+import { listServiceRequests, createServiceRequest, updateServiceRequestStatus } from './lib/api/serviceRequests';
 import {
   Property,
   Tenant,
@@ -38,6 +38,8 @@ import OwnerDashboard from './components/OwnerDashboard';
 import PaymentTracker from './components/PaymentTracker';
 import UnitConfiguration from './components/UnitConfiguration';
 import TenantDashboard from './components/TenantDashboard';
+import ServiceRequestsInbox from './components/ServiceRequestsInbox';
+import MyServiceRequestsModal from './components/MyServiceRequestsModal';
 import InvoiceView from './components/InvoiceView';
 import SettingsScreen from './components/SettingsScreen';
 import Toast, { ToastState, ToastVariant } from './components/Toast';
@@ -97,6 +99,8 @@ export default function App() {
   // Modal Triggers
   const [showAddPropertyModal, setShowAddPropertyModal] = useState(false);
   const [showServiceRequestModal, setShowServiceRequestModal] = useState(false);
+  const [showMyServiceRequests, setShowMyServiceRequests] = useState(false);
+  const [serviceRequestsLoading, setServiceRequestsLoading] = useState(false);
   const [showAddUnitModal, setShowAddUnitModal] = useState(false);
   const [addUnitPropertyId, setAddUnitPropertyId] = useState<string | null>(null);
   const [showAddTenantModal, setShowAddTenantModal] = useState(false);
@@ -235,6 +239,29 @@ export default function App() {
     refetchAll();
   }, [user, refetchAll]);
 
+  // Service request status is changed by the other party (owner updates it,
+  // tenant files it), so the once-at-login fetch goes stale — re-pull it
+  // whenever the tab regains focus and whenever the tenant opens their list.
+  const refreshServiceRequests = React.useCallback(async () => {
+    setServiceRequestsLoading(true);
+    try {
+      setServiceRequests(await listServiceRequests());
+    } catch (err) {
+      console.error('Failed to refresh service requests', err);
+    } finally {
+      setServiceRequestsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!user) return;
+    const onVisible = () => {
+      if (document.visibilityState === 'visible') refreshServiceRequests();
+    };
+    document.addEventListener('visibilitychange', onVisible);
+    return () => document.removeEventListener('visibilitychange', onVisible);
+  }, [user, refreshServiceRequests]);
+
   // Sync theme changes with DOM and localStorage
   useEffect(() => {
     if (theme === 'dark') {
@@ -270,6 +297,17 @@ export default function App() {
     } catch (err) {
       console.error('Failed to update payment status', err);
       showToast(t('errors.updatePaymentStatus'), 'error');
+    }
+  };
+
+  const handleUpdateServiceRequestStatus = async (id: string, status: ServiceRequest['status']) => {
+    try {
+      await updateServiceRequestStatus(id, status);
+      const freshRequests = await listServiceRequests();
+      setServiceRequests(freshRequests);
+    } catch (err) {
+      console.error('Failed to update service request status', err);
+      showToast(t('errors.updateServiceRequestStatus'), 'error');
     }
   };
 
@@ -605,6 +643,7 @@ export default function App() {
         onServiceRequestClick={() => {
           setShowServiceRequestModal(true);
         }}
+        pendingServiceRequestCount={serviceRequests.filter((r) => r.status === 'Pending').length}
       />
 
       {/* Main Content Area */}
@@ -759,6 +798,13 @@ export default function App() {
                   />
                 )}
 
+                {activeOwnerScreen === 'service-requests' && (
+                  <ServiceRequestsInbox
+                    serviceRequests={serviceRequests}
+                    onUpdateStatus={handleUpdateServiceRequestStatus}
+                  />
+                )}
+
                 {activeOwnerScreen === 'reports' && (
                   <div className="bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-800 p-8 rounded-xl space-y-6">
                     <div>
@@ -822,8 +868,9 @@ export default function App() {
                       const pay = payments.find(p => p.id === id);
                       if (pay) setSelectedPaymentInvoice(pay);
                     }}
-                    onOpenServiceRequest={() => {
-                      setShowServiceRequestModal(true);
+                    onOpenServiceRequests={() => {
+                      setShowMyServiceRequests(true);
+                      refreshServiceRequests();
                     }}
                   />
                 )}
@@ -1432,6 +1479,18 @@ export default function App() {
       )}
 
       {/* Service Request Modal */}
+      {showMyServiceRequests && (
+        <MyServiceRequestsModal
+          serviceRequests={serviceRequests}
+          loading={serviceRequestsLoading}
+          onNewRequest={() => {
+            setShowMyServiceRequests(false);
+            setShowServiceRequestModal(true);
+          }}
+          onClose={() => setShowMyServiceRequests(false)}
+        />
+      )}
+
       {showServiceRequestModal && (
         <div className="fixed inset-0 bg-slate-950/70 flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
           <div className="bg-white dark:bg-[#1e293b] rounded-xl border border-slate-200 dark:border-slate-800 max-w-md w-full p-6 shadow-2xl">

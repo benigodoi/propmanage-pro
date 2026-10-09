@@ -25,6 +25,7 @@ export function screenToPath(
       case 'configure-unit':
         return ctx?.unitId ? `/units/${encodeURIComponent(ctx.unitId)}` : '/properties';
       case 'payments': return '/payments';
+      case 'service-requests': return '/service-requests';
       case 'reports': return '/reports';
       case 'settings': return '/settings';
       case 'help': return '/help';
@@ -56,7 +57,7 @@ export function pathToScreen(persona: Persona, pathname: string): ResolvedScreen
     if (segments[0] === 'units' && segments.length >= 2) {
       return { screen: 'configure-unit', unitId: segments[1] };
     }
-    const owner: OwnerScreen[] = ['dashboard', 'properties', 'payments', 'reports', 'settings', 'help'];
+    const owner: OwnerScreen[] = ['dashboard', 'properties', 'payments', 'service-requests', 'reports', 'settings', 'help'];
     const match = owner.find((s) => s === segments[0]);
     return { screen: match ?? 'dashboard' };
   }

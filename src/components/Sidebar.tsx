@@ -29,6 +29,8 @@ interface SidebarProps {
   onLogout: () => void;
   onGenerateReportClick: () => void;
   onServiceRequestClick: () => void;
+  /** Owner only: shown as a badge on the Service Requests nav item. */
+  pendingServiceRequestCount?: number;
 }
 
 function initialsFor(name: string | null, email: string): string {
@@ -55,6 +57,7 @@ export default function Sidebar({
   onLogout,
   onGenerateReportClick,
   onServiceRequestClick,
+  pendingServiceRequestCount = 0,
 }: SidebarProps) {
   const { t } = useLocalization();
   const displayName = currentUserName && currentUserName.trim().length > 0 ? currentUserName : currentUserEmail;
@@ -71,10 +74,11 @@ export default function Sidebar({
     { id: 'dashboard', label: t('sidebar.dashboard'), icon: LayoutDashboard },
     { id: 'properties', label: t('sidebar.properties'), icon: Building },
     { id: 'payments', label: t('sidebar.payments'), icon: CreditCard },
+    { id: 'service-requests', label: t('sidebar.serviceRequests'), icon: Wrench, badge: pendingServiceRequestCount },
     { id: 'reports', label: t('sidebar.reports'), icon: FileText },
   ];
 
-  const tenantNavItems = [
+  const tenantNavItems: { id: string; label: string; icon: typeof Wrench; badge?: number }[] = [
     { id: 'dashboard', label: t('sidebar.dashboard'), icon: LayoutDashboard },
     { id: 'property-details', label: t('sidebar.propertyDetails'), icon: Building },
     { id: 'payments', label: t('sidebar.payments'), icon: CreditCard },
@@ -130,6 +134,11 @@ export default function Sidebar({
               >
                 <Icon size={16} className={isActive ? 'text-slate-900 dark:text-sky-400' : 'text-slate-400 dark:text-slate-500'} />
                 {item.label}
+                {!!item.badge && (
+                  <span className="ml-auto min-w-5 h-5 px-1.5 rounded-full bg-amber-500 text-white text-xxs font-extrabold flex items-center justify-center">
+                    {item.badge}
+                  </span>
+                )}
               </button>
             );
           })}
