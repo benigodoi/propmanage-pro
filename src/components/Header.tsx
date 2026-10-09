@@ -3,11 +3,26 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { Search, Bell, Settings, Sun, Moon } from 'lucide-react';
+import { Search, Bell, Settings, Sun, Moon, Wrench, CheckCircle2, AlertTriangle, Clock, Banknote } from 'lucide-react';
 import { Persona, Theme } from '../types';
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import PreferencesSelector from './PreferencesSelector';
 import { useLocalization } from '../contexts/LocalizationContext';
+import {
+  AppNotification,
+  NotificationKind,
+  loadSeenNotificationKeys,
+  saveSeenNotificationKeys,
+} from '../lib/notifications';
+
+const notificationIcon: Record<NotificationKind, { icon: typeof Bell; className: string }> = {
+  'sr-new': { icon: Wrench, className: 'text-amber-500' },
+  'sr-in-progress': { icon: Clock, className: 'text-sky-500' },
+  'sr-completed': { icon: CheckCircle2, className: 'text-emerald-500' },
+  'payment-received': { icon: Banknote, className: 'text-emerald-500' },
+  'payment-overdue': { icon: AlertTriangle, className: 'text-rose-500' },
+  'payment-due': { icon: Clock, className: 'text-amber-500' },
+};
 
 interface HeaderProps {
   persona: Persona;
@@ -20,6 +35,8 @@ interface HeaderProps {
   currentUserName: string | null;
   searchQuery: string;
   onSearchChange: (q: string) => void;
+  notifications: AppNotification[];
+  onNotificationClick: (notification: AppNotification) => void;
 }
 
 function initialsFor(name: string | null, email: string): string {
@@ -46,9 +63,75 @@ export default function Header({
   currentUserName,
   searchQuery,
   onSearchChange,
+  notifications,
+  onNotificationClick,
 }: HeaderProps) {
   const [showNotifications, setShowNotifications] = useState(false);
-  const { t } = useLocalization();
+  const [seenKeys, setSeenKeys] = useState(() => loadSeenNotificationKeys(currentUserEmail));
+  // Keys that were unread at the moment the panel opened — kept highlighted
+  // while it's open, even though opening it marks them as seen.
+  const [unreadAtOpen, setUnreadAtOpen] = useState<Set<string>>(new Set());
+  const notificationsRef = useRef<HTMLDivElement>(null);
+  const { t, formatMoney } = useLocalization();
+
+  const unreadCount = notifications.filter((n) => !seenKeys.has(n.key)).length;
+
+  const openNotifications = () => {
+    setUnreadAtOpen(new Set(notifications.filter((n) => !seenKeys.has(n.key)).map((n) => n.key)));
+    const keys = notifications.map((n) => n.key);
+    saveSeenNotificationKeys(currentUserEmail, keys);
+    setSeenKeys(new Set(keys));
+    setShowNotifications(true);
+  };
+
+  // Close on any click outside the bell/panel, or on Escape.
+  useEffect(() => {
+    if (!showNotifications) return;
+    const onPointerDown = (e: MouseEvent) => {
+      if (notificationsRef.current && !notificationsRef.current.contains(e.target as Node)) {
+        setShowNotifications(false);
+      }
+    };
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setShowNotifications(false);
+    };
+    document.addEventListener('mousedown', onPointerDown);
+    document.addEventListener('keydown', onKeyDown);
+    return () => {
+      document.removeEventListener('mousedown', onPointerDown);
+      document.removeEventListener('keydown', onKeyDown);
+    };
+  }, [showNotifications]);
+
+  const notificationText = (n: AppNotification): { title: string; detail: string } => {
+    const sr = n.serviceRequest;
+    const p = n.payment;
+    switch (n.kind) {
+      case 'sr-new':
+        return {
+          title: t('notifications.srNew'),
+          detail: t('notifications.srDetailOwner', { title: sr!.title, property: sr!.propertyName, unit: sr!.unitNumber, tenant: sr!.tenantName }),
+        };
+      case 'sr-in-progress':
+        return { title: t('notifications.srInProgress'), detail: sr!.title };
+      case 'sr-completed':
+        return { title: t('notifications.srCompleted'), detail: sr!.title };
+      case 'payment-received':
+      case 'payment-overdue':
+      case 'payment-due': {
+        const title = t(
+          n.kind === 'payment-received' ? 'notifications.paymentReceived'
+            : n.kind === 'payment-overdue' ? 'notifications.paymentOverdue'
+            : persona === 'owner' ? 'notifications.paymentAwaiting' : 'notifications.paymentDue',
+        );
+        const amount = formatMoney(n.kind === 'payment-received' && p!.status === 'Partial' ? (p!.partialAmountPaid ?? 0) : p!.totalDue);
+        const detail = persona === 'owner'
+          ? t('notifications.paymentDetailOwner', { tenant: p!.tenantName, month: p!.month, amount })
+          : t('notifications.paymentDetailTenant', { month: p!.month, amount });
+        return { title, detail };
+      }
+    }
+  };
 
   const displayName = currentUserName && currentUserName.trim().length > 0 ? currentUserName : currentUserEmail;
 
@@ -90,14 +173,20 @@ export default function Header({
           <PreferencesSelector />
 
           {/* Notifications Panel */}
-          <div className="relative">
+          <div className="relative" ref={notificationsRef}>
             <button
               id="btn-notifications"
               type="button"
-              onClick={() => setShowNotifications(!showNotifications)}
+              onClick={() => (showNotifications ? setShowNotifications(false) : openNotifications())}
               className="p-2 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-colors relative cursor-pointer"
+              title={t('header.notifications')}
             >
               <Bell size={20} />
+              {unreadCount > 0 && (
+                <span className="absolute top-1 right-1 min-w-4 h-4 px-1 rounded-full bg-rose-500 text-white text-[9px] font-extrabold flex items-center justify-center">
+                  {unreadCount > 9 ? '9+' : unreadCount}
+                </span>
+              )}
             </button>
 
             {showNotifications && (
@@ -105,9 +194,42 @@ export default function Header({
                 <div className="flex justify-between items-center px-4 py-2 border-b border-slate-100 dark:border-slate-800">
                   <span className="font-bold text-sm text-slate-900 dark:text-white">{t('header.notifications')}</span>
                 </div>
-                <div className="px-4 py-6 text-center text-xs text-slate-400 dark:text-slate-500">
-                  {t('header.noNotifications')}
-                </div>
+                {notifications.length === 0 ? (
+                  <div className="px-4 py-6 text-center text-xs text-slate-400 dark:text-slate-500">
+                    {t('header.noNotifications')}
+                  </div>
+                ) : (
+                  <ul className="max-h-96 overflow-y-auto">
+                    {notifications.map((n) => {
+                      const { icon: Icon, className } = notificationIcon[n.kind];
+                      const { title, detail } = notificationText(n);
+                      const unread = unreadAtOpen.has(n.key);
+                      return (
+                        <li key={n.key}>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setShowNotifications(false);
+                              onNotificationClick(n);
+                            }}
+                            className={`w-full text-left px-4 py-3 flex gap-3 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors cursor-pointer ${
+                              unread ? 'bg-sky-50/60 dark:bg-sky-500/10' : ''
+                            }`}
+                          >
+                            <Icon size={16} className={`shrink-0 mt-0.5 ${className}`} />
+                            <span className="min-w-0 flex-1">
+                              <span className="flex items-center gap-1.5 text-xs font-bold text-slate-900 dark:text-white">
+                                {title}
+                                {unread && <span className="h-1.5 w-1.5 rounded-full bg-sky-500" />}
+                              </span>
+                              <span className="block text-xxs text-slate-500 dark:text-slate-400 mt-0.5 truncate">{detail}</span>
+                            </span>
+                          </button>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                )}
               </div>
             )}
           </div>

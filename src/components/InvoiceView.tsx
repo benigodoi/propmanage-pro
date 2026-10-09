@@ -188,11 +188,11 @@ export default function InvoiceView({ payment, onClose }: InvoiceViewProps) {
                 {t('invoice.paymentStatus')}
               </span>
               {payment.status === 'Paid' ? (
-                <span className="px-2.5 py-0.5 bg-emerald-100 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 rounded-full font-bold uppercase text-[9px]">
+                <span className="px-2.5 py-0.5 bg-emerald-100 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 rounded-full font-bold uppercase text-[9px]">
                   ● {t('invoice.paidSuccessfully')}
                 </span>
               ) : (
-                <span className="px-2.5 py-0.5 bg-rose-100 dark:bg-rose-950/40 text-rose-700 dark:text-rose-400 rounded-full font-bold uppercase text-[9px]">
+                <span className="px-2.5 py-0.5 bg-rose-100 dark:bg-rose-500/15 text-rose-700 dark:text-rose-400 rounded-full font-bold uppercase text-[9px]">
                   ● {t('invoice.unpaidActionReq')}
                 </span>
               )}

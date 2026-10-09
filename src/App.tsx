@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import type { Session } from '@supabase/supabase-js';
 import { screenToPath, pathToScreen } from './lib/screenRouting';
@@ -40,6 +40,7 @@ import UnitConfiguration from './components/UnitConfiguration';
 import TenantDashboard from './components/TenantDashboard';
 import ServiceRequestsInbox from './components/ServiceRequestsInbox';
 import MyServiceRequestsModal from './components/MyServiceRequestsModal';
+import { buildNotifications, AppNotification } from './lib/notifications';
 import InvoiceView from './components/InvoiceView';
 import SettingsScreen from './components/SettingsScreen';
 import Toast, { ToastState, ToastVariant } from './components/Toast';
@@ -297,6 +298,25 @@ export default function App() {
     } catch (err) {
       console.error('Failed to update payment status', err);
       showToast(t('errors.updatePaymentStatus'), 'error');
+    }
+  };
+
+  const notifications = useMemo(
+    () => (user ? buildNotifications(user.persona, serviceRequests, payments) : []),
+    [user, serviceRequests, payments],
+  );
+
+  const handleNotificationClick = (n: AppNotification) => {
+    if (!user) return;
+    if (n.serviceRequest) {
+      if (user.persona === 'owner') {
+        navigate(screenToPath('owner', 'service-requests'));
+      } else {
+        setShowMyServiceRequests(true);
+        refreshServiceRequests();
+      }
+    } else {
+      navigate(screenToPath(user.persona, 'payments'));
     }
   };
 
@@ -663,6 +683,8 @@ export default function App() {
           currentUserName={user.fullName}
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
+          notifications={notifications}
+          onNotificationClick={handleNotificationClick}
         />
 
         {/* Dynamic Screen View Router */}

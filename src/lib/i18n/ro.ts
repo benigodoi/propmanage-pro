@@ -413,6 +413,18 @@ const ro: Dictionary = {
     addProperty: 'Adaugă proprietate',
     serviceRequest: 'Cerere de service',
   },
+  notifications: {
+    srNew: 'Cerere de service nouă',
+    srInProgress: 'Cererea ta este în lucru',
+    srCompleted: 'Cererea ta a fost finalizată',
+    paymentReceived: 'Plată primită',
+    paymentOverdue: 'Plată restantă',
+    paymentDue: 'Chirie de plătit',
+    paymentAwaiting: 'Plată în așteptare',
+    srDetailOwner: '{{title}} · {{property}}, Unitatea {{unit}} · {{tenant}}',
+    paymentDetailOwner: '{{tenant}} · {{month}} · {{amount}}',
+    paymentDetailTenant: '{{month}} · {{amount}}',
+  },
   preferences: {
     title: 'Limbă și monedă',
     language: 'Limbă',

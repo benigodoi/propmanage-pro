@@ -144,7 +144,7 @@ export default function OwnerDashboard({
             <span className="text-xxs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
               {t('dashboard.totalUnits')}
             </span>
-            <span className="p-1.5 bg-emerald-50 dark:bg-emerald-950/30 rounded text-emerald-600 dark:text-emerald-400">
+            <span className="p-1.5 bg-emerald-50 dark:bg-emerald-500/10 rounded text-emerald-600 dark:text-emerald-400">
               <Home size={14} />
             </span>
           </div>
@@ -162,7 +162,7 @@ export default function OwnerDashboard({
             <span className="text-xxs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
               {t('dashboard.occupancyRate')}
             </span>
-            <span className="p-1.5 bg-emerald-50 dark:bg-emerald-950/30 rounded text-emerald-600 dark:text-emerald-400">
+            <span className="p-1.5 bg-emerald-50 dark:bg-emerald-500/10 rounded text-emerald-600 dark:text-emerald-400">
               <Percent size={14} />
             </span>
           </div>
@@ -180,7 +180,7 @@ export default function OwnerDashboard({
             <span className="text-xxs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
               {t('dashboard.revenueMonthly')}
             </span>
-            <span className="p-1.5 bg-emerald-50 dark:bg-emerald-950/30 rounded text-emerald-600 dark:text-emerald-400">
+            <span className="p-1.5 bg-emerald-50 dark:bg-emerald-500/10 rounded text-emerald-600 dark:text-emerald-400">
               <DollarSign size={14} />
             </span>
           </div>
@@ -198,7 +198,7 @@ export default function OwnerDashboard({
             <span className="text-xxs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
               {t('dashboard.pendingPayments')}
             </span>
-            <span className="p-1.5 bg-rose-50 dark:bg-rose-950/30 rounded text-rose-600 dark:text-rose-400">
+            <span className="p-1.5 bg-rose-50 dark:bg-rose-500/10 rounded text-rose-600 dark:text-rose-400">
               <AlertCircle size={14} />
             </span>
           </div>
@@ -206,7 +206,7 @@ export default function OwnerDashboard({
             <span className="text-3xl font-extrabold text-red-600 dark:text-red-400 tracking-tight">{pendingPayments.length}</span>
             <div className="flex items-center gap-2 mt-2 text-xxs font-medium">
               {pendingPayments.length > 0 && (
-                <span className="px-1.5 py-0.5 bg-rose-100 dark:bg-rose-950/50 text-rose-700 dark:text-rose-400 font-bold rounded">
+                <span className="px-1.5 py-0.5 bg-rose-100 dark:bg-rose-500/15 text-rose-700 dark:text-rose-400 font-bold rounded">
                   {t('dashboard.actionRequired')}
                 </span>
               )}
@@ -319,7 +319,7 @@ export default function OwnerDashboard({
                     className="flex justify-between items-center p-2.5 border border-transparent hover:border-slate-100 dark:hover:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-900/30 rounded-lg cursor-pointer transition-all duration-200 group"
                   >
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full bg-emerald-50 dark:bg-emerald-950/20 flex items-center justify-center text-emerald-600 dark:text-emerald-400 text-xs font-bold shrink-0">
+                      <div className="w-8 h-8 rounded-full bg-emerald-50 dark:bg-emerald-500/10 flex items-center justify-center text-emerald-600 dark:text-emerald-400 text-xs font-bold shrink-0">
                         R
                       </div>
                       <div className="min-w-0">
@@ -573,13 +573,13 @@ export default function OwnerDashboard({
                     <td className="px-6 py-4 font-mono text-slate-500 dark:text-slate-400">{tn.leaseStart}</td>
                     <td className="px-6 py-4 font-mono text-slate-500 dark:text-slate-400">{tn.leaseEnd}</td>
                     <td className="px-6 py-4">
-                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400">
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-emerald-50 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-400">
                         {enumLabel(locale, tn.status)}
                       </span>
                     </td>
                     <td className="px-6 py-4">
                       {tn.hasPortalAccess ? (
-                        <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-sky-50 dark:bg-sky-950/40 text-sky-700 dark:text-sky-300">
+                        <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-sky-50 dark:bg-sky-500/15 text-sky-700 dark:text-sky-300">
                           {t('dashboard.hasAccess')}
                         </span>
                       ) : (

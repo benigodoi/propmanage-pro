@@ -1,7 +1,6 @@
 # TODO: In-app tenant invite + lease assignment
 
-**Status:** planned, not started. Scoped 2026-07-23, picked up as the natural
-next step after the manager invite/onboarding flow. Do this next session.
+**Status:** SHIPPED (2026-07-24, browser CORS fix 2026-10-09) — kept for design history; see `docs/PROJECT_STATUS.md`.
 
 ## Problem
 
