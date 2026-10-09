@@ -75,7 +75,7 @@ docs/                      # this file, PROJECT_STATUS.md
 - **Edge Function:** `invite-tenant` verifies the JWT and admin role, and derives `org_id`/`role` server-side. `redirectTo` is checked by Supabase against the redirect allowlist.
 - **Headers** (`vercel.json`):
   - Enforced: HSTS (Vercel default), `X-Frame-Options: DENY`, `nosniff`, Referrer-Policy, Permissions-Policy.
-  - The CSP is **report-only** for now. Check the browser console for CSP warnings, then rename the header to `Content-Security-Policy`. If you add an external host (fonts, images, APIs), add it to the CSP.
+  - The CSP is **enforced** (`Content-Security-Policy`). If you add an external host (fonts, images, APIs), add it to the CSP in `vercel.json`, or the browser will block it.
 - **Accepted risks (by design):**
   - An admin sees the tenant's invite link, so they could open the tenant's account before the tenant does.
   - Session limits are client-side only (Free tier).
