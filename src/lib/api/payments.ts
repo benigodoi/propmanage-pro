@@ -6,6 +6,7 @@
 import { supabase } from '../supabaseClient';
 import type { TablesInsert } from '../database.types';
 import type { Payment } from '../../types';
+import { localMonthStartISO } from '../dates';
 
 function formatMonthLabel(isoDate: string): string {
   return new Date(`${isoDate}T00:00:00`).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
@@ -58,15 +59,17 @@ export async function listPayments(): Promise<Payment[]> {
   } satisfies Payment));
 }
 
+// Sets the same status on one or more payments in a single request, so a
+// bulk action is one round trip (and one refresh) rather than N racing ones.
 export async function updatePaymentStatus(
-  id: string,
+  ids: string[],
   status: Payment['status'],
   datePaidISO?: string,
 ): Promise<void> {
   const { error } = await supabase
     .from('payments')
     .update({ status, date_paid: datePaidISO ?? null })
-    .eq('id', id);
+    .in('id', ids);
   if (error) throw error;
 }
 
@@ -91,9 +94,9 @@ export interface GeneratePaymentsInput {
 }
 
 // Generates one payment row per month for a lease, from its start month
-// through the current month (an open-ended lease is capped at "now" —
-// future months need generating some other way, there's no monthly cron
-// yet). Past months land as 'Overdue', the current month as 'Pending',
+// through the current month (an open-ended lease is capped at "now"; later
+// months are added by the daily roll_payments() pg_cron job, migration
+// 0008). Past months land as 'Overdue', the current month as 'Pending',
 // mirroring what an admin would expect to see un-paid on day one.
 export async function generatePaymentsForLease(input: GeneratePaymentsInput): Promise<void> {
   const { data: utilityItems, error: utilErr } = await supabase
@@ -105,7 +108,7 @@ export async function generatePaymentsForLease(input: GeneratePaymentsInput): Pr
   const utilityCharges = (utilityItems ?? []).reduce((sum, u) => sum + u.amount, 0);
   const breakdown: Payment['breakdown'] = utilityCharges > 0 ? ['rent', 'utilities'] : ['rent'];
 
-  const currentMonthStart = toMonthStart(new Date().toISOString());
+  const currentMonthStart = localMonthStartISO();
   const leaseEndMonth = input.leaseEnd ? toMonthStart(input.leaseEnd) : currentMonthStart;
   const cappedEndMonth = leaseEndMonth > currentMonthStart ? currentMonthStart : leaseEndMonth;
 
