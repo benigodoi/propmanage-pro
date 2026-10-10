@@ -190,10 +190,10 @@ export default function PaymentTracker({
       {/* Header & Main Actions */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
+          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-ink">
             {t('payments.title')}
           </h2>
-          <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">
+          <p className="text-ink-muted text-sm mt-1">
             {t('payments.subtitle')}
           </p>
         </div>
@@ -204,7 +204,7 @@ export default function PaymentTracker({
             id="btn-send-reminder-tracker"
             type="button"
             onClick={handleSendReminderSelected}
-            className="px-4 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-lg text-xs font-bold uppercase tracking-wider transition-all flex items-center gap-2 cursor-pointer"
+            className="px-4 py-2 bg-muted hover:bg-slate-200 dark:hover:bg-slate-700 text-ink-soft rounded-lg text-xs font-bold uppercase tracking-wider transition-all flex items-center gap-2 cursor-pointer"
           >
             <Send size={14} />
             {t('payments.sendReminder')}
@@ -224,7 +224,7 @@ export default function PaymentTracker({
             id="btn-mark-paid-tracker"
             type="button"
             onClick={handleMarkAsPaidSelected}
-            className="px-4 py-2 bg-slate-950 hover:bg-slate-900 dark:bg-sky-400 dark:hover:bg-sky-300 text-white dark:text-slate-950 rounded-lg text-xs font-bold uppercase tracking-wider transition-all flex items-center gap-2 shadow-sm cursor-pointer"
+            className="px-4 py-2 bg-primary hover:bg-primary-hover text-on-primary rounded-lg text-xs font-bold uppercase tracking-wider transition-all flex items-center gap-2 shadow-sm cursor-pointer"
           >
             <CheckCircle size={14} />
             {t('payments.markAsPaid')}
@@ -233,19 +233,19 @@ export default function PaymentTracker({
       </div>
 
       {/* Filters Card */}
-      <div className="bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-800 p-4 rounded-xl shadow-sm">
+      <div className="bg-surface border border-line p-4 rounded-xl shadow-sm">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 items-end">
 
           {/* Property Filter */}
           <div>
-            <label htmlFor="filter-property" className="block text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1.5">
+            <label htmlFor="filter-property" className="block text-[10px] font-bold text-ink-faint uppercase tracking-widest mb-1.5">
               {t('payments.property')}
             </label>
             <select
               id="filter-property"
               value={selectedProperty}
               onChange={(e) => setSelectedProperty(e.target.value)}
-              className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-950/50 border border-slate-200 dark:border-slate-800 rounded-lg text-xs font-semibold text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-sky-500/30"
+              className="w-full px-3 py-2 bg-field border border-line rounded-lg text-xs font-semibold text-ink-soft focus:outline-none focus:ring-2 focus:ring-sky-500/30"
             >
               {propertiesList.map(prop => (
                 <option key={prop} value={prop}>{prop === ALL_PROPERTIES ? t('payments.allProperties') : prop}</option>
@@ -255,14 +255,14 @@ export default function PaymentTracker({
 
           {/* Status Filter */}
           <div>
-            <label htmlFor="filter-status" className="block text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1.5">
+            <label htmlFor="filter-status" className="block text-[10px] font-bold text-ink-faint uppercase tracking-widest mb-1.5">
               {t('dashboard.status')}
             </label>
             <select
               id="filter-status"
               value={selectedStatus}
               onChange={(e) => setSelectedStatus(e.target.value)}
-              className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-950/50 border border-slate-200 dark:border-slate-800 rounded-lg text-xs font-semibold text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-sky-500/30"
+              className="w-full px-3 py-2 bg-field border border-line rounded-lg text-xs font-semibold text-ink-soft focus:outline-none focus:ring-2 focus:ring-sky-500/30"
             >
               {statusesList.map(st => (
                 <option key={st} value={st}>{st === ALL_STATUSES ? t('payments.allStatuses') : enumLabel(locale, st)}</option>
@@ -272,14 +272,14 @@ export default function PaymentTracker({
 
           {/* Month/Year Filter */}
           <div>
-            <label htmlFor="filter-month" className="block text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1.5">
+            <label htmlFor="filter-month" className="block text-[10px] font-bold text-ink-faint uppercase tracking-widest mb-1.5">
               {t('payments.monthYear')}
             </label>
             <select
               id="filter-month"
               value={selectedMonth}
               onChange={(e) => setSelectedMonth(e.target.value)}
-              className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-950/50 border border-slate-200 dark:border-slate-800 rounded-lg text-xs font-semibold text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-sky-500/30"
+              className="w-full px-3 py-2 bg-field border border-line rounded-lg text-xs font-semibold text-ink-soft focus:outline-none focus:ring-2 focus:ring-sky-500/30"
             >
               {monthsList.map(m => (
                 <option key={m} value={m}>{m === ALL_MONTHS ? t('payments.allMonths') : m}</option>
@@ -292,7 +292,7 @@ export default function PaymentTracker({
             id="btn-reset-filters"
             type="button"
             onClick={handleResetFilters}
-            className="w-full px-4 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700/50 rounded-lg text-xs font-bold text-slate-700 dark:text-slate-300 transition-colors flex items-center justify-center gap-2 h-[38px] cursor-pointer"
+            className="w-full px-4 py-2 bg-muted hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700/50 rounded-lg text-xs font-bold text-ink-soft transition-colors flex items-center justify-center gap-2 h-[38px] cursor-pointer"
           >
             <RotateCcw size={14} />
             {t('payments.resetFilters')}
@@ -304,52 +304,52 @@ export default function PaymentTracker({
       {/* KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* KPI 1 */}
-        <div className="bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-800 p-5 rounded-xl">
-          <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
+        <div className="bg-surface border border-line p-5 rounded-xl">
+          <span className="text-[10px] font-bold text-ink-faint uppercase tracking-widest">
             {t('payments.totalExpected')}
           </span>
-          <p className="text-2xl font-extrabold text-slate-900 dark:text-white mt-1.5 font-sans">
+          <p className="text-2xl font-extrabold text-ink mt-1.5 font-sans">
             {formatMoney(stats.totalExpected)}
           </p>
         </div>
 
         {/* KPI 2 */}
-        <div className="bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-800 p-5 rounded-xl">
-          <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
+        <div className="bg-surface border border-line p-5 rounded-xl">
+          <span className="text-[10px] font-bold text-ink-faint uppercase tracking-widest">
             {t('payments.totalReceived')}
           </span>
-          <p className="text-2xl font-extrabold text-slate-900 dark:text-white mt-1.5 font-sans">
+          <p className="text-2xl font-extrabold text-ink mt-1.5 font-sans">
             {formatMoney(stats.totalReceived)}
           </p>
         </div>
 
         {/* KPI 3 */}
-        <div className="bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-800 p-5 rounded-xl">
-          <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest text-red-600 dark:text-red-400">
+        <div className="bg-surface border border-line p-5 rounded-xl">
+          <span className="text-[10px] font-bold uppercase tracking-widest text-danger">
             {t('payments.totalOverdue')}
           </span>
-          <p className="text-2xl font-extrabold text-red-600 dark:text-red-400 mt-1.5 font-sans">
+          <p className="text-2xl font-extrabold text-danger mt-1.5 font-sans">
             {formatMoney(stats.totalOverdue)}
           </p>
         </div>
 
         {/* KPI 4 */}
-        <div className="bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-800 p-5 rounded-xl">
-          <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
+        <div className="bg-surface border border-line p-5 rounded-xl">
+          <span className="text-[10px] font-bold text-ink-faint uppercase tracking-widest">
             {t('payments.utilityRecoveries')}
           </span>
-          <p className="text-2xl font-extrabold text-slate-900 dark:text-white mt-1.5 font-sans">
+          <p className="text-2xl font-extrabold text-ink mt-1.5 font-sans">
             {formatMoney(stats.utilityRecoveries)}
           </p>
         </div>
       </div>
 
       {/* Main Ledger Table */}
-      <div className="bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm">
+      <div className="bg-surface border border-line rounded-xl overflow-hidden shadow-sm">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="bg-slate-50 dark:bg-slate-900 text-xxs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest border-b border-slate-200/50 dark:border-slate-800/80">
+              <tr className="bg-subtle text-xxs font-bold text-ink-faint uppercase tracking-widest border-b border-slate-200/50 dark:border-slate-800/80">
                 <th className="px-6 py-4 w-12 text-center">
                   <input
                     id="checkbox-select-all-tracker"
@@ -392,22 +392,22 @@ export default function PaymentTracker({
 
                     {/* Property / Unit */}
                     <td className="px-6 py-4">
-                      <p className="font-extrabold text-slate-900 dark:text-white">{p.propertyName}</p>
-                      <p className="text-xxs text-slate-400 dark:text-slate-500 mt-0.5">{t('dashboard.unitLabel', { unit: p.unitNumber })}</p>
+                      <p className="font-extrabold text-ink">{p.propertyName}</p>
+                      <p className="text-xxs text-ink-faint mt-0.5">{t('dashboard.unitLabel', { unit: p.unitNumber })}</p>
                     </td>
 
                     {/* Tenant */}
-                    <td className="px-6 py-4 font-bold text-slate-700 dark:text-slate-300">
+                    <td className="px-6 py-4 font-bold text-ink-soft">
                       {p.tenantName}
                     </td>
 
                     {/* Month */}
-                    <td className="px-6 py-4 text-slate-500 dark:text-slate-400 font-medium">
+                    <td className="px-6 py-4 text-ink-muted font-medium">
                       {p.month}
                     </td>
 
                     {/* Total Due */}
-                    <td className="px-6 py-4 font-extrabold text-slate-900 dark:text-white font-sans text-sm">
+                    <td className="px-6 py-4 font-extrabold text-ink font-sans text-sm">
                       {formatMoney(p.totalDue)}
                     </td>
 
@@ -455,7 +455,7 @@ export default function PaymentTracker({
                     </td>
 
                     {/* Date Paid */}
-                    <td className="px-6 py-4 font-semibold text-slate-500 dark:text-slate-400">
+                    <td className="px-6 py-4 font-semibold text-ink-muted">
                       {p.datePaid || '—'}
                     </td>
 
@@ -468,7 +468,7 @@ export default function PaymentTracker({
                           onChange={(e) => handleRowStatusChange(p, e.target.value as Payment['status'])}
                           title={t('payments.changeStatus')}
                           aria-label={t('payments.changeStatus')}
-                          className="px-1.5 py-1 rounded bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 text-[10px] font-bold uppercase tracking-wider cursor-pointer"
+                          className="px-1.5 py-1 rounded bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-ink-soft text-[10px] font-bold uppercase tracking-wider cursor-pointer"
                         >
                           {(['Pending', 'Overdue', 'Paid'] as const).map((s) => (
                             <option
@@ -486,7 +486,7 @@ export default function PaymentTracker({
                           id={`btn-open-invoice-${p.id}`}
                           type="button"
                           onClick={() => onOpenInvoice(p.id)}
-                          className="px-2.5 py-1 rounded bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-[10px] font-bold uppercase tracking-wider cursor-pointer"
+                          className="px-2.5 py-1 rounded bg-muted hover:bg-slate-200 dark:hover:bg-slate-700 text-ink-soft text-[10px] font-bold uppercase tracking-wider cursor-pointer"
                         >
                           {t('payments.invoice')}
                         </button>
@@ -501,8 +501,8 @@ export default function PaymentTracker({
         </div>
 
         {/* Footer info/pagination */}
-        <div className="px-6 py-4 bg-slate-50 dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 flex justify-between items-center">
-          <span className="text-xxs text-slate-400 dark:text-slate-500 font-semibold uppercase tracking-wider">
+        <div className="px-6 py-4 bg-subtle border-t border-line-subtle flex justify-between items-center">
+          <span className="text-xxs text-ink-faint font-semibold uppercase tracking-wider">
             {t('payments.showingEntries', { shown: filteredPayments.length, total: payments.length })}
           </span>
 
@@ -529,7 +529,7 @@ export default function PaymentTracker({
 
       {/* Legend & Utility Notice footer */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-4 bg-slate-50 dark:bg-[#0f172a] border border-slate-200/50 dark:border-slate-800 rounded-xl gap-4">
-        <div className="flex flex-wrap gap-4 text-xxs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">
+        <div className="flex flex-wrap gap-4 text-xxs font-bold text-ink-muted uppercase tracking-wide">
           <span className="text-slate-400">{t('payments.legend')}:</span>
           <div className="flex items-center gap-1.5">
             <span className="w-3.5 h-3.5 rounded bg-sky-100 dark:bg-sky-500/15 block border border-sky-200 dark:border-sky-800" />
@@ -540,7 +540,7 @@ export default function PaymentTracker({
             <span>{t('payments.rentPlusUtilities')}</span>
           </div>
         </div>
-        <div className="flex items-center gap-1.5 text-xxs text-slate-400 dark:text-slate-500 font-semibold italic">
+        <div className="flex items-center gap-1.5 text-xxs text-ink-faint font-semibold italic">
           <HelpCircle size={14} className="text-slate-400" />
           <span>{t('payments.utilityNote')}</span>
         </div>

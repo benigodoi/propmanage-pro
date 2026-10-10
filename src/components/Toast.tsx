@@ -30,7 +30,7 @@ const VARIANT_STYLES: Record<ToastVariant, { icon: React.ElementType; classes: s
   },
   info: {
     icon: Info,
-    classes: 'bg-slate-50 dark:bg-slate-900/90 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300',
+    classes: 'bg-slate-50 dark:bg-slate-900/90 border-line text-ink-soft',
   },
 };
 

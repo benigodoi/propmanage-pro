@@ -181,7 +181,7 @@ export default function Sidebar({
       role={drawerOpen ? 'dialog' : undefined}
       aria-modal={drawerOpen ? true : undefined}
       aria-label={drawerOpen ? t('header.openMenu') : undefined}
-      className={`fixed inset-y-0 left-0 z-[42] w-70 max-w-[85vw] flex flex-col justify-between h-dvh overflow-y-auto bg-[#faf8f9] dark:bg-[#020617] border-r border-slate-200 dark:border-slate-800 shrink-0 transition-[transform,background-color,border-color] duration-200 lg:sticky lg:top-0 lg:z-auto lg:max-w-none lg:translate-x-0 ${
+      className={`fixed inset-y-0 left-0 z-[42] w-70 max-w-[85vw] flex flex-col justify-between h-dvh overflow-y-auto bg-sidebar border-r border-line shrink-0 transition-[transform,background-color,border-color] duration-200 lg:sticky lg:top-0 lg:z-auto lg:max-w-none lg:translate-x-0 ${
         mobileOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full'
       }`}
     >
@@ -190,7 +190,7 @@ export default function Sidebar({
       <div className="flex flex-col">
         {/* Brand */}
         <div className="h-16 flex items-center justify-between px-6 border-b border-slate-200/50 dark:border-slate-800/50">
-          <span className="text-lg font-extrabold tracking-tight text-slate-900 dark:text-white">
+          <span className="text-lg font-extrabold tracking-tight text-ink">
             PropManage Pro
           </span>
           <button
@@ -198,7 +198,7 @@ export default function Sidebar({
             ref={closeButtonRef}
             type="button"
             onClick={onMobileClose}
-            className="lg:hidden -mr-2 p-2 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-colors cursor-pointer"
+            className="lg:hidden -mr-2 p-2 rounded-lg text-ink-muted hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-colors cursor-pointer"
             aria-label={t('sidebar.closeMenu')}
           >
             <X size={20} />
@@ -206,15 +206,15 @@ export default function Sidebar({
         </div>
 
         {/* Profile Info block */}
-        <div className="p-4 mx-3 my-4 bg-white dark:bg-[#0f172a] border border-slate-200/60 dark:border-slate-800 rounded-xl flex items-center gap-3">
-          <div className="h-10 w-10 shrink-0 rounded-full bg-sky-100 dark:bg-sky-950 text-sky-700 dark:text-sky-300 font-extrabold flex items-center justify-center text-sm ring-2 ring-slate-100 dark:ring-slate-800">
+        <div className="p-4 mx-3 my-4 bg-chrome border border-slate-200/60 dark:border-slate-800 rounded-xl flex items-center gap-3">
+          <div className="h-10 w-10 shrink-0 rounded-full bg-sky-100 dark:bg-sky-950 text-sky-700 dark:text-sky-300 font-extrabold flex items-center justify-center text-sm ring-2 ring-line-subtle">
             {initialsFor(currentUserName, currentUserEmail)}
           </div>
           <div className="min-w-0">
-            <p className="text-xs font-bold text-slate-900 dark:text-white truncate">
+            <p className="text-xs font-bold text-ink truncate">
               {displayName}
             </p>
-            <p className="text-xxs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wide truncate">
+            <p className="text-xxs font-semibold text-ink-faint uppercase tracking-wide truncate">
               {persona === 'owner' ? t('sidebar.propertyManager') : t('sidebar.tenant')}
             </p>
           </div>
@@ -234,10 +234,10 @@ export default function Sidebar({
                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
                   isActive
                     ? 'bg-slate-200/80 dark:bg-sky-950/45 text-slate-950 dark:text-sky-400 border-l-4 border-slate-900 dark:border-sky-400'
-                    : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/40'
+                    : 'text-ink-muted hover:text-ink hover:bg-slate-100 dark:hover:bg-slate-800/40'
                 }`}
               >
-                <Icon size={16} className={isActive ? 'text-slate-900 dark:text-sky-400' : 'text-slate-400 dark:text-slate-500'} />
+                <Icon size={16} className={isActive ? 'text-slate-900 dark:text-sky-400' : 'text-ink-faint'} />
                 {item.label}
                 {!!item.badge && (
                   <span className="ml-auto min-w-5 h-5 px-1.5 rounded-full bg-amber-500 text-white text-xxs font-extrabold flex items-center justify-center">
@@ -275,8 +275,8 @@ export default function Sidebar({
             id="sidebar-footer-settings"
             type="button"
             onClick={() => handleNavClick('settings')}
-            className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-xs font-semibold text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/30 transition-all cursor-pointer ${
-              currentActiveScreen === 'settings' ? 'bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white' : ''
+            className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-xs font-semibold hover:text-ink hover:bg-slate-100 dark:hover:bg-slate-800/30 transition-all cursor-pointer ${
+              currentActiveScreen === 'settings' ? 'bg-muted text-ink' : 'text-ink-muted'
             }`}
           >
             <Settings size={16} />
@@ -287,8 +287,8 @@ export default function Sidebar({
             id="sidebar-footer-help"
             type="button"
             onClick={() => handleNavClick('help')}
-            className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-xs font-semibold text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/30 transition-all cursor-pointer ${
-              currentActiveScreen === 'help' ? 'bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white' : ''
+            className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-xs font-semibold hover:text-ink hover:bg-slate-100 dark:hover:bg-slate-800/30 transition-all cursor-pointer ${
+              currentActiveScreen === 'help' ? 'bg-muted text-ink' : 'text-ink-muted'
             }`}
           >
             <HelpCircle size={16} />
@@ -299,7 +299,7 @@ export default function Sidebar({
             id="sidebar-footer-logout"
             type="button"
             onClick={onLogout}
-            className="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-xs font-semibold text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/20 transition-all text-left cursor-pointer"
+            className="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-xs font-semibold text-danger hover:bg-red-50 dark:hover:bg-red-950/20 transition-all text-left cursor-pointer"
           >
             <LogOut size={16} />
             {t('sidebar.logOut')}

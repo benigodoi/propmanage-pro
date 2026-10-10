@@ -95,17 +95,17 @@ export default function UnitConfiguration({
       {/* Header section */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-slate-200/50 dark:border-slate-800 pb-4">
         <div>
-          <div className="flex items-center gap-2 text-xxs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
+          <div className="flex items-center gap-2 text-xxs font-bold text-ink-faint uppercase tracking-widest">
             <span>{t('sidebar.properties')}</span>
             <span>&gt;</span>
             <span>{unit.propertyName}</span>
             <span>&gt;</span>
-            <span className="text-slate-600 dark:text-slate-400">{t('dashboard.unitLabel', { unit: unit.unitNumber })}</span>
+            <span className="text-ink-secondary">{t('dashboard.unitLabel', { unit: unit.unitNumber })}</span>
           </div>
-          <h2 className="text-2xl font-bold text-slate-900 dark:text-white mt-1">
+          <h2 className="text-2xl font-bold text-ink mt-1">
             {t('unitConfig.title', { unit: unit.unitNumber })}
           </h2>
-          <p className="text-slate-500 dark:text-slate-400 text-xs mt-1">
+          <p className="text-ink-muted text-xs mt-1">
             {t('unitConfig.summary', { property: unit.propertyName, bedrooms: unit.bedrooms, bathrooms: unit.bathrooms, sqft: unit.sqft })}
           </p>
         </div>
@@ -127,7 +127,7 @@ export default function UnitConfiguration({
             className={`px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all flex items-center gap-2 cursor-pointer ${
               saveSuccess
                 ? 'bg-emerald-600 text-white'
-                : 'bg-slate-950 hover:bg-slate-900 dark:bg-sky-400 dark:hover:bg-sky-300 text-white dark:text-slate-950'
+                : 'bg-primary hover:bg-primary-hover text-on-primary'
             }`}
           >
             {saveSuccess ? (
@@ -146,8 +146,8 @@ export default function UnitConfiguration({
 
         {/* Left column: Financial Configuration (occupies 2 cols) */}
         <div className="lg:col-span-2 space-y-6">
-          <div className="bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-800 rounded-xl p-6 shadow-sm">
-            <h3 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider mb-6 pb-2 border-b border-slate-100 dark:border-slate-800/60">
+          <div className="bg-surface border border-line rounded-xl p-6 shadow-sm">
+            <h3 className="text-sm font-bold text-ink uppercase tracking-wider mb-6 pb-2 border-b border-slate-100 dark:border-slate-800/60">
               {t('unitConfig.financialConfig')}
             </h3>
 
@@ -156,7 +156,7 @@ export default function UnitConfiguration({
 
                 {/* Rent Field */}
                 <div>
-                  <label htmlFor="base-monthly-rent" className="block text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1.5">
+                  <label htmlFor="base-monthly-rent" className="block text-[10px] font-bold text-ink-faint uppercase tracking-widest mb-1.5">
                     {t('unitConfig.baseMonthlyRent')}
                   </label>
                   <div className="relative">
@@ -168,17 +168,17 @@ export default function UnitConfiguration({
                       type="number"
                       value={baseRent}
                       onChange={(e) => setBaseRent(Number(e.target.value))}
-                      className="w-full pl-8 pr-4 py-2.5 bg-slate-50 dark:bg-slate-950/50 border border-slate-200 dark:border-slate-800 rounded-lg text-sm font-semibold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-sky-500/30"
+                      className="w-full pl-8 pr-4 py-2.5 bg-field border border-line rounded-lg text-sm font-semibold text-ink focus:outline-none focus:ring-2 focus:ring-sky-500/30"
                     />
                   </div>
                   {currency !== 'EUR' && (
-                    <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-1">{t('unitConfig.convertedHint', { amount: formatMoney(baseRent) })}</p>
+                    <p className="text-[10px] text-ink-faint mt-1">{t('unitConfig.convertedHint', { amount: formatMoney(baseRent) })}</p>
                   )}
                 </div>
 
                 {/* Separator Notice Box */}
-                <div className="p-4 bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-lg text-xxs text-slate-500 dark:text-slate-400 font-medium leading-relaxed">
-                  <span className="font-bold text-slate-700 dark:text-slate-300 block mb-1">ℹ️ {t('unitConfig.notice')}:</span>
+                <div className="p-4 bg-subtle border border-line-subtle rounded-lg text-xxs text-ink-muted font-medium leading-relaxed">
+                  <span className="font-bold text-ink-soft block mb-1">ℹ️ {t('unitConfig.notice')}:</span>
                   {t('unitConfig.noticeBody')}
                 </div>
               </div>
@@ -186,21 +186,21 @@ export default function UnitConfiguration({
               {/* Projection Box */}
               <div className="bg-slate-50 dark:bg-slate-900/60 border border-slate-200/50 dark:border-slate-800 p-6 rounded-xl flex flex-col justify-between h-full">
                 <div>
-                  <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
+                  <span className="text-[10px] font-bold text-ink-faint uppercase tracking-widest">
                     {t('unitConfig.totalMonthlyProjection')}
                   </span>
-                  <p className="text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight mt-2 font-sans">
+                  <p className="text-4xl font-extrabold text-ink tracking-tight mt-2 font-sans">
                     {formatMoney(totalProjection)}
                   </p>
                 </div>
-                <div className="border-t border-slate-200/60 dark:border-slate-800 pt-4 mt-4 space-y-2 text-xs font-semibold text-slate-600 dark:text-slate-400">
+                <div className="border-t border-slate-200/60 dark:border-slate-800 pt-4 mt-4 space-y-2 text-xs font-semibold text-ink-secondary">
                   <div className="flex justify-between">
                     <span>{t('unitConfig.baseRent')}</span>
-                    <span className="font-mono text-slate-900 dark:text-white">{formatMoney(baseRent)}</span>
+                    <span className="font-mono text-ink">{formatMoney(baseRent)}</span>
                   </div>
                   <div className="flex justify-between">
                     <span>{t('unitConfig.selectedUtilities')}</span>
-                    <span className="font-mono text-slate-900 dark:text-white">{formatMoney(totalUtilities)}</span>
+                    <span className="font-mono text-ink">{formatMoney(totalUtilities)}</span>
                   </div>
                 </div>
               </div>
@@ -210,7 +210,7 @@ export default function UnitConfiguration({
             {/* Utilities and Add-ons Sub-list */}
             <div className="mt-8 pt-6 border-t border-slate-100 dark:border-slate-800/60">
               <div className="flex justify-between items-center mb-4">
-                <h4 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
+                <h4 className="text-xs font-bold text-ink uppercase tracking-wider">
                   {t('unitConfig.utilitiesAddons')}
                 </h4>
 
@@ -228,7 +228,7 @@ export default function UnitConfiguration({
 
               {/* Inline Add Utility Form */}
               {showAddForm && (
-                <form onSubmit={handleAddUtility} className="mb-4 p-4 bg-slate-50 dark:bg-slate-900 rounded-lg flex flex-wrap gap-3 items-end">
+                <form onSubmit={handleAddUtility} className="mb-4 p-4 bg-subtle rounded-lg flex flex-wrap gap-3 items-end">
                   <div className="flex-1 min-w-[120px]">
                     <label htmlFor="new-utility-name" className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">{t('unitConfig.name')}</label>
                     <input
@@ -238,7 +238,7 @@ export default function UnitConfiguration({
                       placeholder={t('unitConfig.utilityNamePlaceholder')}
                       value={newUtilityName}
                       onChange={(e) => setNewUtilityName(e.target.value)}
-                      className="w-full px-3 py-1.5 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded text-xs focus:outline-none"
+                      className="w-full px-3 py-1.5 bg-white dark:bg-slate-950 border border-line rounded text-xs focus:outline-none"
                     />
                   </div>
                   <div className="w-24">
@@ -250,12 +250,12 @@ export default function UnitConfiguration({
                       min="1"
                       value={newUtilityAmount || ''}
                       onChange={(e) => setNewUtilityAmount(Number(e.target.value))}
-                      className="w-full px-3 py-1.5 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded text-xs focus:outline-none"
+                      className="w-full px-3 py-1.5 bg-white dark:bg-slate-950 border border-line rounded text-xs focus:outline-none"
                     />
                   </div>
                   <div className="flex gap-2">
                     <button type="submit" className="px-3 py-1.5 bg-sky-500 text-white rounded text-xs font-bold hover:bg-sky-400">{t('unitConfig.add')}</button>
-                    <button type="button" onClick={() => setShowAddForm(false)} className="px-3 py-1.5 bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded text-xs">{t('common.cancel')}</button>
+                    <button type="button" onClick={() => setShowAddForm(false)} className="px-3 py-1.5 bg-slate-200 dark:bg-slate-800 text-ink-secondary rounded text-xs">{t('common.cancel')}</button>
                   </div>
                 </form>
               )}
@@ -267,7 +267,7 @@ export default function UnitConfiguration({
                     key={item.id}
                     className="flex justify-between items-center p-3 border border-slate-150 dark:border-slate-800 rounded-lg"
                   >
-                    <div className="flex items-center gap-2 text-slate-700 dark:text-slate-300 font-semibold text-xs">
+                    <div className="flex items-center gap-2 text-ink-soft font-semibold text-xs">
                       <span className="w-1.5 h-1.5 rounded-full bg-sky-500" />
                       <span>{item.name}</span>
                     </div>
@@ -302,8 +302,8 @@ export default function UnitConfiguration({
 
           {/* Tenant block */}
           {unit.activeTenant ? (
-            <div className="bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-800 rounded-xl p-5 shadow-sm">
-              <h3 className="text-xxs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-4">
+            <div className="bg-surface border border-line rounded-xl p-5 shadow-sm">
+              <h3 className="text-xxs font-bold text-ink-faint uppercase tracking-widest mb-4">
                 {t('unitConfig.activeTenant')}
               </h3>
 
@@ -312,7 +312,7 @@ export default function UnitConfiguration({
                   {unit.activeTenant.name.split(' ').map(n => n[0]).join('')}
                 </div>
                 <div>
-                  <h4 className="text-sm font-bold text-slate-900 dark:text-white">
+                  <h4 className="text-sm font-bold text-ink">
                     {unit.activeTenant.name}
                   </h4>
                   <p className="text-xxs font-semibold text-slate-400 uppercase tracking-wide">
@@ -322,7 +322,7 @@ export default function UnitConfiguration({
               </div>
 
               {/* Metadata block */}
-              <div className="space-y-3.5 text-xs font-semibold text-slate-600 dark:text-slate-400 border-t border-b border-slate-100 dark:border-slate-800/60 py-4 mb-4">
+              <div className="space-y-3.5 text-xs font-semibold text-ink-secondary border-t border-b border-slate-100 dark:border-slate-800/60 py-4 mb-4">
                 <div className="flex items-center gap-2">
                   <Mail size={14} className="text-slate-400 shrink-0" />
                   <span className="truncate">{unit.activeTenant.email}</span>
@@ -338,17 +338,17 @@ export default function UnitConfiguration({
               </div>
             </div>
           ) : (
-            <div className="bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-800 rounded-xl p-5 shadow-sm text-center">
-              <h3 className="text-xxs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-4 text-left">
+            <div className="bg-surface border border-line rounded-xl p-5 shadow-sm text-center">
+              <h3 className="text-xxs font-bold text-ink-faint uppercase tracking-widest mb-4 text-left">
                 {t('unitConfig.activeTenant')}
               </h3>
-              <p className="text-xs font-bold text-slate-600 dark:text-slate-400">{t('unitConfig.noActiveTenant')}</p>
+              <p className="text-xs font-bold text-ink-secondary">{t('unitConfig.noActiveTenant')}</p>
             </div>
           )}
 
           {/* Lease Documents block */}
-          <div className="bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-800 rounded-xl p-5 shadow-sm">
-            <h3 className="text-xxs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-4">
+          <div className="bg-surface border border-line rounded-xl p-5 shadow-sm">
+            <h3 className="text-xxs font-bold text-ink-faint uppercase tracking-widest mb-4">
               {t('unitConfig.leaseDocuments')}
             </h3>
 
@@ -356,7 +356,7 @@ export default function UnitConfiguration({
               {unit.leaseDocs?.map((doc, idx) => (
                 <div
                   key={idx}
-                  className="flex justify-between items-center p-2 hover:bg-slate-50 dark:hover:bg-slate-900 rounded-lg border border-transparent hover:border-slate-100 dark:hover:border-slate-800 transition-all cursor-pointer"
+                  className="flex justify-between items-center p-2 hover:bg-subtle rounded-lg border border-transparent hover:border-line-subtle transition-all cursor-pointer"
                   onClick={() => onNotify(t('unitConfig.downloadingDocument', { name: doc.name }))}
                 >
                   <div className="flex items-center gap-2">

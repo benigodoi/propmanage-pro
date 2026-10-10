@@ -87,10 +87,10 @@ export default function OwnerDashboard({
       {/* Title & Tabs */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
-          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 dark:text-white font-sans">
+          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-ink font-sans">
             {t('dashboard.title')}
           </h2>
-          <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">
+          <p className="text-ink-muted text-sm mt-1">
             {t('dashboard.subtitle')}
           </p>
         </div>
@@ -103,8 +103,8 @@ export default function OwnerDashboard({
             onClick={() => setActiveTab('overview')}
             className={`px-4 py-1.5 rounded-md text-xs font-bold transition-all ${
               activeTab === 'overview'
-                ? 'bg-slate-950 dark:bg-sky-400 text-white dark:text-slate-950 shadow-sm'
-                : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white'
+                ? 'bg-primary text-on-primary shadow-sm'
+                : 'text-ink-muted hover:text-slate-800 dark:hover:text-white'
             }`}
           >
             {t('dashboard.tabOverview')}
@@ -115,8 +115,8 @@ export default function OwnerDashboard({
             onClick={() => setActiveTab('financials')}
             className={`px-4 py-1.5 rounded-md text-xs font-bold transition-all ${
               activeTab === 'financials'
-                ? 'bg-slate-950 dark:bg-sky-400 text-white dark:text-slate-950 shadow-sm'
-                : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white'
+                ? 'bg-primary text-on-primary shadow-sm'
+                : 'text-ink-muted hover:text-slate-800 dark:hover:text-white'
             }`}
           >
             {t('dashboard.tabFinancials')}
@@ -127,8 +127,8 @@ export default function OwnerDashboard({
             onClick={() => setActiveTab('tenants')}
             className={`px-4 py-1.5 rounded-md text-xs font-bold transition-all ${
               activeTab === 'tenants'
-                ? 'bg-slate-950 dark:bg-sky-400 text-white dark:text-slate-950 shadow-sm'
-                : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white'
+                ? 'bg-primary text-on-primary shadow-sm'
+                : 'text-ink-muted hover:text-slate-800 dark:hover:text-white'
             }`}
           >
             {t('dashboard.tabTenants')}
@@ -139,63 +139,63 @@ export default function OwnerDashboard({
       {/* Metrics Row */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Metric 1 */}
-        <div className="bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-800 p-6 rounded-xl">
+        <div className="bg-surface border border-line p-6 rounded-xl">
           <div className="flex justify-between items-start">
-            <span className="text-xxs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
+            <span className="text-xxs font-bold text-ink-faint uppercase tracking-widest">
               {t('dashboard.totalUnits')}
             </span>
-            <span className="p-1.5 bg-emerald-50 dark:bg-emerald-500/10 rounded text-emerald-600 dark:text-emerald-400">
+            <span className="p-1.5 bg-success-soft rounded text-success">
               <Home size={14} />
             </span>
           </div>
           <div className="mt-4">
-            <span className="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">{totalUnits}</span>
-            <div className="flex items-center gap-1.5 mt-2 text-xxs text-slate-500 dark:text-slate-400 font-medium">
+            <span className="text-3xl font-extrabold text-ink tracking-tight">{totalUnits}</span>
+            <div className="flex items-center gap-1.5 mt-2 text-xxs text-ink-muted font-medium">
               <span>{t(properties.length === 1 ? 'dashboard.acrossOneProperty' : 'dashboard.acrossProperties', { count: properties.length })}</span>
             </div>
           </div>
         </div>
 
         {/* Metric 2 */}
-        <div className="bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-800 p-6 rounded-xl">
+        <div className="bg-surface border border-line p-6 rounded-xl">
           <div className="flex justify-between items-start">
-            <span className="text-xxs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
+            <span className="text-xxs font-bold text-ink-faint uppercase tracking-widest">
               {t('dashboard.occupancyRate')}
             </span>
-            <span className="p-1.5 bg-emerald-50 dark:bg-emerald-500/10 rounded text-emerald-600 dark:text-emerald-400">
+            <span className="p-1.5 bg-success-soft rounded text-success">
               <Percent size={14} />
             </span>
           </div>
           <div className="mt-4">
-            <span className="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">{overallOccupancy}%</span>
-            <div className="flex items-center gap-1.5 mt-2 text-xxs text-slate-500 dark:text-slate-400 font-medium">
+            <span className="text-3xl font-extrabold text-ink tracking-tight">{overallOccupancy}%</span>
+            <div className="flex items-center gap-1.5 mt-2 text-xxs text-ink-muted font-medium">
               <span>{t('dashboard.unitsOccupied', { occupied: occupiedUnits, total: totalUnits })}</span>
             </div>
           </div>
         </div>
 
         {/* Metric 3 */}
-        <div className="bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-800 p-6 rounded-xl">
+        <div className="bg-surface border border-line p-6 rounded-xl">
           <div className="flex justify-between items-start">
-            <span className="text-xxs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
+            <span className="text-xxs font-bold text-ink-faint uppercase tracking-widest">
               {t('dashboard.revenueMonthly')}
             </span>
-            <span className="p-1.5 bg-emerald-50 dark:bg-emerald-500/10 rounded text-emerald-600 dark:text-emerald-400">
+            <span className="p-1.5 bg-success-soft rounded text-success">
               <DollarSign size={14} />
             </span>
           </div>
           <div className="mt-4">
-            <span className="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">{formatMoney(monthlyRevenue)}</span>
-            <div className="flex items-center gap-1.5 mt-2 text-xxs text-slate-500 dark:text-slate-400 font-medium">
+            <span className="text-3xl font-extrabold text-ink tracking-tight">{formatMoney(monthlyRevenue)}</span>
+            <div className="flex items-center gap-1.5 mt-2 text-xxs text-ink-muted font-medium">
               <span>{t('dashboard.fromOccupiedUnits')}</span>
             </div>
           </div>
         </div>
 
         {/* Metric 4 */}
-        <div className="bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-800 p-6 rounded-xl">
+        <div className="bg-surface border border-line p-6 rounded-xl">
           <div className="flex justify-between items-start">
-            <span className="text-xxs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
+            <span className="text-xxs font-bold text-ink-faint uppercase tracking-widest">
               {t('dashboard.pendingPayments')}
             </span>
             <span className="p-1.5 bg-rose-50 dark:bg-rose-500/10 rounded text-rose-600 dark:text-rose-400">
@@ -203,14 +203,14 @@ export default function OwnerDashboard({
             </span>
           </div>
           <div className="mt-4">
-            <span className="text-3xl font-extrabold text-red-600 dark:text-red-400 tracking-tight">{pendingPayments.length}</span>
+            <span className="text-3xl font-extrabold text-danger tracking-tight">{pendingPayments.length}</span>
             <div className="flex items-center gap-2 mt-2 text-xxs font-medium">
               {pendingPayments.length > 0 && (
                 <span className="px-1.5 py-0.5 bg-rose-100 dark:bg-rose-500/15 text-rose-700 dark:text-rose-400 font-bold rounded">
                   {t('dashboard.actionRequired')}
                 </span>
               )}
-              <span className="text-slate-500 dark:text-slate-400">{t('dashboard.total')}: {formatMoney(pendingTotal)}</span>
+              <span className="text-ink-muted">{t('dashboard.total')}: {formatMoney(pendingTotal)}</span>
             </div>
           </div>
         </div>
@@ -222,13 +222,13 @@ export default function OwnerDashboard({
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
             {/* Chart Widget */}
-            <div className="lg:col-span-2 bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-800 p-6 rounded-xl">
+            <div className="lg:col-span-2 bg-surface border border-line p-6 rounded-xl">
               <div className="flex justify-between items-center mb-6">
-                <h3 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider">
+                <h3 className="text-sm font-bold text-ink uppercase tracking-wider">
                   {t('dashboard.revenueHistory')}
                 </h3>
-                <div className="flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-400 font-medium">
-                  <span className="w-2.5 h-2.5 rounded-full bg-slate-950 dark:bg-sky-400" />
+                <div className="flex items-center gap-1.5 text-xs text-ink-secondary font-medium">
+                  <span className="w-2.5 h-2.5 rounded-full bg-primary" />
                   <span>{t('dashboard.revenue')}</span>
                 </div>
               </div>
@@ -238,15 +238,15 @@ export default function OwnerDashboard({
 
                 {/* Y-Axis lines and markers */}
                 <div className="absolute inset-y-0 left-0 right-0 flex flex-col justify-between pointer-events-none text-slate-300 dark:text-slate-800">
-                  <div className="border-b border-dashed border-slate-200 dark:border-slate-800 w-full h-0" />
-                  <div className="border-b border-dashed border-slate-200 dark:border-slate-800 w-full h-0" />
-                  <div className="border-b border-dashed border-slate-200 dark:border-slate-800 w-full h-0" />
-                  <div className="border-b border-dashed border-slate-200 dark:border-slate-800 w-full h-0" />
+                  <div className="border-b border-dashed border-line w-full h-0" />
+                  <div className="border-b border-dashed border-line w-full h-0" />
+                  <div className="border-b border-dashed border-line w-full h-0" />
+                  <div className="border-b border-dashed border-line w-full h-0" />
                   <div className="border-b border-dashed border-slate-200 dark:border-slate-800/80 w-full h-0" />
                 </div>
 
                 {/* Left side labels */}
-                <div className="absolute left-1 top-1 text-[10px] font-semibold text-slate-400 dark:text-slate-500 flex flex-col justify-between h-full py-2 pointer-events-none">
+                <div className="absolute left-1 top-1 text-[10px] font-semibold text-ink-faint flex flex-col justify-between h-full py-2 pointer-events-none">
                   <span>{formatMoney(Math.round(maxRevenue / 1000) * 1000)}</span>
                   <span>{formatMoney(Math.round((maxRevenue * 0.75) / 1000) * 1000)}</span>
                   <span>{formatMoney(Math.round((maxRevenue * 0.5) / 1000) * 1000)}</span>
@@ -279,7 +279,7 @@ export default function OwnerDashboard({
                           {/* Bar Segment */}
                           <div
                             className={`w-full rounded-t-sm transition-all duration-300 relative overflow-hidden ${
-                              isHovered ? 'bg-sky-600' : 'bg-slate-950 dark:bg-sky-400'
+                              isHovered ? 'bg-sky-600' : 'bg-primary'
                             }`}
                             style={{ height: `${heightPercent}%` }}
                           >
@@ -287,7 +287,7 @@ export default function OwnerDashboard({
                           </div>
 
                           {/* Label */}
-                          <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 mt-3 block tracking-wide text-center">
+                          <span className="text-[10px] font-bold text-ink-faint mt-3 block tracking-wide text-center">
                             {d.month.split(' ')[0].slice(0, 3).toUpperCase()}
                           </span>
                         </div>
@@ -295,7 +295,7 @@ export default function OwnerDashboard({
                     })}
                   </div>
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center text-xs text-slate-400 dark:text-slate-500 font-semibold">
+                  <div className="w-full h-full flex items-center justify-center text-xs text-ink-faint font-semibold">
                     {t('dashboard.noBilledPayments')}
                   </div>
                 )}
@@ -303,9 +303,9 @@ export default function OwnerDashboard({
             </div>
 
             {/* Recent Activity Sidebar Widget */}
-            <div className="bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-800 p-6 rounded-xl flex flex-col">
+            <div className="bg-surface border border-line p-6 rounded-xl flex flex-col">
               <div className="flex justify-between items-center mb-6">
-                <h3 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider">
+                <h3 className="text-sm font-bold text-ink uppercase tracking-wider">
                   {t('dashboard.recentActivity')}
                 </h3>
               </div>
@@ -316,33 +316,33 @@ export default function OwnerDashboard({
                   <div
                     key={p.id}
                     onClick={() => onOpenInvoice(p.id)}
-                    className="flex justify-between items-center p-2.5 border border-transparent hover:border-slate-100 dark:hover:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-900/30 rounded-lg cursor-pointer transition-all duration-200 group"
+                    className="flex justify-between items-center p-2.5 border border-transparent hover:border-line-subtle hover:bg-slate-50 dark:hover:bg-slate-900/30 rounded-lg cursor-pointer transition-all duration-200 group"
                   >
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full bg-emerald-50 dark:bg-emerald-500/10 flex items-center justify-center text-emerald-600 dark:text-emerald-400 text-xs font-bold shrink-0">
+                      <div className="w-8 h-8 rounded-full bg-success-soft flex items-center justify-center text-success text-xs font-bold shrink-0">
                         R
                       </div>
                       <div className="min-w-0">
-                        <p className="text-xs font-bold text-slate-900 dark:text-white group-hover:text-sky-500 dark:group-hover:text-sky-400 transition-colors">
+                        <p className="text-xs font-bold text-ink group-hover:text-sky-500 dark:group-hover:text-sky-400 transition-colors">
                           {p.tenantName}
                         </p>
-                        <p className="text-xxs font-medium text-slate-400 dark:text-slate-500 truncate">
+                        <p className="text-xxs font-medium text-ink-faint truncate">
                           {t('dashboard.unitAt', { unit: p.unitNumber, property: p.propertyName })}
                         </p>
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="text-xs font-extrabold text-emerald-600 dark:text-emerald-400 font-sans">
+                      <p className="text-xs font-extrabold text-success font-sans">
                         +{formatMoney(p.totalDue)}
                       </p>
-                      <p className="text-xxs font-medium text-slate-400 dark:text-slate-500">
+                      <p className="text-xxs font-medium text-ink-faint">
                         {p.datePaid}
                       </p>
                     </div>
                   </div>
                 ))}
                 {recentActivity.length === 0 && (
-                  <p className="text-xs font-semibold text-slate-400 dark:text-slate-500 text-center py-8">
+                  <p className="text-xs font-semibold text-ink-faint text-center py-8">
                     {t('dashboard.noPaidInvoices')}
                   </p>
                 )}
@@ -352,18 +352,18 @@ export default function OwnerDashboard({
           </div>
 
           {/* Portfolio Assets Table */}
-          <div className="bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm">
+          <div className="bg-surface border border-line rounded-xl overflow-hidden shadow-sm">
 
             {/* Header section */}
-            <div className="flex justify-between items-center px-6 py-4 border-b border-slate-100 dark:border-slate-800">
-              <h3 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider">
+            <div className="flex justify-between items-center px-6 py-4 border-b border-line-subtle">
+              <h3 className="text-sm font-bold text-ink uppercase tracking-wider">
                 {t('dashboard.portfolioAssets')}
               </h3>
               <div className="flex gap-2">
-                <button type="button" className="p-1.5 rounded hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 transition-colors">
+                <button type="button" className="p-1.5 rounded hover:bg-muted text-slate-500 transition-colors">
                   <SlidersHorizontal size={16} />
                 </button>
-                <button type="button" className="p-1.5 rounded hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 transition-colors">
+                <button type="button" className="p-1.5 rounded hover:bg-muted text-slate-500 transition-colors">
                   <Download size={16} />
                 </button>
               </div>
@@ -373,7 +373,7 @@ export default function OwnerDashboard({
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="bg-slate-50 dark:bg-slate-900 text-xxs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest border-b border-slate-100 dark:border-slate-800">
+                  <tr className="bg-subtle text-xxs font-bold text-ink-faint uppercase tracking-widest border-b border-line-subtle">
                     <th className="px-6 py-3">{t('dashboard.propertyAddress')}</th>
                     <th className="px-6 py-3">{t('dashboard.units')}</th>
                     <th className="px-6 py-3">{t('dashboard.occupancy')}</th>
@@ -388,24 +388,24 @@ export default function OwnerDashboard({
                       className="hover:bg-slate-50/50 dark:hover:bg-slate-800/20 transition-colors group"
                     >
                       <td className="px-6 py-4 flex items-center gap-4">
-                        <div className="w-8 h-8 rounded bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-400">
+                        <div className="w-8 h-8 rounded bg-muted flex items-center justify-center text-ink-secondary">
                           <Building2 size={16} />
                         </div>
                         <div>
-                          <p className="font-extrabold text-slate-900 dark:text-white group-hover:text-sky-500 dark:group-hover:text-sky-400 transition-colors">
+                          <p className="font-extrabold text-ink group-hover:text-sky-500 dark:group-hover:text-sky-400 transition-colors">
                             {prop.name}
                           </p>
-                          <p className="text-xxs font-medium text-slate-400 dark:text-slate-500 mt-0.5">
+                          <p className="text-xxs font-medium text-ink-faint mt-0.5">
                             {prop.address}
                           </p>
                         </div>
                       </td>
-                      <td className="px-6 py-4 font-bold text-slate-700 dark:text-slate-300">
+                      <td className="px-6 py-4 font-bold text-ink-soft">
                         {t('dashboard.unitsCount', { count: prop.unitsCount })}
                       </td>
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
-                          <div className="w-24 bg-slate-100 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                          <div className="w-24 bg-muted h-1.5 rounded-full overflow-hidden">
                             <div
                               className={`h-full rounded-full ${
                                 prop.occupancyRate >= 90 ? 'bg-emerald-500' : 'bg-amber-500'
@@ -413,12 +413,12 @@ export default function OwnerDashboard({
                               style={{ width: `${prop.occupancyRate}%` }}
                             />
                           </div>
-                          <span className="font-bold text-slate-700 dark:text-slate-300">
+                          <span className="font-bold text-ink-soft">
                             {prop.occupancyRate}%
                           </span>
                         </div>
                       </td>
-                      <td className="px-6 py-4 font-extrabold text-slate-900 dark:text-white font-sans">
+                      <td className="px-6 py-4 font-extrabold text-ink font-sans">
                         {formatMoney(prop.monthlyRevenue)}
                       </td>
                       <td className="px-6 py-4 text-right">
@@ -426,7 +426,7 @@ export default function OwnerDashboard({
                           id={`btn-manage-property-${prop.id}`}
                           type="button"
                           onClick={() => onSelectProperty(prop.id)}
-                          className="px-3 py-1.5 rounded-md text-xxs font-bold uppercase tracking-wider bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors cursor-pointer"
+                          className="px-3 py-1.5 rounded-md text-xxs font-bold uppercase tracking-wider bg-muted hover:bg-slate-200 dark:hover:bg-slate-700 text-ink-soft transition-colors cursor-pointer"
                         >
                           {t('dashboard.configureUnit')}
                         </button>
@@ -441,7 +441,7 @@ export default function OwnerDashboard({
             {properties.length === 0 && (
               <div className="text-center py-12">
                 <Building2 className="mx-auto text-slate-300 dark:text-slate-700 mb-2" size={32} />
-                <p className="text-sm font-semibold text-slate-600 dark:text-slate-400">{t('dashboard.noPropertiesYet')}</p>
+                <p className="text-sm font-semibold text-ink-secondary">{t('dashboard.noPropertiesYet')}</p>
                 <button
                   type="button"
                   onClick={onAddPropertyClick}
@@ -456,41 +456,41 @@ export default function OwnerDashboard({
       )}
 
       {activeTab === 'financials' && (
-        <div className="bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-800 p-6 rounded-xl space-y-6">
+        <div className="bg-surface border border-line p-6 rounded-xl space-y-6">
           <div>
-            <h3 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider">
+            <h3 className="text-sm font-bold text-ink uppercase tracking-wider">
               {t('dashboard.billedVsCollected')}
             </h3>
-            <p className="text-xxs text-slate-400 dark:text-slate-500 mt-1">
+            <p className="text-xxs text-ink-faint mt-1">
               {t('dashboard.financialsNote')}
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="p-4 bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-lg">
+            <div className="p-4 bg-subtle border border-line-subtle rounded-lg">
               <span className="text-xxs font-bold text-slate-400 uppercase tracking-widest">{t('dashboard.totalBilled')}</span>
-              <p className="text-2xl font-extrabold text-slate-900 dark:text-white mt-1">
+              <p className="text-2xl font-extrabold text-ink mt-1">
                 {formatMoney(payments.reduce((sum, p) => sum + p.totalDue, 0))}
               </p>
             </div>
-            <div className="p-4 bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-lg">
+            <div className="p-4 bg-subtle border border-line-subtle rounded-lg">
               <span className="text-xxs font-bold text-slate-400 uppercase tracking-widest">{t('dashboard.totalCollected')}</span>
-              <p className="text-2xl font-extrabold text-emerald-600 dark:text-emerald-400 mt-1">
+              <p className="text-2xl font-extrabold text-success mt-1">
                 {formatMoney(payments.reduce((sum, p) => sum + (p.status === 'Paid' ? p.totalDue : p.status === 'Partial' ? (p.partialAmountPaid ?? 0) : 0), 0))}
               </p>
             </div>
-            <div className="p-4 bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-lg">
+            <div className="p-4 bg-subtle border border-line-subtle rounded-lg">
               <span className="text-xxs font-bold text-slate-400 uppercase tracking-widest">{t('dashboard.outstanding')}</span>
               <p className="text-2xl font-extrabold text-rose-500 mt-1">
                 {formatMoney(pendingTotal)}
               </p>
             </div>
           </div>
-          <div className="border-t border-slate-100 dark:border-slate-800 pt-6">
-            <h4 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wide mb-4">{t('dashboard.byProperty')}</h4>
+          <div className="border-t border-line-subtle pt-6">
+            <h4 className="text-xs font-bold text-ink uppercase tracking-wide mb-4">{t('dashboard.byProperty')}</h4>
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs">
                 <thead>
-                  <tr className="bg-slate-50 dark:bg-slate-900 text-slate-400 font-bold uppercase border-b border-slate-100 dark:border-slate-800">
+                  <tr className="bg-subtle text-slate-400 font-bold uppercase border-b border-line-subtle">
                     <th className="px-4 py-2">{t('dashboard.property')}</th>
                     <th className="px-4 py-2">{t('dashboard.billed')}</th>
                     <th className="px-4 py-2">{t('dashboard.collected')}</th>
@@ -526,9 +526,9 @@ export default function OwnerDashboard({
       )}
 
       {activeTab === 'tenants' && (
-        <div className="bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm">
-          <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
-            <h3 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider">
+        <div className="bg-surface border border-line rounded-xl overflow-hidden shadow-sm">
+          <div className="px-6 py-4 border-b border-line-subtle flex justify-between items-center">
+            <h3 className="text-sm font-bold text-ink uppercase tracking-wider">
               {t('dashboard.tenantRegistry')}
             </h3>
             <div className="flex items-center gap-3">
@@ -538,7 +538,7 @@ export default function OwnerDashboard({
               <button
                 type="button"
                 onClick={onAddTenantClick}
-                className="px-4 py-2 bg-slate-950 dark:bg-sky-400 hover:bg-slate-900 dark:hover:bg-sky-300 text-white dark:text-slate-950 rounded-lg text-xs font-bold uppercase tracking-wider flex items-center gap-1 cursor-pointer"
+                className="px-4 py-2 bg-primary hover:bg-primary-hover text-on-primary rounded-lg text-xs font-bold uppercase tracking-wider flex items-center gap-1 cursor-pointer"
               >
                 <Plus size={14} /> {t('dashboard.addTenant')}
               </button>
@@ -547,7 +547,7 @@ export default function OwnerDashboard({
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
               <thead>
-                <tr className="bg-slate-50 dark:bg-slate-900 text-slate-400 font-bold uppercase border-b border-slate-100 dark:border-slate-800">
+                <tr className="bg-subtle text-slate-400 font-bold uppercase border-b border-line-subtle">
                   <th className="px-6 py-3">{t('dashboard.tenantName')}</th>
                   <th className="px-6 py-3">{t('dashboard.propertyUnit')}</th>
                   <th className="px-6 py-3">{t('dashboard.leaseStart')}</th>
@@ -562,7 +562,7 @@ export default function OwnerDashboard({
                   <tr key={tn.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/20 transition-colors">
                     <td className="px-6 py-4">
                       <div>
-                        <p className="font-extrabold text-slate-900 dark:text-white">{tn.name}</p>
+                        <p className="font-extrabold text-ink">{tn.name}</p>
                         <p className="text-xxs text-slate-400 mt-0.5">{tn.email}</p>
                       </div>
                     </td>
@@ -570,8 +570,8 @@ export default function OwnerDashboard({
                       <p className="text-slate-800 dark:text-slate-300 font-bold">{tn.propertyName}</p>
                       <p className="text-xxs text-slate-400">{t('dashboard.unitLabel', { unit: tn.unitNumber })}</p>
                     </td>
-                    <td className="px-6 py-4 font-mono text-slate-500 dark:text-slate-400">{tn.leaseStart}</td>
-                    <td className="px-6 py-4 font-mono text-slate-500 dark:text-slate-400">{tn.leaseEnd}</td>
+                    <td className="px-6 py-4 font-mono text-ink-muted">{tn.leaseStart}</td>
+                    <td className="px-6 py-4 font-mono text-ink-muted">{tn.leaseEnd}</td>
                     <td className="px-6 py-4">
                       <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-emerald-50 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-400">
                         {enumLabel(locale, tn.status)}
@@ -584,7 +584,7 @@ export default function OwnerDashboard({
                         </span>
                       ) : (
                         <div className="flex items-center gap-2">
-                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400">
+                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-muted text-ink-muted">
                             {t('dashboard.noAccess')}
                           </span>
                           <button

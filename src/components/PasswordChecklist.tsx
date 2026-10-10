@@ -17,7 +17,7 @@ export default function PasswordChecklist({ password }: { password: string }) {
           <li
             key={rule.id}
             className={`flex items-center gap-1.5 text-xs ${
-              met ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-400 dark:text-slate-500'
+              met ? 'text-success' : 'text-ink-faint'
             }`}
           >
             {met ? <Check size={12} /> : <X size={12} />}
