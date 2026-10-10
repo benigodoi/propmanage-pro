@@ -29,12 +29,13 @@ src/
   App.tsx                  # top-level state, data fetching, owner/tenant screen router, modals
   main.tsx                 # providers (router, LocalizationProvider)
   types.ts                 # domain types (Unit, Payment, ServiceRequest, OwnerScreen, …)
-  index.css                # Tailwind v4 theme (incl. custom `text-xxs`) + dark variant
+  index.css                # Tailwind v4 theme: semantic colour tokens (light + `.dark`), Geist font, `shadow-card`, `text-xxs`
   components/              # one file per screen/widget
     OwnerDashboard.tsx, PaymentTracker.tsx, UnitConfiguration.tsx,
     ServiceRequestsInbox.tsx (owner), TenantDashboard.tsx,
     MyServiceRequestsModal.tsx (tenant), Header.tsx (incl. notifications),
-    Sidebar.tsx, LoginScreen.tsx, AcceptInviteScreen.tsx, …
+    Sidebar.tsx (static ≥1024px, modal drawer below), LoginScreen.tsx,
+    AcceptInviteScreen.tsx, …
   contexts/LocalizationContext.tsx   # locale/currency state, t(), formatMoney()
   hooks/                   # useAsyncGuard (double-submit), useSessionTimeout
   lib/
@@ -59,9 +60,10 @@ docs/                      # this file, PROJECT_STATUS.md
 - **Profile updates:** users have a **column-level** UPDATE grant on `profiles`: `full_name, phone, email, locale, currency` (migrations `0002`, `0007`). Any new user-editable profile column needs its own `grant update (...)` migration, or saves will fail with "permission denied". Never grant `role` or `org_id`.
 - **Tenants without portal access:** a lease can have `tenant_id = null`, with contact details stored on the lease (`tenant_name/email/phone`). Granting access later links `tenant_id` and relinks payments.
 - **Money:** always stored in EUR. Currency only affects display.
+- **Rent due date:** today rent is implicitly due on the 1st of the billing month (`payments.month`). There's no due-day column yet; per-property due days are planned (see `PROJECT_STATUS.md` → Roadmap).
 - **Payments roll-over:** `public.roll_payments()` runs daily via pg_cron (job `roll-payments-daily`, migration 0008). It flips past-month `Pending` to `Overdue` and adds missing months after each active lease's latest payment, using the unit's *current* rent and utilities. It's idempotent; to run it by hand: `npx supabase db query --linked "select public.roll_payments()"`. API roles can't execute it. Check runs with `select * from cron.job_run_details order by start_time desc limit 5`.
 
-## Security model (audited 2026-10-09)
+## Security model (audited 2026-10-09, multi-tenancy re-verified live 2026-10-10)
 
 - **What's public:** the repo and the frontend bundle. The bundle holds only `VITE_SUPABASE_URL` and the *publishable* key, which are safe by design. Anything prefixed `VITE_` is shipped to browsers, so never put a secret in one.
 - **Secrets:** the service-role key exists only in Supabase (Edge Function secret) and is pasted locally for `scripts/invite-manager.ts`. `.env*` is gitignored. Git history was checked: no secrets were ever committed.
@@ -71,7 +73,12 @@ docs/                      # this file, PROJECT_STATUS.md
   - `authenticated` has no TRUNCATE / REFERENCES / TRIGGER.
   - The SECURITY DEFINER helpers (`current_org_id`, `is_admin`, `current_user_role`, `create_organization`) are executable by `authenticated` only; the RLS policies and onboarding need them, so the advisor warnings about them are expected. `roll_payments` is cron-only. Trigger functions (`handle_new_user`, `rls_auto_enable`) aren't executable by any client role (0011).
 - **New tables:** on the live project they get RLS automatically (the `ensure_rls` event trigger → `rls_auto_enable()`). That comes from Supabase's dashboard "automatic RLS" setting, **not** from the migrations, so a fresh project needs it switched on (or `enable row level security` in each migration). Either way you still need to write policies **and** `grant select/insert/update/delete ... to authenticated` explicitly.
-- **Auth:** signup is disabled (verified live: `/auth/v1/signup` → `signup_disabled`). Email is the only provider, and email confirmation is on.
+- **Auth:** signup is disabled (verified live: `/auth/v1/settings` → `disable_signup: true`). Email is the only provider, and email confirmation is on. This matters: `handle_new_user` copies `org_id`/`role` from signup metadata, so open signup would let anyone join an existing org.
+- **Multi-tenancy check (2026-10-10, live):**
+  - All 10 public tables have RLS on; every policy is scoped by `current_org_id()` or `auth.uid()`; `anon` can't select any table.
+  - Users can only UPDATE their own `full_name/email/phone/locale/currency`, never `role`/`org_id`.
+  - No storage buckets exist.
+  - Not yet done: an empirical two-org test.
 - **Edge Function:** `invite-tenant` verifies the JWT and admin role, and derives `org_id`/`role` server-side. `redirectTo` is checked by Supabase against the redirect allowlist.
 - **Headers** (`vercel.json`):
   - Enforced: HSTS (Vercel default), `X-Frame-Options: DENY`, `nosniff`, Referrer-Policy, Permissions-Policy.
@@ -80,6 +87,24 @@ docs/                      # this file, PROJECT_STATUS.md
   - An admin sees the tenant's invite link, so they could open the tenant's account before the tenant does.
   - Session limits are client-side only (Free tier).
   - There's no CAPTCHA on login; Supabase's built-in auth rate limits apply.
+
+## UI conventions (since the 2026-10-10 redesign)
+
+- **Colours:** use the semantic tokens from `src/index.css`. Never pair a raw palette class with a `dark:` override; retheming should only touch `index.css`.
+  - Surfaces: `bg-canvas`, `bg-surface`, `bg-inset`, `bg-muted`.
+  - Borders: `border-line`, `border-line-subtle`.
+  - Text: `text-ink`, `text-ink-soft`, `text-ink-secondary`, `text-ink-muted`, `text-ink-faint`.
+  - Actions: `bg-primary hover:bg-primary-hover text-on-primary`, plus `bg-primary-soft text-primary-ink` for selected states and links.
+  - Status: `success`, `danger`, `warning` (each with `-soft`).
+  - A new token needs a light value in `@theme` **and** a dark value in `.dark`.
+- **Contrast:** text must meet WCAG AA (4.5:1; 3:1 at 24px+).
+  - `text-ink-muted` on a `bg-muted` chip is only 4.39:1, so use `text-ink-secondary` there.
+  - Pale 400/500 shades are for icons only, never text.
+- **One colour per property per element.** Don't put two base `text-*` (or `bg-*`) colour classes on one element, statically or via a conditional. The winner depends on generated CSS order, not class order; make the variants mutually exclusive.
+- **Status** is never colour alone: badge = icon + label.
+- **Typography:** sentence case everywhere, no `uppercase` + wide tracking. Weights stop at `font-semibold`. Money uses `tabular-nums` (not `font-mono`).
+- **Layout:** check screens at 390px (phone) and 1280px. Wide tables go in an `overflow-x-auto` box. Touch targets are ≥44px on mobile (`h-11 lg:h-10`).
+- **Design source:** the mockup canvas linked in `PROJECT_STATUS.md`.
 
 ## Auth and onboarding flows
 
@@ -112,8 +137,15 @@ docs/                      # this file, PROJECT_STATUS.md
 - **`supabase config push` overwrites the whole auth section** with `config.toml`, not just the field you changed. It has previously turned off email confirmations and MFA. Prefer dashboard changes; if you must push, read the full printed diff.
 - **The Email provider on/off toggle is dashboard-only.** There's no `config.toml` key for it; adding `[auth.email] enabled` breaks the CLI.
 - **Pro-plan-only settings** fail to push on the Free tier: server-side session timebox/inactivity, and vector storage.
-- **Tailwind v4 has no `text-xxs` by default.** It's defined in `src/index.css`. If you use other non-standard utilities, define them there, or they silently do nothing.
-- **Dark-mode tints:** use `dark:bg-<color>-500/10…15`. The `-950/20` style looks muddy grey on the slate cards.
+- **Tailwind v4 silently ignores unknown utilities.** For example, `zinc-150` / `slate-850` aren't real shades; one rendered as a black fallback border. `text-xxs` and the colour tokens exist only because they're defined in `src/index.css`.
+- **Dark-mode tints** for one-off colours: use `dark:bg-<color>-500/10…15`, not `-950/20`. Better still, add a `-soft` token.
+
+## PR workflow
+
+- One branch per change off `main` → PR → request a Copilot review (`gh pr edit <n> --add-reviewer @copilot`; it doesn't always auto-review, and takes ~5 min).
+- For each review comment: fix it (or explain why not), reply naming the commit, and resolve the thread. Then wait for CI and merge.
+- **CI (`build`) only runs on PRs targeting `main`,** and changing a PR's base doesn't trigger it.
+- **Stacked PRs:** retarget the child to `main` *before* merging the parent with `--delete-branch`. Otherwise GitHub closes the child. Then rebase the child onto `main` and push, so CI runs.
 
 ## Debugging tips
 
@@ -121,4 +153,5 @@ docs/                      # this file, PROJECT_STATUS.md
 - **"Nothing happens" or a generic error from the app:** check the browser Network tab first. RLS denials and missing grants show up there clearly.
 - **Accounts:**
   - Admin test account: org "PropManage Pro".
-  - A test tenant exists on unit "test / 1".
+  - A test tenant exists on unit "test / 1" (it has portal access, which is useful for checking the tenant view).
+  - Two orgs exist on the live project (2026-10-10).
