@@ -116,7 +116,7 @@ export default function UnitConfiguration({
             id="btn-delete-unit"
             type="button"
             onClick={() => onDelete(unit)}
-            className="px-4 py-2 bg-white dark:bg-transparent border border-red-200 dark:border-red-900/60 hover:bg-red-50 dark:hover:bg-red-950/20 text-red-500 rounded-lg text-sm font-medium flex items-center gap-2 cursor-pointer"
+            className="px-4 py-2 bg-white dark:bg-transparent border border-red-200 dark:border-red-900/60 hover:bg-red-50 dark:hover:bg-red-950/20 text-danger rounded-lg text-sm font-medium flex items-center gap-2 cursor-pointer"
           >
             <Trash2 size={14} /> {t('unitConfig.deleteUnit')}
           </button>
@@ -196,11 +196,11 @@ export default function UnitConfiguration({
                 <div className="border-t border-zinc-200/60 dark:border-zinc-800 pt-4 mt-4 space-y-2 text-xs font-semibold text-ink-secondary">
                   <div className="flex justify-between">
                     <span>{t('unitConfig.baseRent')}</span>
-                    <span className="font-mono text-ink">{formatMoney(baseRent)}</span>
+                    <span className="tabular-nums text-ink">{formatMoney(baseRent)}</span>
                   </div>
                   <div className="flex justify-between">
                     <span>{t('unitConfig.selectedUtilities')}</span>
-                    <span className="font-mono text-ink">{formatMoney(totalUtilities)}</span>
+                    <span className="tabular-nums text-ink">{formatMoney(totalUtilities)}</span>
                   </div>
                 </div>
               </div>
@@ -219,7 +219,7 @@ export default function UnitConfiguration({
                     id="btn-add-utility-toggle"
                     type="button"
                     onClick={() => setShowAddForm(true)}
-                    className="text-xs text-indigo-500 hover:text-indigo-400 font-semibold flex items-center gap-1 cursor-pointer"
+                    className="text-xs text-primary-ink font-semibold flex items-center gap-1 cursor-pointer"
                   >
                     <Plus size={14} /> {t('unitConfig.addUtilityOrFee')}
                   </button>
@@ -272,7 +272,7 @@ export default function UnitConfiguration({
                       <span>{item.name}</span>
                     </div>
                     <div className="flex items-center gap-3">
-                      <span className="font-mono font-semibold text-xs text-zinc-950 dark:text-white">{formatMoney(item.amount)}</span>
+                      <span className="tabular-nums font-semibold text-xs text-zinc-950 dark:text-white">{formatMoney(item.amount)}</span>
                       <button
                         id={`btn-delete-utility-${item.id}`}
                         type="button"

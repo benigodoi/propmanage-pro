@@ -770,7 +770,7 @@ export default function App() {
                             </div>
                             <div>
                               <span className="text-xs text-ink-faint block mb-1">{t('properties.projectedIncome')}</span>
-                              <span className="text-emerald-500 font-semibold font-sans">{formatMoney(prop.monthlyRevenue)}</span>
+                              <span className="text-success font-semibold font-sans">{formatMoney(prop.monthlyRevenue)}</span>
                             </div>
                           </div>
 
@@ -783,7 +783,7 @@ export default function App() {
                                   setAddUnitPropertyId(prop.id);
                                   setShowAddUnitModal(true);
                                 }}
-                                className="text-xs font-semibold text-indigo-500 hover:underline flex items-center gap-1 cursor-pointer"
+                                className="text-xs font-semibold text-primary-ink hover:underline flex items-center gap-1 cursor-pointer"
                               >
                                 <Plus size={12} /> {t('properties.addUnit')}
                               </button>
@@ -847,7 +847,7 @@ export default function App() {
                           <h3 className="font-semibold text-sm text-ink">{t('reports.revenueSummary')}</h3>
                           <p className="text-xs text-ink-faint mt-1">{t('reports.revenueSummaryDesc')}</p>
                         </div>
-                        <button type="button" onClick={() => showToast(t('reports.simulatingXls'), 'info')} className="text-xs text-indigo-500 font-semibold hover:underline">{t('reports.downloadXls')}</button>
+                        <button type="button" onClick={() => showToast(t('reports.simulatingXls'), 'info')} className="text-xs text-primary-ink font-semibold hover:underline">{t('reports.downloadXls')}</button>
                       </div>
 
                       {/* Report Card 2 */}
@@ -857,7 +857,7 @@ export default function App() {
                           <h3 className="font-semibold text-sm text-ink">{t('reports.overdueBalance')}</h3>
                           <p className="text-xs text-ink-faint mt-1">{t('reports.overdueBalanceDesc')}</p>
                         </div>
-                        <button type="button" onClick={() => showToast(t('reports.simulatingPdf'), 'info')} className="text-xs text-indigo-500 font-semibold hover:underline">{t('reports.downloadPdf')}</button>
+                        <button type="button" onClick={() => showToast(t('reports.simulatingPdf'), 'info')} className="text-xs text-primary-ink font-semibold hover:underline">{t('reports.downloadPdf')}</button>
                       </div>
 
                       {/* Report Card 3 */}
@@ -867,7 +867,7 @@ export default function App() {
                           <h3 className="font-semibold text-sm text-ink">{t('reports.maintenanceAudit')}</h3>
                           <p className="text-xs text-ink-faint mt-1">{t('reports.maintenanceAuditDesc')}</p>
                         </div>
-                        <button type="button" onClick={() => showToast(t('reports.simulatingMaintenancePdf'), 'info')} className="text-xs text-indigo-500 font-semibold hover:underline">{t('reports.downloadPdf')}</button>
+                        <button type="button" onClick={() => showToast(t('reports.simulatingMaintenancePdf'), 'info')} className="text-xs text-primary-ink font-semibold hover:underline">{t('reports.downloadPdf')}</button>
                       </div>
                     </div>
                   </div>
@@ -973,7 +973,7 @@ export default function App() {
                               <td className="px-4 py-3 font-semibold text-ink">{p.month}</td>
                               <td className="px-4 py-3 text-ink-secondary">{enumLabel(locale, p.status)}</td>
                               <td className="px-4 py-3 text-ink-muted">{p.datePaid || '—'}</td>
-                              <td className="px-4 py-3 text-right font-mono font-semibold">{formatMoney(p.totalDue)}</td>
+                              <td className="px-4 py-3 text-right tabular-nums font-semibold">{formatMoney(p.totalDue)}</td>
                               <td className="px-4 py-3 text-center">
                                 <button type="button" onClick={() => setSelectedPaymentInvoice(p)} className="px-3 py-1 bg-muted text-ink-soft rounded text-xs font-medium">{t('tenantPayments.viewStatement')}</button>
                               </td>
@@ -1276,7 +1276,7 @@ export default function App() {
                   ))}
                 </select>
                 {units.filter((u) => !u.activeTenant).length === 0 && (
-                  <p className="text-xs text-amber-500 mt-1">{t('modals.noVacantUnits')}</p>
+                  <p className="text-xs text-amber-700 dark:text-amber-400 mt-1">{t('modals.noVacantUnits')}</p>
                 )}
               </div>
 

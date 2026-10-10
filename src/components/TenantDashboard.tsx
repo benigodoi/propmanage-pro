@@ -86,7 +86,7 @@ export default function TenantDashboard({
           <div className="flex items-center gap-3 px-4 py-2 bg-zinc-100 dark:bg-zinc-900 border border-zinc-200/50 dark:border-zinc-800 rounded-xl">
             <Building size={16} className="text-indigo-500" />
             <div className="text-left">
-              <span className="text-xs font-medium text-ink-faint block">{t('tenantDashboard.currentResidence')}</span>
+              <span className="text-xs font-medium text-ink-secondary block">{t('tenantDashboard.currentResidence')}</span>
               <span className="text-xs font-semibold text-zinc-800 dark:text-zinc-200">
                 {t('dashboard.unitAt', { unit: currentUnit.unitNumber, property: currentUnit.propertyName })}
               </span>
@@ -203,7 +203,7 @@ export default function TenantDashboard({
                           </p>
                         </div>
                       </div>
-                      <span className="font-mono font-semibold text-xs text-ink">
+                      <span className="tabular-nums font-semibold text-xs text-ink">
                         {formatMoney(p.totalDue)}
                       </span>
                     </div>
