@@ -73,7 +73,12 @@ first 1–2 outside manager testers.
 - **Goal:** each property has a rent due day (e.g. the 5th or the 15th), and a payment becomes Overdue only after that date.
 - **Proposed model:**
   - `properties.rent_due_day smallint not null default 1 check (rent_due_day between 1 and 28)`. Capping at 28 means every month has the day.
-  - `payments.due_date date`, set when the row is created and backfilled for existing rows as `month + (due_day − 1)`.
+  - `payments.due_date date not null`, set when each row is created. Migration order:
+    1. Add the column as nullable.
+    2. Backfill every existing row as `month + (due_day − 1)`.
+    3. `alter … set not null`.
+
+    Payments are inserted by both the client (`generatePaymentsForLease`) and `roll_payments()`. With the constraint in place, a write path that forgets the column fails loudly instead of creating a payment that can never become Overdue.
 - **What changes:**
   - **`roll_payments()`:** marks Overdue when `due_date < current_date` and the payment is unpaid, instead of "the month has passed".
   - **`generatePaymentsForLease()`:** sets `due_date`; also check the unit re-sync path.

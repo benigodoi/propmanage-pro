@@ -99,7 +99,7 @@ docs/                      # this file, PROJECT_STATUS.md
   - A new token needs a light value in `@theme` **and** a dark value in `.dark`.
 - **Contrast:** text must meet WCAG AA (4.5:1; 3:1 at 24px+).
   - `text-ink-muted` on a `bg-muted` chip is only 4.39:1, so use `text-ink-secondary` there.
-  - Pale 400/500 shades are for icons only, never text.
+  - Raw pale palette classes on light surfaces (e.g. `text-indigo-500`, `text-emerald-500`, `text-red-500`) are for icons only, never text. Use the text tokens instead; their dark-mode values being 400 shades is intended.
 - **One colour per property per element.** Don't put two base `text-*` (or `bg-*`) colour classes on one element, statically or via a conditional. The winner depends on generated CSS order, not class order; make the variants mutually exclusive.
 - **Status** is never colour alone: badge = icon + label.
 - **Typography:** sentence case everywhere, no `uppercase` + wide tracking. Weights stop at `font-semibold`. Money uses `tabular-nums` (not `font-mono`).
@@ -138,7 +138,7 @@ docs/                      # this file, PROJECT_STATUS.md
 - **The Email provider on/off toggle is dashboard-only.** There's no `config.toml` key for it; adding `[auth.email] enabled` breaks the CLI.
 - **Pro-plan-only settings** fail to push on the Free tier: server-side session timebox/inactivity, and vector storage.
 - **Tailwind v4 silently ignores unknown utilities.** For example, `zinc-150` / `slate-850` aren't real shades; one rendered as a black fallback border. `text-xxs` and the colour tokens exist only because they're defined in `src/index.css`.
-- **Dark-mode tints** for one-off colours: use `dark:bg-<color>-500/10…15`, not `-950/20`. Better still, add a `-soft` token.
+- **Tinted backgrounds** (badges, icon tiles): add or reuse a `-soft` token in `src/index.css` rather than a `dark:` pair in the component. In the token's dark value, prefer a `color-mix(… <color>-500 10–15%, transparent)` tint over `-950/20`, which looks muddy grey.
 
 ## PR workflow
 
