@@ -706,9 +706,9 @@ export default function App() {
                     units={units}
                     payments={payments}
                     tenants={tenants}
-                    onSelectProperty={() => {
-                      navigate(screenToPath('owner', 'properties'));
-                    }}
+                    serviceRequests={serviceRequests}
+                    onOpenServiceRequests={() => navigate(screenToPath('owner', 'service-requests'))}
+                    onViewAllPayments={() => navigate(screenToPath('owner', 'payments'))}
                     onOpenInvoice={(paymentId) => {
                       const pay = payments.find(p => p.id === paymentId);
                       if (pay) setSelectedPaymentInvoice(pay);
