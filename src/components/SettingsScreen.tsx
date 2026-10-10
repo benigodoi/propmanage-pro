@@ -123,7 +123,7 @@ export default function SettingsScreen({ persona, onProfileUpdated }: SettingsSc
   return (
     <div className="space-y-6 animate-in fade-in duration-300 max-w-2xl">
       <div>
-        <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">{t('settings.title')}</h2>
+        <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 dark:text-white">{t('settings.title')}</h2>
         <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">{t('settings.subtitle')}</p>
       </div>
 

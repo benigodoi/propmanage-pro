@@ -69,7 +69,7 @@ export default function InvoiceView({ payment, onClose }: InvoiceViewProps) {
         </div>
 
         {/* Main Content Area */}
-        <div className="p-8 space-y-8 relative z-10">
+        <div className="p-5 sm:p-8 space-y-8 relative z-10">
 
           {/* Logo & ID Row */}
           <div className="flex justify-between items-start">

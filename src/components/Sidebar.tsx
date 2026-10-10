@@ -12,10 +12,11 @@ import {
   LogOut,
   FolderOpen,
   Wrench,
-  Settings
+  Settings,
+  X
 } from 'lucide-react';
 import { Persona, OwnerScreen, TenantScreen } from '../types';
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useLocalization } from '../contexts/LocalizationContext';
 
 interface SidebarProps {
@@ -31,7 +32,26 @@ interface SidebarProps {
   onServiceRequestClick: () => void;
   /** Owner only: shown as a badge on the Service Requests nav item. */
   pendingServiceRequestCount?: number;
+  /** Below the lg breakpoint the sidebar is an off-canvas drawer. */
+  mobileOpen: boolean;
+  onMobileClose: () => void;
 }
+
+// Matches Tailwind's `lg` breakpoint, where the drawer becomes a static sidebar.
+const DESKTOP_QUERY = '(min-width: 1024px)';
+
+function useIsDesktop(): boolean {
+  const [isDesktop, setIsDesktop] = useState(() => window.matchMedia(DESKTOP_QUERY).matches);
+  useEffect(() => {
+    const mq = window.matchMedia(DESKTOP_QUERY);
+    const onChange = () => setIsDesktop(mq.matches);
+    mq.addEventListener('change', onChange);
+    return () => mq.removeEventListener('change', onChange);
+  }, []);
+  return isDesktop;
+}
+
+const FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
 function initialsFor(name: string | null, email: string): string {
   if (name && name.trim().length > 0) {
@@ -58,8 +78,14 @@ export default function Sidebar({
   onGenerateReportClick,
   onServiceRequestClick,
   pendingServiceRequestCount = 0,
+  mobileOpen,
+  onMobileClose,
 }: SidebarProps) {
   const { t } = useLocalization();
+  const asideRef = useRef<HTMLElement>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const isDesktop = useIsDesktop();
+  const drawerOpen = mobileOpen && !isDesktop;
   const displayName = currentUserName && currentUserName.trim().length > 0 ? currentUserName : currentUserEmail;
 
   const handleNavClick = (screen: any) => {
@@ -68,7 +94,58 @@ export default function Sidebar({
     } else {
       onTenantScreenChange(screen as TenantScreen);
     }
+    onMobileClose();
   };
+
+  // Growing past the breakpoint turns the drawer into the static sidebar, so
+  // drop the open state rather than leaving the scroll lock behind.
+  useEffect(() => {
+    if (isDesktop && mobileOpen) onMobileClose();
+  }, [isDesktop, mobileOpen, onMobileClose]);
+
+  // While the drawer is open on mobile it behaves as a modal: focus moves into
+  // it, Tab cycles within it, Escape closes it, the page behind doesn't scroll,
+  // and focus returns to whatever opened it (the hamburger) on close.
+  useEffect(() => {
+    if (!drawerOpen) return;
+    // Safari doesn't focus a button on click, so fall back to the toggle.
+    const returnFocusTo =
+      document.activeElement instanceof HTMLElement && document.activeElement !== document.body
+        ? document.activeElement
+        : document.querySelector<HTMLElement>('[aria-controls="app-sidebar"]');
+    closeButtonRef.current?.focus();
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onMobileClose();
+        return;
+      }
+      const aside = asideRef.current;
+      if (e.key !== 'Tab' || !aside) return;
+      const focusable = aside.querySelectorAll<HTMLElement>(FOCUSABLE);
+      if (focusable.length === 0) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      const active = document.activeElement;
+      const outside = !aside.contains(active);
+      if (e.shiftKey && (active === first || outside)) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && (active === last || outside)) {
+        e.preventDefault();
+        first.focus();
+      }
+    };
+
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    document.addEventListener('keydown', onKeyDown);
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      document.removeEventListener('keydown', onKeyDown);
+      returnFocusTo?.focus();
+    };
+  }, [drawerOpen, onMobileClose]);
 
   const ownerNavItems = [
     { id: 'dashboard', label: t('sidebar.dashboard'), icon: LayoutDashboard },
@@ -89,15 +166,45 @@ export default function Sidebar({
   const currentActiveScreen = persona === 'owner' ? activeOwnerScreen : activeTenantScreen;
 
   return (
-    <aside className="w-70 flex flex-col justify-between h-screen bg-[#faf8f9] dark:bg-[#020617] border-r border-slate-200 dark:border-slate-800 shrink-0 sticky top-0 transition-colors duration-200">
+    <>
+    {/* Mobile backdrop */}
+    <div
+      aria-hidden="true"
+      onClick={onMobileClose}
+      className={`fixed inset-0 z-[41] bg-slate-950/50 lg:hidden transition-opacity duration-200 ${
+        mobileOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
+      }`}
+    />
+    <aside
+      id="app-sidebar"
+      ref={asideRef}
+      // Off-screen on mobile when closed: keep its controls out of the tab order.
+      inert={!isDesktop && !mobileOpen}
+      role={drawerOpen ? 'dialog' : undefined}
+      aria-modal={drawerOpen ? true : undefined}
+      aria-label={drawerOpen ? t('header.openMenu') : undefined}
+      className={`fixed inset-y-0 left-0 z-[42] w-70 max-w-[85vw] flex flex-col justify-between h-dvh overflow-y-auto bg-[#faf8f9] dark:bg-[#020617] border-r border-slate-200 dark:border-slate-800 shrink-0 transition-[transform,background-color,border-color] duration-200 lg:sticky lg:top-0 lg:z-auto lg:max-w-none lg:translate-x-0 ${
+        mobileOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full'
+      }`}
+    >
       
       {/* Top Section */}
       <div className="flex flex-col">
         {/* Brand */}
-        <div className="h-16 flex items-center px-6 border-b border-slate-200/50 dark:border-slate-800/50">
+        <div className="h-16 flex items-center justify-between px-6 border-b border-slate-200/50 dark:border-slate-800/50">
           <span className="text-lg font-extrabold tracking-tight text-slate-900 dark:text-white">
             PropManage Pro
           </span>
+          <button
+            id="sidebar-close"
+            ref={closeButtonRef}
+            type="button"
+            onClick={onMobileClose}
+            className="lg:hidden -mr-2 p-2 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-colors cursor-pointer"
+            aria-label={t('sidebar.closeMenu')}
+          >
+            <X size={20} />
+          </button>
         </div>
 
         {/* Profile Info block */}
@@ -153,7 +260,10 @@ export default function Sidebar({
           <button
             id="sidebar-cta-generate-reports"
             type="button"
-            onClick={onGenerateReportClick}
+            onClick={() => {
+              onGenerateReportClick();
+              onMobileClose();
+            }}
             className="w-full py-3 px-4 bg-slate-950 hover:bg-slate-900 dark:bg-sky-400 dark:hover:bg-sky-300 text-white dark:text-slate-950 rounded-lg text-xs font-bold uppercase tracking-wider transition-all text-center shadow-sm cursor-pointer"
           >
             {t('sidebar.generateReports')}
@@ -162,7 +272,10 @@ export default function Sidebar({
           <button
             id="sidebar-cta-service-request"
             type="button"
-            onClick={onServiceRequestClick}
+            onClick={() => {
+              onServiceRequestClick();
+              onMobileClose();
+            }}
             className="w-full py-3 px-4 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-bold uppercase tracking-wider transition-all text-center shadow-sm flex items-center justify-center gap-2 cursor-pointer"
           >
             <Wrench size={14} />
@@ -209,5 +322,6 @@ export default function Sidebar({
       </div>
       
     </aside>
+    </>
   );
 }

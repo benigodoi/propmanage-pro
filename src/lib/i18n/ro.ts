@@ -402,8 +402,10 @@ const ro: Dictionary = {
     settings: 'Setări',
     helpCenter: 'Centru de asistență',
     logOut: 'Deconectare',
+    closeMenu: 'Închide meniul',
   },
   header: {
+    openMenu: 'Deschide meniul',
     searchPortfolio: 'Caută în portofoliu...',
     searchPortal: 'Caută în portal...',
     switchToDark: 'Comută la modul întunecat',

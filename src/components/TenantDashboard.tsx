@@ -76,7 +76,7 @@ export default function TenantDashboard({
           <span className="text-xxs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest block mb-1">
             {t('tenantDashboard.welcomeBack')}
           </span>
-          <h2 className="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+          <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
             {t('tenantDashboard.title')}
           </h2>
         </div>
