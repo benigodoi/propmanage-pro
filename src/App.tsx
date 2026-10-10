@@ -662,11 +662,6 @@ export default function App() {
           setSearchQuery('');
         }}
         onLogout={handleLogout}
-        onGenerateReportClick={() => {
-          if (user.persona === 'owner') {
-            navigate(screenToPath('owner', 'reports'));
-          }
-        }}
         onServiceRequestClick={() => {
           setShowServiceRequestModal(true);
         }}

@@ -28,7 +28,6 @@ interface SidebarProps {
   onOwnerScreenChange: (s: OwnerScreen) => void;
   onTenantScreenChange: (s: TenantScreen) => void;
   onLogout: () => void;
-  onGenerateReportClick: () => void;
   onServiceRequestClick: () => void;
   /** Owner only: shown as a badge on the Service Requests nav item. */
   pendingServiceRequestCount?: number;
@@ -75,7 +74,6 @@ export default function Sidebar({
   onOwnerScreenChange,
   onTenantScreenChange,
   onLogout,
-  onGenerateReportClick,
   onServiceRequestClick,
   pendingServiceRequestCount = 0,
   mobileOpen,
@@ -255,20 +253,8 @@ export default function Sidebar({
       {/* Bottom Section */}
       <div className="p-4 flex flex-col gap-4">
         
-        {/* Dynamic CTA box */}
-        {persona === 'owner' ? (
-          <button
-            id="sidebar-cta-generate-reports"
-            type="button"
-            onClick={() => {
-              onGenerateReportClick();
-              onMobileClose();
-            }}
-            className="w-full py-3 px-4 bg-slate-950 hover:bg-slate-900 dark:bg-sky-400 dark:hover:bg-sky-300 text-white dark:text-slate-950 rounded-lg text-xs font-bold uppercase tracking-wider transition-all text-center shadow-sm cursor-pointer"
-          >
-            {t('sidebar.generateReports')}
-          </button>
-        ) : (
+        {/* Tenant CTA: opens the service request form */}
+        {persona === 'tenant' && (
           <button
             id="sidebar-cta-service-request"
             type="button"

@@ -397,7 +397,6 @@ const en: Dictionary = {
     documents: 'Documents',
     propertyManager: 'PROPERTY MANAGER',
     tenant: 'TENANT',
-    generateReports: 'Generate Reports',
     serviceRequest: 'Service Request',
     settings: 'Settings',
     helpCenter: 'Help Center',
