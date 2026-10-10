@@ -325,7 +325,7 @@ export default function PaymentTracker({
 
         {/* KPI 3 */}
         <div className="bg-surface border border-line p-5 rounded-xl">
-          <span className="text-[10px] font-bold text-ink-faint uppercase tracking-widest text-danger">
+          <span className="text-[10px] font-bold uppercase tracking-widest text-danger">
             {t('payments.totalOverdue')}
           </span>
           <p className="text-2xl font-extrabold text-danger mt-1.5 font-sans">
