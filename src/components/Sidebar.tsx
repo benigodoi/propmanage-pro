@@ -13,7 +13,8 @@ import {
   FolderOpen,
   Wrench,
   Settings,
-  X
+  X,
+  Home
 } from 'lucide-react';
 import { Persona, OwnerScreen, TenantScreen } from '../types';
 import React, { useEffect, useRef, useState } from 'react';
@@ -169,7 +170,7 @@ export default function Sidebar({
     <div
       aria-hidden="true"
       onClick={onMobileClose}
-      className={`fixed inset-0 z-[41] bg-slate-950/50 lg:hidden transition-opacity duration-200 ${
+      className={`fixed inset-0 z-[41] bg-zinc-950/50 lg:hidden transition-opacity duration-200 ${
         mobileOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
       }`}
     />
@@ -181,47 +182,35 @@ export default function Sidebar({
       role={drawerOpen ? 'dialog' : undefined}
       aria-modal={drawerOpen ? true : undefined}
       aria-label={drawerOpen ? t('header.openMenu') : undefined}
-      className={`fixed inset-y-0 left-0 z-[42] w-70 max-w-[85vw] flex flex-col justify-between h-dvh overflow-y-auto bg-sidebar border-r border-line shrink-0 transition-[transform,background-color,border-color] duration-200 lg:sticky lg:top-0 lg:z-auto lg:max-w-none lg:translate-x-0 ${
+      className={`fixed inset-y-0 left-0 z-[42] w-64 max-w-[85vw] flex flex-col justify-between h-dvh overflow-y-auto bg-sidebar border-r border-line shrink-0 transition-[transform,background-color,border-color] duration-200 lg:sticky lg:top-0 lg:z-auto lg:max-w-none lg:translate-x-0 ${
         mobileOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full'
       }`}
     >
       
       {/* Top Section */}
-      <div className="flex flex-col">
+      <div className="flex flex-col gap-5 px-3 pt-3">
         {/* Brand */}
-        <div className="h-16 flex items-center justify-between px-6 border-b border-slate-200/50 dark:border-slate-800/50">
-          <span className="text-lg font-extrabold tracking-tight text-ink">
-            PropManage Pro
+        <div className="h-12 flex items-center justify-between pl-2">
+          <span className="flex items-center gap-2.5">
+            <span className="h-8 w-8 rounded-lg bg-primary text-on-primary flex items-center justify-center">
+              <Home size={16} />
+            </span>
+            <span className="text-[15px] font-semibold tracking-tight text-ink">PropManage Pro</span>
           </span>
           <button
             id="sidebar-close"
             ref={closeButtonRef}
             type="button"
             onClick={onMobileClose}
-            className="lg:hidden -mr-2 p-2 rounded-lg text-ink-muted hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-colors cursor-pointer"
+            className="lg:hidden h-11 w-11 flex items-center justify-center rounded-lg text-ink-muted hover:bg-muted transition-colors cursor-pointer"
             aria-label={t('sidebar.closeMenu')}
           >
             <X size={20} />
           </button>
         </div>
 
-        {/* Profile Info block */}
-        <div className="p-4 mx-3 my-4 bg-chrome border border-slate-200/60 dark:border-slate-800 rounded-xl flex items-center gap-3">
-          <div className="h-10 w-10 shrink-0 rounded-full bg-sky-100 dark:bg-sky-950 text-sky-700 dark:text-sky-300 font-extrabold flex items-center justify-center text-sm ring-2 ring-line-subtle">
-            {initialsFor(currentUserName, currentUserEmail)}
-          </div>
-          <div className="min-w-0">
-            <p className="text-xs font-bold text-ink truncate">
-              {displayName}
-            </p>
-            <p className="text-xxs font-semibold text-ink-faint uppercase tracking-wide truncate">
-              {persona === 'owner' ? t('sidebar.propertyManager') : t('sidebar.tenant')}
-            </p>
-          </div>
-        </div>
-
         {/* Nav list */}
-        <nav className="px-3 space-y-1">
+        <nav className="space-y-0.5">
           {currentNavItems.map((item) => {
             const Icon = item.icon;
             const isActive = currentActiveScreen === item.id;
@@ -231,16 +220,17 @@ export default function Sidebar({
                 key={item.id}
                 type="button"
                 onClick={() => handleNavClick(item.id)}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
+                aria-current={isActive ? 'page' : undefined}
+                className={`w-full flex items-center gap-3 px-3 min-h-11 lg:min-h-10 rounded-lg text-sm font-medium transition-colors cursor-pointer ${
                   isActive
-                    ? 'bg-slate-200/80 dark:bg-sky-950/45 text-slate-950 dark:text-sky-400 border-l-4 border-slate-900 dark:border-sky-400'
-                    : 'text-ink-muted hover:text-ink hover:bg-slate-100 dark:hover:bg-slate-800/40'
+                    ? 'bg-primary-soft text-primary-ink'
+                    : 'text-ink-muted hover:text-ink hover:bg-muted'
                 }`}
               >
-                <Icon size={16} className={isActive ? 'text-slate-900 dark:text-sky-400' : 'text-ink-faint'} />
+                <Icon size={18} strokeWidth={1.75} />
                 {item.label}
                 {!!item.badge && (
-                  <span className="ml-auto min-w-5 h-5 px-1.5 rounded-full bg-amber-500 text-white text-xxs font-extrabold flex items-center justify-center">
+                  <span className="ml-auto min-w-5 h-5 px-1.5 rounded-full bg-primary text-on-primary text-xs font-semibold flex items-center justify-center">
                     {item.badge}
                   </span>
                 )}
@@ -251,8 +241,8 @@ export default function Sidebar({
       </div>
 
       {/* Bottom Section */}
-      <div className="p-4 flex flex-col gap-4">
-        
+      <div className="p-3 flex flex-col gap-3">
+
         {/* Tenant CTA: opens the service request form */}
         {persona === 'tenant' && (
           <button
@@ -262,51 +252,62 @@ export default function Sidebar({
               onServiceRequestClick();
               onMobileClose();
             }}
-            className="w-full py-3 px-4 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-bold uppercase tracking-wider transition-all text-center shadow-sm flex items-center justify-center gap-2 cursor-pointer"
+            className="w-full h-10 px-4 bg-primary hover:bg-primary-hover text-on-primary rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2 cursor-pointer"
           >
-            <Wrench size={14} />
+            <Wrench size={16} />
             {t('sidebar.serviceRequest')}
           </button>
         )}
 
         {/* Footer actions */}
-        <div className="border-t border-slate-200/60 dark:border-slate-800/60 pt-4 space-y-1">
-          <button
-            id="sidebar-footer-settings"
-            type="button"
-            onClick={() => handleNavClick('settings')}
-            className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-xs font-semibold hover:text-ink hover:bg-slate-100 dark:hover:bg-slate-800/30 transition-all cursor-pointer ${
-              currentActiveScreen === 'settings' ? 'bg-muted text-ink' : 'text-ink-muted'
-            }`}
-          >
-            <Settings size={16} />
-            {t('sidebar.settings')}
-          </button>
+        <div className="space-y-0.5">
+          {([
+            { id: 'settings', label: t('sidebar.settings'), icon: Settings },
+            { id: 'help', label: t('sidebar.helpCenter'), icon: HelpCircle },
+          ] as const).map(({ id, label, icon: Icon }) => {
+            const isActive = currentActiveScreen === id;
+            return (
+              <button
+                key={id}
+                id={`sidebar-footer-${id}`}
+                type="button"
+                onClick={() => handleNavClick(id)}
+                aria-current={isActive ? 'page' : undefined}
+                className={`w-full flex items-center gap-3 px-3 min-h-11 lg:min-h-10 rounded-lg text-sm font-medium transition-colors cursor-pointer ${
+                  isActive ? 'bg-primary-soft text-primary-ink' : 'text-ink-muted hover:text-ink hover:bg-muted'
+                }`}
+              >
+                <Icon size={18} strokeWidth={1.75} />
+                {label}
+              </button>
+            );
+          })}
+        </div>
 
-          <button
-            id="sidebar-footer-help"
-            type="button"
-            onClick={() => handleNavClick('help')}
-            className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-xs font-semibold hover:text-ink hover:bg-slate-100 dark:hover:bg-slate-800/30 transition-all cursor-pointer ${
-              currentActiveScreen === 'help' ? 'bg-muted text-ink' : 'text-ink-muted'
-            }`}
-          >
-            <HelpCircle size={16} />
-            {t('sidebar.helpCenter')}
-          </button>
-
+        {/* Profile + log out */}
+        <div className="p-2.5 bg-surface border border-line rounded-xl shadow-card flex items-center gap-3">
+          <div className="h-9 w-9 shrink-0 rounded-full bg-primary-soft text-primary-ink font-semibold flex items-center justify-center text-xs">
+            {initialsFor(currentUserName, currentUserEmail)}
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-semibold text-ink truncate">{displayName}</p>
+            <p className="text-xs text-ink-muted truncate">
+              {persona === 'owner' ? t('sidebar.propertyManager') : t('sidebar.tenant')}
+            </p>
+          </div>
           <button
             id="sidebar-footer-logout"
             type="button"
             onClick={onLogout}
-            className="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-xs font-semibold text-danger hover:bg-red-50 dark:hover:bg-red-950/20 transition-all text-left cursor-pointer"
+            aria-label={t('sidebar.logOut')}
+            title={t('sidebar.logOut')}
+            className="h-9 w-9 shrink-0 flex items-center justify-center rounded-lg text-ink-muted hover:text-danger hover:bg-danger-soft transition-colors cursor-pointer"
           >
             <LogOut size={16} />
-            {t('sidebar.logOut')}
           </button>
         </div>
       </div>
-      
+
     </aside>
     </>
   );

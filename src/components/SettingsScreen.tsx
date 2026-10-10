@@ -114,7 +114,7 @@ export default function SettingsScreen({ persona, onProfileUpdated }: SettingsSc
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-24 text-slate-400">
+      <div className="flex items-center justify-center py-24 text-ink-faint">
         <Loader2 className="animate-spin" size={24} />
       </div>
     );
@@ -123,30 +123,30 @@ export default function SettingsScreen({ persona, onProfileUpdated }: SettingsSc
   return (
     <div className="space-y-6 animate-in fade-in duration-300 max-w-2xl">
       <div>
-        <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-ink">{t('settings.title')}</h2>
+        <h2 className="text-2xl font-semibold tracking-tight text-ink">{t('settings.title')}</h2>
         <p className="text-ink-muted text-sm mt-1">{t('settings.subtitle')}</p>
       </div>
 
       {/* Read-only context */}
-      <div className="bg-surface border border-line p-6 rounded-xl flex items-center gap-4">
-        <div className="w-10 h-10 rounded-lg bg-sky-50 dark:bg-sky-500/10 flex items-center justify-center text-sky-500 shrink-0">
+      <div className="bg-surface border border-line p-6 rounded-xl shadow-card flex items-center gap-4">
+        <div className="w-10 h-10 rounded-lg bg-indigo-50 dark:bg-indigo-500/10 flex items-center justify-center text-indigo-500 shrink-0">
           <ShieldCheck size={20} />
         </div>
         <div>
-          <p className="text-xs font-bold text-ink">{orgName || t('settings.organization')}</p>
-          <p className="text-xxs font-semibold text-ink-faint uppercase tracking-wide">
+          <p className="text-xs font-semibold text-ink">{orgName || t('settings.organization')}</p>
+          <p className="text-xs font-medium text-ink-faint">
             {persona === 'owner' ? t('settings.adminAccount') : t('settings.tenantAccount')}
           </p>
         </div>
       </div>
 
       {/* Preferences card */}
-      <div className="bg-surface border border-line p-6 rounded-xl space-y-4">
-        <h3 className="text-sm font-bold text-ink uppercase tracking-wider flex items-center gap-2">
-          <Globe size={16} className="text-sky-500" /> {t('preferences.title')}
+      <div className="bg-surface border border-line p-6 rounded-xl shadow-card space-y-4">
+        <h3 className="text-sm font-medium text-ink flex items-center gap-2">
+          <Globe size={16} className="text-indigo-500" /> {t('preferences.title')}
         </h3>
         <div>
-          <p className="block text-[10px] font-bold text-slate-400 uppercase mb-2">{t('preferences.language')}</p>
+          <p className="block text-xs font-medium text-ink-faint mb-2">{t('preferences.language')}</p>
           <div className="flex gap-2">
             {(['en', 'ro'] as Locale[]).map((opt) => (
               <button
@@ -156,7 +156,7 @@ export default function SettingsScreen({ persona, onProfileUpdated }: SettingsSc
                 className={`px-4 py-2 rounded-lg text-xs font-semibold transition-colors cursor-pointer ${
                   locale === opt
                     ? 'bg-primary text-on-primary'
-                    : 'bg-muted text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
+                    : 'bg-muted text-zinc-600 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700'
                 }`}
               >
                 {t(opt === 'en' ? 'preferences.english' : 'preferences.romanian')}
@@ -165,7 +165,7 @@ export default function SettingsScreen({ persona, onProfileUpdated }: SettingsSc
           </div>
         </div>
         <div>
-          <p className="block text-[10px] font-bold text-slate-400 uppercase mb-2">{t('preferences.currency')}</p>
+          <p className="block text-xs font-medium text-ink-faint mb-2">{t('preferences.currency')}</p>
           <div className="flex gap-2">
             {(['EUR', 'RON'] as CurrencyCode[]).map((opt) => (
               <button
@@ -175,7 +175,7 @@ export default function SettingsScreen({ persona, onProfileUpdated }: SettingsSc
                 className={`px-4 py-2 rounded-lg text-xs font-semibold transition-colors cursor-pointer ${
                   currency === opt
                     ? 'bg-primary text-on-primary'
-                    : 'bg-muted text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
+                    : 'bg-muted text-zinc-600 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700'
                 }`}
               >
                 {opt === 'EUR' ? t('preferences.euro') : t('preferences.ron')}
@@ -189,12 +189,12 @@ export default function SettingsScreen({ persona, onProfileUpdated }: SettingsSc
       </div>
 
       {/* Profile form */}
-      <form onSubmit={handleProfileSubmit} className="bg-surface border border-line p-6 rounded-xl space-y-4">
-        <h3 className="text-sm font-bold text-ink uppercase tracking-wider flex items-center gap-2">
-          <User size={16} className="text-sky-500" /> {t('settings.profile')}
+      <form onSubmit={handleProfileSubmit} className="bg-surface border border-line p-6 rounded-xl shadow-card space-y-4">
+        <h3 className="text-sm font-medium text-ink flex items-center gap-2">
+          <User size={16} className="text-indigo-500" /> {t('settings.profile')}
         </h3>
         <div>
-          <label htmlFor="settings-full-name" className="block text-[10px] font-bold text-slate-400 uppercase mb-1">{t('settings.fullName')}</label>
+          <label htmlFor="settings-full-name" className="block text-xs font-medium text-ink-faint mb-1">{t('settings.fullName')}</label>
           <input
             id="settings-full-name"
             type="text"
@@ -205,7 +205,7 @@ export default function SettingsScreen({ persona, onProfileUpdated }: SettingsSc
           />
         </div>
         <div>
-          <label htmlFor="settings-phone" className="block text-[10px] font-bold text-slate-400 uppercase mb-1">{t('settings.phone')}</label>
+          <label htmlFor="settings-phone" className="block text-xs font-medium text-ink-faint mb-1">{t('settings.phone')}</label>
           <input
             id="settings-phone"
             type="tel"
@@ -219,19 +219,19 @@ export default function SettingsScreen({ persona, onProfileUpdated }: SettingsSc
         <button
           type="submit"
           disabled={profileSaving}
-          className="px-4 py-2 bg-primary hover:bg-primary-hover text-on-primary rounded-lg text-xs font-bold uppercase tracking-wider disabled:opacity-60"
+          className="px-4 py-2 bg-primary hover:bg-primary-hover text-on-primary rounded-lg text-sm font-medium disabled:opacity-60"
         >
           {profileSaving ? t('common.saving') : t('settings.saveProfile')}
         </button>
       </form>
 
       {/* Email form */}
-      <form onSubmit={handleEmailSubmit} className="bg-surface border border-line p-6 rounded-xl space-y-4">
-        <h3 className="text-sm font-bold text-ink uppercase tracking-wider flex items-center gap-2">
-          <Mail size={16} className="text-sky-500" /> {t('settings.email')}
+      <form onSubmit={handleEmailSubmit} className="bg-surface border border-line p-6 rounded-xl shadow-card space-y-4">
+        <h3 className="text-sm font-medium text-ink flex items-center gap-2">
+          <Mail size={16} className="text-indigo-500" /> {t('settings.email')}
         </h3>
         <div>
-          <label htmlFor="settings-email" className="block text-[10px] font-bold text-slate-400 uppercase mb-1">{t('settings.emailAddress')}</label>
+          <label htmlFor="settings-email" className="block text-xs font-medium text-ink-faint mb-1">{t('settings.emailAddress')}</label>
           <input
             id="settings-email"
             type="email"
@@ -245,20 +245,20 @@ export default function SettingsScreen({ persona, onProfileUpdated }: SettingsSc
         <button
           type="submit"
           disabled={emailSaving}
-          className="px-4 py-2 bg-primary hover:bg-primary-hover text-on-primary rounded-lg text-xs font-bold uppercase tracking-wider disabled:opacity-60"
+          className="px-4 py-2 bg-primary hover:bg-primary-hover text-on-primary rounded-lg text-sm font-medium disabled:opacity-60"
         >
           {emailSaving ? t('common.saving') : t('settings.updateEmail')}
         </button>
       </form>
 
       {/* Password form */}
-      <form onSubmit={handlePasswordSubmit} className="bg-surface border border-line p-6 rounded-xl space-y-4">
-        <h3 className="text-sm font-bold text-ink uppercase tracking-wider flex items-center gap-2">
-          <Lock size={16} className="text-sky-500" /> {t('settings.password')}
+      <form onSubmit={handlePasswordSubmit} className="bg-surface border border-line p-6 rounded-xl shadow-card space-y-4">
+        <h3 className="text-sm font-medium text-ink flex items-center gap-2">
+          <Lock size={16} className="text-indigo-500" /> {t('settings.password')}
         </h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label htmlFor="settings-new-password" className="block text-[10px] font-bold text-slate-400 uppercase mb-1">{t('settings.newPassword')}</label>
+            <label htmlFor="settings-new-password" className="block text-xs font-medium text-ink-faint mb-1">{t('settings.newPassword')}</label>
             <input
               id="settings-new-password"
               type="password"
@@ -270,7 +270,7 @@ export default function SettingsScreen({ persona, onProfileUpdated }: SettingsSc
             />
           </div>
           <div>
-            <label htmlFor="settings-confirm-password" className="block text-[10px] font-bold text-slate-400 uppercase mb-1">{t('settings.confirmPassword')}</label>
+            <label htmlFor="settings-confirm-password" className="block text-xs font-medium text-ink-faint mb-1">{t('settings.confirmPassword')}</label>
             <input
               id="settings-confirm-password"
               type="password"
@@ -287,7 +287,7 @@ export default function SettingsScreen({ persona, onProfileUpdated }: SettingsSc
         <button
           type="submit"
           disabled={passwordSaving}
-          className="px-4 py-2 bg-primary hover:bg-primary-hover text-on-primary rounded-lg text-xs font-bold uppercase tracking-wider disabled:opacity-60"
+          className="px-4 py-2 bg-primary hover:bg-primary-hover text-on-primary rounded-lg text-sm font-medium disabled:opacity-60"
         >
           {passwordSaving ? t('common.saving') : t('settings.updatePassword')}
         </button>
