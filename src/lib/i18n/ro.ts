@@ -317,7 +317,7 @@ const ro: Dictionary = {
     attentionCountOne: '1 element',
     attentionMore: 'Încă {{count}}',
     allCaughtUp: 'Totul este la zi',
-    allCaughtUpDetail: 'Nicio chirie restantă sau cerere de service deschisă.',
+    allCaughtUpDetail: 'Nicio chirie restantă sau neîncasată și nicio cerere de service nouă.',
     rentOverdue: 'Chirie restantă · {{month}}',
     partiallyPaid: 'Plătit parțial · {{month}}',
     awaitingPayment: 'Plată în așteptare · {{month}}',

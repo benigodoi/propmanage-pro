@@ -317,7 +317,7 @@ const en: Dictionary = {
     attentionCountOne: '1 item',
     attentionMore: '+{{count}} more',
     allCaughtUp: 'All caught up',
-    allCaughtUpDetail: 'No overdue rent or open service requests.',
+    allCaughtUpDetail: 'No overdue or unpaid rent, and no new service requests.',
     rentOverdue: 'Rent overdue · {{month}}',
     partiallyPaid: 'Partially paid · {{month}}',
     awaitingPayment: 'Awaiting payment · {{month}}',

@@ -38,7 +38,7 @@ interface AttentionItem {
 const MAX_ATTENTION_ITEMS = 5;
 const RECENT_PAYMENTS_COUNT = 5;
 
-const WARNING_TONE = 'bg-amber-50 text-amber-700 dark:bg-amber-500/15 dark:text-amber-400';
+const WARNING_TONE = 'bg-warning-soft text-warning';
 
 const ATTENTION_STYLE: Record<AttentionKind, { icon: LucideIcon; tone: string }> = {
   overdue: { icon: AlertCircle, tone: 'bg-danger-soft text-danger' },
@@ -524,9 +524,9 @@ export default function OwnerDashboard({
                           </td>
                           <td className="px-5 py-3 text-ink-muted whitespace-nowrap">{p.month}</td>
                           <td className="px-5 py-3 text-right tabular-nums whitespace-nowrap text-ink">
-                            {p.status === 'Partial' && p.partialAmountPaid !== undefined ? (
+                            {p.status === 'Partial' ? (
                               <>
-                                {formatMoney(p.partialAmountPaid)}{' '}
+                                {formatMoney(p.partialAmountPaid ?? 0)}{' '}
                                 <span className="text-ink-muted">/ {formatMoney(p.totalDue)}</span>
                               </>
                             ) : (
