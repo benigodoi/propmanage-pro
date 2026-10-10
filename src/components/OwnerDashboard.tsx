@@ -9,25 +9,61 @@ import {
   DollarSign,
   AlertCircle,
   Building2,
-  SlidersHorizontal,
-  Download,
-  ChevronRight,
+  CheckCircle2,
+  CircleDashed,
+  Clock,
   Home,
   Plus,
   KeyRound,
-  Trash2
+  Trash2,
+  Wrench,
+  type LucideIcon,
 } from 'lucide-react';
-import { Property, Tenant, Unit, Payment } from '../types';
+import { Property, Tenant, Unit, Payment, ServiceRequest } from '../types';
 import { useLocalization } from '../contexts/LocalizationContext';
 import { enumLabel } from '../lib/i18n';
+
+type AttentionKind = 'overdue' | 'service' | 'partial' | 'awaiting';
+
+interface AttentionItem {
+  key: string;
+  kind: AttentionKind;
+  title: string;
+  detail: string;
+  /** Amount still owed, for payment items. */
+  amount?: number;
+  onClick: () => void;
+}
+
+const MAX_ATTENTION_ITEMS = 5;
+const RECENT_PAYMENTS_COUNT = 5;
+
+const WARNING_TONE = 'bg-warning-soft text-warning';
+
+const ATTENTION_STYLE: Record<AttentionKind, { icon: LucideIcon; tone: string }> = {
+  overdue: { icon: AlertCircle, tone: 'bg-danger-soft text-danger' },
+  service: { icon: Wrench, tone: WARNING_TONE },
+  partial: { icon: CircleDashed, tone: WARNING_TONE },
+  awaiting: { icon: Clock, tone: 'bg-muted text-ink-secondary' },
+};
+
+// Status is never colour-alone: each badge pairs an icon with its label.
+const PAYMENT_STATUS_STYLE: Record<Payment['status'], { icon: LucideIcon; tone: string }> = {
+  Paid: { icon: CheckCircle2, tone: 'bg-success-soft text-success' },
+  Partial: { icon: CircleDashed, tone: WARNING_TONE },
+  Overdue: { icon: AlertCircle, tone: 'bg-danger-soft text-danger' },
+  Pending: { icon: Clock, tone: 'bg-muted text-ink-secondary' },
+};
 
 interface OwnerDashboardProps {
   properties: Property[];
   units: Unit[];
   payments: Payment[];
   tenants: Tenant[];
-  onSelectProperty: (propertyId: string) => void;
+  serviceRequests: ServiceRequest[];
   onOpenInvoice: (paymentId: string) => void;
+  onOpenServiceRequests: () => void;
+  onViewAllPayments: () => void;
   onAddPropertyClick: () => void;
   onAddTenantClick: () => void;
   onInviteToPortalClick: (tenant: Tenant) => void;
@@ -39,8 +75,10 @@ export default function OwnerDashboard({
   units,
   payments,
   tenants,
-  onSelectProperty,
+  serviceRequests,
   onOpenInvoice,
+  onOpenServiceRequests,
+  onViewAllPayments,
   onAddPropertyClick,
   onAddTenantClick,
   onInviteToPortalClick,
@@ -73,13 +111,63 @@ export default function OwnerDashboard({
   }, [maxRevenue]);
   const axisTicks = [1, 0.75, 0.5, 0.25, 0].map((f) => axisMax * f);
 
-  // Recent Activity: the 5 most recently paid real payments.
-  const recentActivity = useMemo(() => {
-    return payments
-      .filter(p => p.status === 'Paid' && p.datePaid)
-      .sort((a, b) => new Date(b.datePaid as string).getTime() - new Date(a.datePaid as string).getTime())
-      .slice(0, 5);
-  }, [payments]);
+  // Needs attention, most actionable first: overdue rent (oldest month
+  // first), new service requests (newest first), partial payments, then
+  // current-month payments not yet received. Future months aren't due.
+  const attentionItems = useMemo<AttentionItem[]>(() => {
+    const where = (p: Payment) =>
+      t('dashboard.tenantAtUnit', { tenant: p.tenantName, property: p.propertyName, unit: p.unitNumber });
+    const byMonthAsc = (a: Payment, b: Payment) => a.monthIso.localeCompare(b.monthIso);
+    const now = Date.now();
+
+    const overdue = payments.filter((p) => p.status === 'Overdue').sort(byMonthAsc).map<AttentionItem>((p) => ({
+      key: `overdue:${p.id}`,
+      kind: 'overdue',
+      title: t('dashboard.rentOverdue', { month: p.month }),
+      detail: where(p),
+      amount: p.totalDue,
+      onClick: () => onOpenInvoice(p.id),
+    }));
+    const requests = serviceRequests
+      .filter((sr) => sr.status === 'Pending')
+      .sort((a, b) => b.dateCreated.localeCompare(a.dateCreated))
+      .map<AttentionItem>((sr) => ({
+        key: `sr:${sr.id}`,
+        kind: 'service',
+        title: t('notifications.srNew'),
+        detail: t('dashboard.requestDetail', { title: sr.title, property: sr.propertyName, unit: sr.unitNumber }),
+        onClick: onOpenServiceRequests,
+      }));
+    const partial = payments.filter((p) => p.status === 'Partial').sort(byMonthAsc).map<AttentionItem>((p) => ({
+      key: `partial:${p.id}`,
+      kind: 'partial',
+      title: t('dashboard.partiallyPaid', { month: p.month }),
+      detail: where(p),
+      amount: Math.max(0, p.totalDue - (p.partialAmountPaid ?? 0)),
+      onClick: () => onOpenInvoice(p.id),
+    }));
+    const awaiting = payments
+      .filter((p) => p.status === 'Pending' && new Date(p.monthIso).getTime() <= now)
+      .sort(byMonthAsc)
+      .map<AttentionItem>((p) => ({
+        key: `awaiting:${p.id}`,
+        kind: 'awaiting',
+        title: t('dashboard.awaitingPayment', { month: p.month }),
+        detail: where(p),
+        amount: p.totalDue,
+        onClick: () => onOpenInvoice(p.id),
+      }));
+    return [...overdue, ...requests, ...partial, ...awaiting];
+  }, [payments, serviceRequests, t, onOpenInvoice, onOpenServiceRequests]);
+
+  // Recent payments: the latest billing months, then tenant name for a stable order.
+  const recentPayments = useMemo(
+    () =>
+      [...payments]
+        .sort((a, b) => b.monthIso.localeCompare(a.monthIso) || a.tenantName.localeCompare(b.tenantName))
+        .slice(0, RECENT_PAYMENTS_COUNT),
+    [payments],
+  );
 
   // Headline metrics computed live from real data.
   const totalUnits = units.length;
@@ -113,7 +201,7 @@ export default function OwnerDashboard({
             className={`px-3.5 py-1.5 rounded-md text-sm font-medium transition-colors cursor-pointer ${
               activeTab === 'overview'
                 ? 'bg-surface dark:bg-zinc-700 text-ink shadow-sm'
-                : 'text-ink-muted hover:text-ink'
+                : 'text-ink-secondary hover:text-ink'
             }`}
           >
             {t('dashboard.tabOverview')}
@@ -126,7 +214,7 @@ export default function OwnerDashboard({
             className={`px-3.5 py-1.5 rounded-md text-sm font-medium transition-colors cursor-pointer ${
               activeTab === 'financials'
                 ? 'bg-surface dark:bg-zinc-700 text-ink shadow-sm'
-                : 'text-ink-muted hover:text-ink'
+                : 'text-ink-secondary hover:text-ink'
             }`}
           >
             {t('dashboard.tabFinancials')}
@@ -139,7 +227,7 @@ export default function OwnerDashboard({
             className={`px-3.5 py-1.5 rounded-md text-sm font-medium transition-colors cursor-pointer ${
               activeTab === 'tenants'
                 ? 'bg-surface dark:bg-zinc-700 text-ink shadow-sm'
-                : 'text-ink-muted hover:text-ink'
+                : 'text-ink-secondary hover:text-ink'
             }`}
           >
             {t('dashboard.tabTenants')}
@@ -230,11 +318,11 @@ export default function OwnerDashboard({
 
       {activeTab === 'overview' && (
         <>
-          {/* Main Content Grid: Chart & Recent Activity */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Main Content Grid: Chart & Needs attention */}
+          <div className="grid grid-cols-1 xl:grid-cols-5 gap-6">
 
             {/* Chart Widget */}
-            <div className="lg:col-span-2 bg-surface border border-line p-6 rounded-xl shadow-card">
+            <div className="xl:col-span-3 min-w-0 bg-surface border border-line p-6 rounded-xl shadow-card">
               <div className="flex justify-between items-center mb-6">
                 <h3 className="text-sm font-medium text-ink">
                   {t('dashboard.revenueHistory')}
@@ -311,156 +399,161 @@ export default function OwnerDashboard({
               )}
             </div>
 
-            {/* Recent Activity Sidebar Widget */}
-            <div className="bg-surface border border-line p-6 rounded-xl shadow-card flex flex-col">
-              <div className="flex justify-between items-center mb-6">
-                <h3 className="text-sm font-medium text-ink">
-                  {t('dashboard.recentActivity')}
+            {/* Needs attention: overdue rent, new service requests, partial and awaiting payments */}
+            <section aria-labelledby="needs-attention-title" className="xl:col-span-2 min-w-0 bg-surface border border-line rounded-xl shadow-card flex flex-col overflow-hidden">
+              <div className="flex justify-between items-center px-5 pt-5 pb-3">
+                <h3 id="needs-attention-title" className="text-sm font-medium text-ink">
+                  {t('dashboard.needsAttention')}
                 </h3>
-              </div>
-
-              {/* Activity List */}
-              <div className="space-y-4 flex-1">
-                {recentActivity.map((p) => (
-                  <div
-                    key={p.id}
-                    onClick={() => onOpenInvoice(p.id)}
-                    className="flex justify-between items-center p-2.5 border border-transparent hover:border-line-subtle hover:bg-zinc-50 dark:hover:bg-zinc-900/30 rounded-lg cursor-pointer transition-all duration-200 group"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full bg-success-soft flex items-center justify-center text-success text-xs font-semibold shrink-0">
-                        R
-                      </div>
-                      <div className="min-w-0">
-                        <p className="text-xs font-semibold text-ink group-hover:text-indigo-500 dark:group-hover:text-indigo-400 transition-colors">
-                          {p.tenantName}
-                        </p>
-                        <p className="text-xs font-medium text-ink-faint truncate">
-                          {t('dashboard.unitAt', { unit: p.unitNumber, property: p.propertyName })}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-xs font-semibold text-success font-sans">
-                        +{formatMoney(p.totalDue)}
-                      </p>
-                      <p className="text-xs font-medium text-ink-faint">
-                        {p.datePaid}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-                {recentActivity.length === 0 && (
-                  <p className="text-xs font-semibold text-ink-faint text-center py-8">
-                    {t('dashboard.noPaidInvoices')}
-                  </p>
+                {attentionItems.length > 0 && (
+                  <span className="text-xs text-ink-muted">
+                    {t(attentionItems.length === 1 ? 'dashboard.attentionCountOne' : 'dashboard.attentionCount', { count: attentionItems.length })}
+                  </span>
                 )}
               </div>
-            </div>
 
-          </div>
-
-          {/* Portfolio Assets Table */}
-          <div className="bg-surface border border-line rounded-xl overflow-hidden shadow-sm">
-
-            {/* Header section */}
-            <div className="flex justify-between items-center px-6 py-4 border-b border-line-subtle">
-              <h3 className="text-sm font-medium text-ink">
-                {t('dashboard.portfolioAssets')}
-              </h3>
-              <div className="flex gap-2">
-                <button type="button" className="p-1.5 rounded hover:bg-muted text-ink-muted transition-colors">
-                  <SlidersHorizontal size={16} />
-                </button>
-                <button type="button" className="p-1.5 rounded hover:bg-muted text-ink-muted transition-colors">
-                  <Download size={16} />
-                </button>
-              </div>
-            </div>
-
-            {/* Table Area */}
-            <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse">
-                <thead>
-                  <tr className="bg-subtle text-xs font-medium text-ink-faint border-b border-line-subtle">
-                    <th className="px-6 py-3">{t('dashboard.propertyAddress')}</th>
-                    <th className="px-6 py-3">{t('dashboard.units')}</th>
-                    <th className="px-6 py-3">{t('dashboard.occupancy')}</th>
-                    <th className="px-6 py-3">{t('dashboard.monthlyRevenue')}</th>
-                    <th className="px-6 py-3 text-right">{t('dashboard.action')}</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-line-subtle text-xs">
-                  {properties.map((prop) => (
-                    <tr
-                      key={prop.id}
-                      className="hover:bg-zinc-50/50 dark:hover:bg-zinc-800/20 transition-colors group"
-                    >
-                      <td className="px-4 py-3 flex items-center gap-4">
-                        <div className="w-8 h-8 rounded bg-muted flex items-center justify-center text-ink-secondary">
-                          <Building2 size={16} />
-                        </div>
-                        <div>
-                          <p className="font-semibold text-ink group-hover:text-indigo-500 dark:group-hover:text-indigo-400 transition-colors">
-                            {prop.name}
-                          </p>
-                          <p className="text-xs font-medium text-ink-faint mt-0.5">
-                            {prop.address}
-                          </p>
-                        </div>
-                      </td>
-                      <td className="px-4 py-3 font-semibold text-ink-soft">
-                        {t('dashboard.unitsCount', { count: prop.unitsCount })}
-                      </td>
-                      <td className="px-4 py-3">
-                        <div className="flex items-center gap-3">
-                          <div className="w-24 bg-muted h-1.5 rounded-full overflow-hidden">
-                            <div
-                              className={`h-full rounded-full ${
-                                prop.occupancyRate >= 90 ? 'bg-emerald-500' : 'bg-amber-500'
-                              }`}
-                              style={{ width: `${prop.occupancyRate}%` }}
-                            />
-                          </div>
-                          <span className="font-semibold text-ink-soft">
-                            {prop.occupancyRate}%
-                          </span>
-                        </div>
-                      </td>
-                      <td className="px-4 py-3 font-semibold text-ink font-sans">
-                        {formatMoney(prop.monthlyRevenue)}
-                      </td>
-                      <td className="px-4 py-3 text-right">
+              {attentionItems.length === 0 ? (
+                <div className="flex-1 flex flex-col items-center justify-center text-center px-6 py-10 border-t border-line-subtle">
+                  <span className="h-10 w-10 rounded-full bg-success-soft text-success flex items-center justify-center mb-3">
+                    <CheckCircle2 size={20} />
+                  </span>
+                  <p className="text-sm font-medium text-ink">{t('dashboard.allCaughtUp')}</p>
+                  <p className="text-xs text-ink-muted mt-1">{t('dashboard.allCaughtUpDetail')}</p>
+                </div>
+              ) : (
+                <ul className="flex-1">
+                  {attentionItems.slice(0, MAX_ATTENTION_ITEMS).map((item) => {
+                    const { icon: Icon, tone } = ATTENTION_STYLE[item.kind];
+                    return (
+                      <li key={item.key} className="border-t border-line-subtle">
                         <button
-                          id={`btn-manage-property-${prop.id}`}
                           type="button"
-                          onClick={() => onSelectProperty(prop.id)}
-                          className="px-3 py-1.5 rounded-md text-xs font-medium bg-muted hover:bg-zinc-200 dark:hover:bg-zinc-700 text-ink-soft transition-colors cursor-pointer"
+                          onClick={item.onClick}
+                          className="w-full flex items-start gap-3 px-5 py-3 text-left hover:bg-subtle transition-colors cursor-pointer"
                         >
-                          {t('dashboard.configureUnit')}
+                          <span className={`h-8 w-8 shrink-0 rounded-lg flex items-center justify-center ${tone}`}>
+                            <Icon size={16} />
+                          </span>
+                          <span className="flex-1 min-w-0">
+                            <span className="flex items-baseline justify-between gap-3">
+                              <span className="text-sm font-medium text-ink">{item.title}</span>
+                              {item.amount !== undefined && (
+                                <span className="shrink-0 text-sm font-semibold text-ink tabular-nums whitespace-nowrap">
+                                  {formatMoney(item.amount)}
+                                </span>
+                              )}
+                            </span>
+                            <span className="block text-xs text-ink-muted mt-0.5 line-clamp-2">{item.detail}</span>
+                          </span>
                         </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                      </li>
+                    );
+                  })}
+                  {attentionItems.length > MAX_ATTENTION_ITEMS && (
+                    <li className="border-t border-line-subtle px-5 py-3">
+                      <button type="button" onClick={onViewAllPayments} className="text-xs font-medium text-primary-ink hover:underline cursor-pointer">
+                        {t('dashboard.attentionMore', { count: attentionItems.length - MAX_ATTENTION_ITEMS })}
+                      </button>
+                    </li>
+                  )}
+                </ul>
+              )}
+            </section>
 
-            {/* Empty state helper if no properties */}
-            {properties.length === 0 && (
-              <div className="text-center py-12">
-                <Building2 className="mx-auto text-zinc-300 dark:text-zinc-700 mb-2" size={32} />
-                <p className="text-sm font-semibold text-ink-secondary">{t('dashboard.noPropertiesYet')}</p>
-                <button
-                  type="button"
-                  onClick={onAddPropertyClick}
-                  className="mt-2 text-xs font-semibold text-primary-ink hover:underline"
-                >
-                  {t('dashboard.createFirstProperty')}
+          </div>
+
+          {properties.length === 0 ? (
+            /* Empty portfolio: point the owner at the first step. */
+            <div className="bg-surface border border-line rounded-xl shadow-card text-center py-12">
+              <Building2 className="mx-auto text-ink-faint mb-2" size={32} />
+              <p className="text-sm font-semibold text-ink-secondary">{t('dashboard.noPropertiesYet')}</p>
+              <button
+                type="button"
+                onClick={onAddPropertyClick}
+                className="mt-2 text-xs font-semibold text-primary-ink hover:underline cursor-pointer"
+              >
+                {t('dashboard.createFirstProperty')}
+              </button>
+            </div>
+          ) : (
+            /* Recent payments: the latest billing records across the portfolio */
+            <section aria-labelledby="recent-payments-title" className="bg-surface border border-line rounded-xl shadow-card overflow-hidden">
+              <div className="flex justify-between items-center gap-3 px-5 py-4">
+                <h3 id="recent-payments-title" className="text-sm font-medium text-ink">
+                  {t('dashboard.recentPayments')}
+                </h3>
+                <button type="button" onClick={onViewAllPayments} className="text-xs font-medium text-primary-ink hover:underline cursor-pointer">
+                  {t('dashboard.viewAll')}
                 </button>
               </div>
-            )}
-          </div>
+              <div className="overflow-x-auto">
+                <table className="w-full min-w-[640px] text-left border-collapse text-sm">
+                  <thead>
+                    <tr className="bg-subtle text-xs font-medium text-ink-muted border-y border-line-subtle">
+                      <th scope="col" className="px-5 py-2.5 font-medium">{t('dashboard.colTenant')}</th>
+                      <th scope="col" className="px-5 py-2.5 font-medium">{t('dashboard.colUnit')}</th>
+                      <th scope="col" className="px-5 py-2.5 font-medium">{t('dashboard.colPeriod')}</th>
+                      <th scope="col" className="px-5 py-2.5 font-medium text-right">{t('dashboard.colAmount')}</th>
+                      <th scope="col" className="px-5 py-2.5 font-medium">{t('dashboard.status')}</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-line-subtle">
+                    {recentPayments.map((p) => {
+                      const { icon: StatusIcon, tone } = PAYMENT_STATUS_STYLE[p.status];
+                      return (
+                        <tr
+                          key={p.id}
+                          onClick={() => onOpenInvoice(p.id)}
+                          className="hover:bg-subtle transition-colors cursor-pointer"
+                        >
+                          <td className="px-5 py-3 font-medium text-ink whitespace-nowrap">
+                            {/* The row is clickable for mouse users; this button is the keyboard path. */}
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                onOpenInvoice(p.id);
+                              }}
+                              className="hover:underline cursor-pointer text-left"
+                            >
+                              {p.tenantName}
+                            </button>
+                          </td>
+                          <td className="px-5 py-3 text-ink-muted whitespace-nowrap">
+                            {t('dashboard.unitShort', { property: p.propertyName, unit: p.unitNumber })}
+                          </td>
+                          <td className="px-5 py-3 text-ink-muted whitespace-nowrap">{p.month}</td>
+                          <td className="px-5 py-3 text-right tabular-nums whitespace-nowrap text-ink">
+                            {p.status === 'Partial' ? (
+                              <>
+                                {formatMoney(p.partialAmountPaid ?? 0)}{' '}
+                                <span className="text-ink-muted">/ {formatMoney(p.totalDue)}</span>
+                              </>
+                            ) : (
+                              formatMoney(p.totalDue)
+                            )}
+                          </td>
+                          <td className="px-5 py-3">
+                            <span className={`inline-flex items-center gap-1 h-6 px-2 rounded-full text-xs font-medium whitespace-nowrap ${tone}`}>
+                              <StatusIcon size={12} />
+                              {enumLabel(locale, p.status)}
+                            </span>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                    {recentPayments.length === 0 && (
+                      <tr>
+                        <td colSpan={5} className="px-5 py-10 text-center text-sm text-ink-muted">
+                          {t('dashboard.noPaymentsYet')}
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </section>
+          )}
         </>
       )}
 
