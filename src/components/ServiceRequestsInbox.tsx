@@ -19,7 +19,7 @@ const ALL_STATUSES = 'all';
 
 export const serviceRequestStatusBadgeClass: Record<ServiceRequest['status'], string> = {
   Pending: 'bg-amber-100 text-amber-800 dark:bg-amber-500/15 dark:text-amber-300',
-  'In Progress': 'bg-sky-100 text-sky-800 dark:bg-sky-500/15 dark:text-sky-300',
+  'In Progress': 'bg-indigo-100 text-indigo-800 dark:bg-indigo-500/15 dark:text-indigo-300',
   Completed: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-500/15 dark:text-emerald-300',
 };
 
@@ -48,7 +48,7 @@ export default function ServiceRequestsInbox({ serviceRequests, onUpdateStatus }
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-ink">
+          <h2 className="text-2xl font-semibold tracking-tight text-ink">
             {t('serviceRequests.title')}
           </h2>
           <p className="text-ink-muted text-sm mt-1">
@@ -70,7 +70,7 @@ export default function ServiceRequestsInbox({ serviceRequests, onUpdateStatus }
       </div>
 
       {filtered.length === 0 ? (
-        <div className="bg-surface border border-line rounded-xl p-10 text-center text-sm text-ink-muted">
+        <div className="bg-surface border border-line rounded-xl shadow-card p-10 text-center text-sm text-ink-muted">
           {serviceRequests.length === 0 ? t('serviceRequests.empty') : t('serviceRequests.emptyFiltered')}
         </div>
       ) : (
@@ -78,7 +78,7 @@ export default function ServiceRequestsInbox({ serviceRequests, onUpdateStatus }
           {filtered.map((req) => (
             <div
               key={req.id}
-              className="bg-surface border border-line rounded-xl p-5 flex flex-col md:flex-row md:items-start gap-4"
+              className="bg-surface border border-line rounded-xl shadow-card p-5 flex flex-col md:flex-row md:items-start gap-4"
             >
               <div className="h-10 w-10 shrink-0 rounded-lg bg-muted flex items-center justify-center">
                 <Wrench size={18} className="text-ink-muted" />
@@ -86,18 +86,18 @@ export default function ServiceRequestsInbox({ serviceRequests, onUpdateStatus }
 
               <div className="flex-1 min-w-0 space-y-1">
                 <div className="flex flex-wrap items-center gap-2">
-                  <h3 className="font-bold text-sm text-ink">{req.title}</h3>
-                  <span className="text-xxs font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-muted text-slate-600 dark:text-slate-300">
+                  <h3 className="font-semibold text-sm text-ink">{req.title}</h3>
+                  <span className="text-xs font-medium px-2 py-0.5 rounded bg-muted text-zinc-600 dark:text-zinc-300">
                     {enumLabel(locale, req.category)}
                   </span>
-                  <span className={`text-xxs font-bold uppercase tracking-wider px-2 py-0.5 rounded ${serviceRequestStatusBadgeClass[req.status]}`}>
+                  <span className={`text-xs font-medium px-2 py-0.5 rounded ${serviceRequestStatusBadgeClass[req.status]}`}>
                     {enumLabel(locale, req.status)}
                   </span>
                 </div>
-                <p className="text-xs font-semibold text-slate-600 dark:text-slate-300">
+                <p className="text-xs font-semibold text-zinc-600 dark:text-zinc-300">
                   {t('serviceRequests.unitLabel', { property: req.propertyName, unit: req.unitNumber })}
                 </p>
-                <p className="text-xxs text-slate-400">
+                <p className="text-xs text-ink-faint">
                   {t('serviceRequests.submittedBy', {
                     name: req.tenantName || t('serviceRequests.unknownTenant'),
                     date: req.dateCreated,
@@ -109,7 +109,7 @@ export default function ServiceRequestsInbox({ serviceRequests, onUpdateStatus }
               </div>
 
               <label className="flex flex-col gap-1 shrink-0">
-                <span className="text-xxs font-bold uppercase tracking-wider text-slate-400">{t('serviceRequests.status')}</span>
+                <span className="text-xs font-medium text-ink-faint">{t('serviceRequests.status')}</span>
                 <select
                   value={req.status}
                   disabled={updatingId === req.id}

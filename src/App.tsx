@@ -621,7 +621,7 @@ export default function App() {
   // flash the login screen or an empty dashboard.
   if (authLoading || (session && profileLoading) || (session && user && dataLoading)) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-canvas text-slate-400 text-sm">
+      <div className="min-h-screen flex items-center justify-center bg-canvas text-ink-faint text-sm">
         {t('common.loading')}
       </div>
     );
@@ -684,7 +684,6 @@ export default function App() {
             navigate(screenToPath(user.persona, 'settings'));
           }}
           currentUserEmail={user.email}
-          currentUserName={user.fullName}
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
           notifications={notifications}
@@ -729,13 +728,13 @@ export default function App() {
                   <div className="space-y-6">
                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                       <div>
-                        <h2 className="text-2xl sm:text-3xl font-extrabold text-ink">{t('properties.title')}</h2>
+                        <h2 className="text-2xl font-semibold text-ink">{t('properties.title')}</h2>
                         <p className="text-ink-muted text-sm mt-1">{t('properties.subtitle')}</p>
                       </div>
                       <button
                         type="button"
                         onClick={() => setShowAddPropertyModal(true)}
-                        className="px-4 py-2 bg-primary hover:bg-primary-hover text-on-primary rounded-lg text-xs font-bold uppercase tracking-wider flex items-center gap-1 cursor-pointer"
+                        className="px-4 py-2 bg-primary hover:bg-primary-hover text-on-primary rounded-lg text-sm font-medium flex items-center gap-1 cursor-pointer"
                       >
                         <Plus size={14} /> {t('header.addProperty')}
                       </button>
@@ -743,14 +742,14 @@ export default function App() {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       {properties.map((prop) => (
-                        <div key={prop.id} className="bg-surface border border-line p-6 rounded-xl space-y-6">
+                        <div key={prop.id} className="bg-surface border border-line p-6 rounded-xl shadow-card space-y-6">
                           <div className="flex justify-between items-start">
                             <div>
-                              <h3 className="font-extrabold text-lg text-ink">{prop.name}</h3>
-                              <p className="text-xxs font-semibold text-slate-400 uppercase mt-0.5">{prop.address}</p>
+                              <h3 className="font-semibold text-lg text-ink">{prop.name}</h3>
+                              <p className="text-xs font-medium text-ink-faint mt-0.5">{prop.address}</p>
                             </div>
                             <div className="flex items-center gap-2">
-                              <span className="px-3 py-1 bg-sky-50 dark:bg-sky-950 text-sky-700 dark:text-sky-300 text-xxs font-bold rounded-full">
+                              <span className="px-3 py-1 bg-indigo-50 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 text-xs font-semibold rounded-full">
                                 {t('dashboard.unitsCount', { count: prop.unitsCount })}
                               </span>
                               <button
@@ -764,27 +763,27 @@ export default function App() {
                             </div>
                           </div>
 
-                          <div className="grid grid-cols-2 gap-4 border-t border-b border-slate-100 dark:border-slate-800/60 py-4 text-xs font-semibold text-ink-secondary">
+                          <div className="grid grid-cols-2 gap-4 border-t border-b border-zinc-100 dark:border-zinc-800/60 py-4 text-xs font-semibold text-ink-secondary">
                             <div>
-                              <span className="text-[10px] text-slate-400 uppercase block mb-1">{t('dashboard.occupancyRate')}</span>
-                              <span className="text-ink font-bold">{prop.occupancyRate}%</span>
+                              <span className="text-xs text-ink-faint block mb-1">{t('dashboard.occupancyRate')}</span>
+                              <span className="text-ink font-semibold">{prop.occupancyRate}%</span>
                             </div>
                             <div>
-                              <span className="text-[10px] text-slate-400 uppercase block mb-1">{t('properties.projectedIncome')}</span>
-                              <span className="text-emerald-500 font-bold font-sans">{formatMoney(prop.monthlyRevenue)}</span>
+                              <span className="text-xs text-ink-faint block mb-1">{t('properties.projectedIncome')}</span>
+                              <span className="text-emerald-500 font-semibold font-sans">{formatMoney(prop.monthlyRevenue)}</span>
                             </div>
                           </div>
 
                           <div>
                             <div className="flex justify-between items-center mb-3">
-                              <h4 className="text-xxs font-bold text-slate-400 uppercase tracking-widest">{t('properties.activeUnits')}</h4>
+                              <h4 className="text-xs font-medium text-ink-faint">{t('properties.activeUnits')}</h4>
                               <button
                                 type="button"
                                 onClick={() => {
                                   setAddUnitPropertyId(prop.id);
                                   setShowAddUnitModal(true);
                                 }}
-                                className="text-xxs font-bold text-sky-500 hover:underline flex items-center gap-1 cursor-pointer"
+                                className="text-xs font-semibold text-indigo-500 hover:underline flex items-center gap-1 cursor-pointer"
                               >
                                 <Plus size={12} /> {t('properties.addUnit')}
                               </button>
@@ -795,17 +794,17 @@ export default function App() {
                                   key={unit.unitNumber}
                                   type="button"
                                   onClick={() => handleSelectUnitConfig(unit.id)}
-                                  className="p-3 bg-subtle hover:bg-slate-100 dark:hover:bg-slate-850 border border-slate-150 dark:border-slate-800 text-left rounded-lg text-xs transition-colors flex justify-between items-center group cursor-pointer"
+                                  className="p-3 bg-surface hover:bg-muted border border-line text-left rounded-lg text-sm transition-colors flex justify-between items-center group cursor-pointer"
                                 >
                                   <div>
-                                    <p className="font-bold text-slate-800 dark:text-white">{t('dashboard.unitLabel', { unit: unit.unitNumber })}</p>
-                                    <p className="text-[10px] text-slate-400">{unit.activeTenant ? unit.activeTenant.name : t('properties.vacant')}</p>
+                                    <p className="font-medium text-ink">{t('dashboard.unitLabel', { unit: unit.unitNumber })}</p>
+                                    <p className="text-xs text-ink-muted">{unit.activeTenant ? unit.activeTenant.name : t('properties.vacant')}</p>
                                   </div>
-                                  <ChevronRight size={14} className="text-slate-300 group-hover:text-sky-400 transition-colors" />
+                                  <ChevronRight size={14} className="text-ink-faint group-hover:text-primary transition-colors" />
                                 </button>
                               ))}
                               {units.filter(u => u.propertyId === prop.id).length === 0 && (
-                                <p className="col-span-2 text-[10px] text-slate-400 italic py-2">{t('properties.noUnitsYet')}</p>
+                                <p className="col-span-2 text-xs text-ink-faint italic py-2">{t('properties.noUnitsYet')}</p>
                               )}
                             </div>
                           </div>
@@ -834,41 +833,41 @@ export default function App() {
                 )}
 
                 {activeOwnerScreen === 'reports' && (
-                  <div className="bg-surface border border-line p-5 sm:p-8 rounded-xl space-y-6">
+                  <div className="bg-surface border border-line p-5 sm:p-8 rounded-xl shadow-card space-y-6">
                     <div>
-                      <h2 className="text-2xl font-bold text-ink">{t('reports.title')}</h2>
+                      <h2 className="text-2xl font-semibold text-ink">{t('reports.title')}</h2>
                       <p className="text-ink-muted text-sm mt-1">{t('reports.subtitle')}</p>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4">
                       {/* Report Card 1 */}
-                      <div className="p-5 border border-line rounded-xl hover:border-sky-500/50 transition-colors cursor-pointer space-y-4">
-                        <FileSpreadsheet className="text-sky-500" size={28} />
+                      <div className="p-5 border border-line rounded-xl hover:border-indigo-500/50 transition-colors cursor-pointer space-y-4">
+                        <FileSpreadsheet className="text-indigo-500" size={28} />
                         <div>
-                          <h3 className="font-bold text-sm text-ink">{t('reports.revenueSummary')}</h3>
-                          <p className="text-xxs text-slate-400 mt-1">{t('reports.revenueSummaryDesc')}</p>
+                          <h3 className="font-semibold text-sm text-ink">{t('reports.revenueSummary')}</h3>
+                          <p className="text-xs text-ink-faint mt-1">{t('reports.revenueSummaryDesc')}</p>
                         </div>
-                        <button type="button" onClick={() => showToast(t('reports.simulatingXls'), 'info')} className="text-xs text-sky-500 font-bold hover:underline">{t('reports.downloadXls')}</button>
+                        <button type="button" onClick={() => showToast(t('reports.simulatingXls'), 'info')} className="text-xs text-indigo-500 font-semibold hover:underline">{t('reports.downloadXls')}</button>
                       </div>
 
                       {/* Report Card 2 */}
-                      <div className="p-5 border border-line rounded-xl hover:border-sky-500/50 transition-colors cursor-pointer space-y-4">
+                      <div className="p-5 border border-line rounded-xl hover:border-indigo-500/50 transition-colors cursor-pointer space-y-4">
                         <FileText className="text-emerald-500" size={28} />
                         <div>
-                          <h3 className="font-bold text-sm text-ink">{t('reports.overdueBalance')}</h3>
-                          <p className="text-xxs text-slate-400 mt-1">{t('reports.overdueBalanceDesc')}</p>
+                          <h3 className="font-semibold text-sm text-ink">{t('reports.overdueBalance')}</h3>
+                          <p className="text-xs text-ink-faint mt-1">{t('reports.overdueBalanceDesc')}</p>
                         </div>
-                        <button type="button" onClick={() => showToast(t('reports.simulatingPdf'), 'info')} className="text-xs text-sky-500 font-bold hover:underline">{t('reports.downloadPdf')}</button>
+                        <button type="button" onClick={() => showToast(t('reports.simulatingPdf'), 'info')} className="text-xs text-indigo-500 font-semibold hover:underline">{t('reports.downloadPdf')}</button>
                       </div>
 
                       {/* Report Card 3 */}
-                      <div className="p-5 border border-line rounded-xl hover:border-sky-500/50 transition-colors cursor-pointer space-y-4">
+                      <div className="p-5 border border-line rounded-xl hover:border-indigo-500/50 transition-colors cursor-pointer space-y-4">
                         <Wrench className="text-amber-500" size={28} />
                         <div>
-                          <h3 className="font-bold text-sm text-ink">{t('reports.maintenanceAudit')}</h3>
-                          <p className="text-xxs text-slate-400 mt-1">{t('reports.maintenanceAuditDesc')}</p>
+                          <h3 className="font-semibold text-sm text-ink">{t('reports.maintenanceAudit')}</h3>
+                          <p className="text-xs text-ink-faint mt-1">{t('reports.maintenanceAuditDesc')}</p>
                         </div>
-                        <button type="button" onClick={() => showToast(t('reports.simulatingMaintenancePdf'), 'info')} className="text-xs text-sky-500 font-bold hover:underline">{t('reports.downloadPdf')}</button>
+                        <button type="button" onClick={() => showToast(t('reports.simulatingMaintenancePdf'), 'info')} className="text-xs text-indigo-500 font-semibold hover:underline">{t('reports.downloadPdf')}</button>
                       </div>
                     </div>
                   </div>
@@ -914,26 +913,26 @@ export default function App() {
 
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-xs font-semibold text-ink-secondary border-t border-b border-line-subtle py-4">
                           <div>
-                            <span className="text-[10px] text-slate-400 uppercase block mb-1">{t('tenantProperty.bedrooms')}</span>
-                            <span className="text-ink font-bold">{units[0].bedrooms}</span>
+                            <span className="text-xs text-ink-faint block mb-1">{t('tenantProperty.bedrooms')}</span>
+                            <span className="text-ink font-semibold">{units[0].bedrooms}</span>
                           </div>
                           <div>
-                            <span className="text-[10px] text-slate-400 uppercase block mb-1">{t('tenantProperty.bathrooms')}</span>
-                            <span className="text-ink font-bold">{units[0].bathrooms}</span>
+                            <span className="text-xs text-ink-faint block mb-1">{t('tenantProperty.bathrooms')}</span>
+                            <span className="text-ink font-semibold">{units[0].bathrooms}</span>
                           </div>
                           <div>
-                            <span className="text-[10px] text-slate-400 uppercase block mb-1">{t('tenantProperty.squareFeet')}</span>
-                            <span className="text-ink font-bold">{units[0].sqft}</span>
+                            <span className="text-xs text-ink-faint block mb-1">{t('tenantProperty.squareFeet')}</span>
+                            <span className="text-ink font-semibold">{units[0].sqft}</span>
                           </div>
                           <div>
-                            <span className="text-[10px] text-slate-400 uppercase block mb-1">{t('unitConfig.baseRent')}</span>
-                            <span className="text-ink font-bold">{formatMoney(units[0].baseRent)}</span>
+                            <span className="text-xs text-ink-faint block mb-1">{t('unitConfig.baseRent')}</span>
+                            <span className="text-ink font-semibold">{formatMoney(units[0].baseRent)}</span>
                           </div>
                         </div>
 
                         {units[0].utilities.length > 0 && (
                           <div>
-                            <h3 className="font-bold text-sm uppercase tracking-wider text-ink mb-3">{t('unitConfig.utilitiesAddons')}</h3>
+                            <h3 className="font-medium text-sm text-ink mb-3">{t('unitConfig.utilitiesAddons')}</h3>
                             <div className="grid grid-cols-2 gap-3 text-xs text-ink-secondary font-semibold">
                               {units[0].utilities.map((u) => (
                                 <span key={u.id}>{t('tenantProperty.utilityPerMonth', { name: u.name, amount: formatMoney(u.amount) })}</span>
@@ -944,7 +943,7 @@ export default function App() {
                       </div>
                     </div>
                   ) : (
-                    <div className="bg-surface border border-line rounded-xl p-12 text-center">
+                    <div className="bg-surface border border-line rounded-xl shadow-card p-12 text-center">
                       <p className="text-sm font-semibold text-ink-secondary">{t('tenantDashboard.noLease')}</p>
                     </div>
                   )
@@ -953,14 +952,14 @@ export default function App() {
                 {activeTenantScreen === 'payments' && (
                   <div className="bg-surface border border-line rounded-xl p-5 sm:p-8 shadow-sm space-y-6">
                     <div>
-                      <h2 className="text-2xl font-bold text-ink">{t('tenantPayments.title')}</h2>
+                      <h2 className="text-2xl font-semibold text-ink">{t('tenantPayments.title')}</h2>
                       <p className="text-ink-muted text-sm mt-1">{t('tenantPayments.subtitle')}</p>
                     </div>
 
-                    <div className="overflow-x-auto border border-slate-150 dark:border-slate-800 rounded-lg">
+                    <div className="overflow-x-auto border border-line rounded-lg">
                       <table className="w-full text-left text-xs">
                         <thead>
-                          <tr className="bg-subtle text-slate-400 font-bold uppercase tracking-wider text-[10px] border-b border-line">
+                          <tr className="bg-subtle text-ink-faint font-medium text-xs border-b border-line">
                             <th className="px-6 py-3">{t('tenantPayments.billingItem')}</th>
                             <th className="px-6 py-3">{t('dashboard.status')}</th>
                             <th className="px-6 py-3">{t('payments.datePaid')}</th>
@@ -968,21 +967,21 @@ export default function App() {
                             <th className="px-6 py-3 text-center">{t('tenantPayments.receipt')}</th>
                           </tr>
                         </thead>
-                        <tbody className="divide-y divide-slate-100 dark:divide-slate-800/40 text-xs font-semibold">
+                        <tbody className="divide-y divide-line-subtle text-xs font-semibold">
                           {payments.map((p) => (
-                            <tr key={p.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/20">
-                              <td className="px-6 py-4 font-bold text-ink">{p.month}</td>
-                              <td className="px-6 py-4 text-slate-600">{enumLabel(locale, p.status)}</td>
-                              <td className="px-6 py-4 text-slate-500">{p.datePaid || '—'}</td>
-                              <td className="px-6 py-4 text-right font-mono font-bold">{formatMoney(p.totalDue)}</td>
-                              <td className="px-6 py-4 text-center">
-                                <button type="button" onClick={() => setSelectedPaymentInvoice(p)} className="px-3 py-1 bg-muted text-ink-soft rounded text-xxs font-bold uppercase">{t('tenantPayments.viewStatement')}</button>
+                            <tr key={p.id} className="hover:bg-zinc-50 dark:hover:bg-zinc-800/20">
+                              <td className="px-4 py-3 font-semibold text-ink">{p.month}</td>
+                              <td className="px-4 py-3 text-ink-secondary">{enumLabel(locale, p.status)}</td>
+                              <td className="px-4 py-3 text-ink-muted">{p.datePaid || '—'}</td>
+                              <td className="px-4 py-3 text-right font-mono font-semibold">{formatMoney(p.totalDue)}</td>
+                              <td className="px-4 py-3 text-center">
+                                <button type="button" onClick={() => setSelectedPaymentInvoice(p)} className="px-3 py-1 bg-muted text-ink-soft rounded text-xs font-medium">{t('tenantPayments.viewStatement')}</button>
                               </td>
                             </tr>
                           ))}
                           {payments.length === 0 && (
                             <tr>
-                              <td colSpan={5} className="px-6 py-8 text-center text-slate-400 font-semibold">
+                              <td colSpan={5} className="px-6 py-8 text-center text-ink-faint font-semibold">
                                 {t('tenantPayments.noBillingHistory')}
                               </td>
                             </tr>
@@ -994,23 +993,23 @@ export default function App() {
                 )}
 
                 {activeTenantScreen === 'documents' && (
-                  <div className="bg-surface border border-line p-5 sm:p-8 rounded-xl space-y-6">
+                  <div className="bg-surface border border-line p-5 sm:p-8 rounded-xl shadow-card space-y-6">
                     <div className="border-b border-line-subtle pb-4">
-                      <h2 className="text-2xl font-bold text-ink">{t('tenantDocuments.title')}</h2>
+                      <h2 className="text-2xl font-semibold text-ink">{t('tenantDocuments.title')}</h2>
                       <p className="text-ink-muted text-sm mt-1">{t('tenantDocuments.subtitle')}</p>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
                       {(units[0]?.leaseDocs ?? []).map((doc, idx) => (
-                        <div key={idx} className="p-4 border border-slate-150 dark:border-slate-800 rounded-lg flex justify-between items-center">
+                        <div key={idx} className="p-4 border border-line rounded-lg flex justify-between items-center">
                           <div className="flex items-center gap-3">
-                            <FileText size={24} className="text-sky-500" />
+                            <FileText size={24} className="text-indigo-500" />
                             <div>
-                              <p className="font-bold text-xs text-ink">{doc.name}</p>
-                              <p className="text-xxs text-slate-400">{doc.size} • {doc.date}</p>
+                              <p className="font-semibold text-xs text-ink">{doc.name}</p>
+                              <p className="text-xs text-ink-faint">{doc.size} • {doc.date}</p>
                             </div>
                           </div>
-                          <Download size={16} className="text-slate-400" />
+                          <Download size={16} className="text-ink-faint" />
                         </div>
                       ))}
                       {(!units[0]?.leaseDocs || units[0].leaseDocs.length === 0) && (
@@ -1038,17 +1037,17 @@ export default function App() {
             {/* Help Center Accordion Sub-View */}
             {((user.persona === 'owner' && activeOwnerScreen === 'help') || 
               (user.persona === 'tenant' && activeTenantScreen === 'help')) && (
-              <div className="bg-surface border border-line p-5 sm:p-8 rounded-xl space-y-6">
+              <div className="bg-surface border border-line p-5 sm:p-8 rounded-xl shadow-card space-y-6">
                 <div>
-                  <h2 className="text-2xl font-bold text-ink">{t('help.title')}</h2>
+                  <h2 className="text-2xl font-semibold text-ink">{t('help.title')}</h2>
                   <p className="text-ink-muted text-sm mt-1">{t('help.subtitle')}</p>
                 </div>
 
                 <div className="space-y-4 pt-4 text-xs font-semibold">
                   {/* Q1 */}
-                  <div className="p-4 bg-slate-50 dark:bg-slate-900/40 rounded-lg border border-slate-150 dark:border-slate-800">
-                    <h3 className="font-bold text-ink mb-2 flex items-center gap-2">
-                      <HelpCircle size={14} className="text-sky-500" /> {t('help.q1')}
+                  <div className="p-4 bg-zinc-50 dark:bg-zinc-900/40 rounded-lg border border-line">
+                    <h3 className="font-semibold text-ink mb-2 flex items-center gap-2">
+                      <HelpCircle size={14} className="text-indigo-500" /> {t('help.q1')}
                     </h3>
                     <p className="text-ink-secondary leading-relaxed font-normal">
                       {t('help.a1')}
@@ -1056,9 +1055,9 @@ export default function App() {
                   </div>
 
                   {/* Q2 */}
-                  <div className="p-4 bg-slate-50 dark:bg-slate-900/40 rounded-lg border border-slate-150 dark:border-slate-800">
-                    <h3 className="font-bold text-ink mb-2 flex items-center gap-2">
-                      <HelpCircle size={14} className="text-sky-500" /> {t('help.q2')}
+                  <div className="p-4 bg-zinc-50 dark:bg-zinc-900/40 rounded-lg border border-line">
+                    <h3 className="font-semibold text-ink mb-2 flex items-center gap-2">
+                      <HelpCircle size={14} className="text-indigo-500" /> {t('help.q2')}
                     </h3>
                     <p className="text-ink-secondary leading-relaxed font-normal">
                       {t('help.a2')}
@@ -1083,14 +1082,14 @@ export default function App() {
 
       {/* Add Property Modal */}
       {showAddPropertyModal && (
-        <div className="fixed inset-0 bg-slate-950/70 flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
+        <div className="fixed inset-0 bg-zinc-950/70 flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
           <div className="bg-surface rounded-xl border border-line max-w-md w-full p-6 shadow-2xl">
-            <h3 className="text-lg font-bold text-ink mb-2">{t('modals.createPropertyTitle')}</h3>
+            <h3 className="text-lg font-semibold text-ink mb-2">{t('modals.createPropertyTitle')}</h3>
             <p className="text-xs text-ink-muted">{t('modals.createPropertySubtitle')}</p>
 
             <form onSubmit={handleAddPropertySubmit} className="space-y-4 mt-6">
               <div>
-                <label htmlFor="new-property-name" className="block text-[10px] font-bold text-slate-400 uppercase">{t('modals.propertyName')}</label>
+                <label htmlFor="new-property-name" className="block text-xs font-medium text-ink-faint">{t('modals.propertyName')}</label>
                 <input
                   id="new-property-name"
                   type="text"
@@ -1103,7 +1102,7 @@ export default function App() {
               </div>
 
               <div>
-                <label htmlFor="new-property-address" className="block text-[10px] font-bold text-slate-400 uppercase">{t('modals.streetAddress')}</label>
+                <label htmlFor="new-property-address" className="block text-xs font-medium text-ink-faint">{t('modals.streetAddress')}</label>
                 <input
                   id="new-property-address"
                   type="text"
@@ -1116,7 +1115,7 @@ export default function App() {
               </div>
 
               <div>
-                <label htmlFor="new-property-units" className="block text-[10px] font-bold text-slate-400 uppercase">{t('modals.targetUnitsCount')}</label>
+                <label htmlFor="new-property-units" className="block text-xs font-medium text-ink-faint">{t('modals.targetUnitsCount')}</label>
                 <input
                   id="new-property-units"
                   type="number"
@@ -1126,21 +1125,21 @@ export default function App() {
                   onChange={(e) => setNewPropUnits(Number(e.target.value))}
                   className="w-full mt-1 px-3 py-2.5 bg-inset border border-line rounded-lg text-xs"
                 />
-                <p className="text-[10px] text-slate-400 mt-1">{t('modals.targetUnitsHint')}</p>
+                <p className="text-xs text-ink-faint mt-1">{t('modals.targetUnitsHint')}</p>
               </div>
 
               <div className="flex gap-2 pt-4 border-t border-line-subtle">
                 <button
                   type="submit"
                   disabled={addingProperty}
-                  className="flex-1 py-2.5 bg-sky-500 text-slate-950 font-bold rounded-lg hover:bg-sky-400 text-xs uppercase tracking-wider disabled:opacity-60 disabled:cursor-not-allowed"
+                  className="flex-1 py-2.5 bg-primary text-on-primary font-medium rounded-lg hover:bg-primary-hover text-sm disabled:opacity-60 disabled:cursor-not-allowed"
                 >
                   {addingProperty ? t('modals.creating') : t('modals.createPropertyAsset')}
                 </button>
                 <button
                   type="button"
                   onClick={() => setShowAddPropertyModal(false)}
-                  className="px-4 py-2.5 bg-muted text-ink-soft rounded-lg hover:bg-slate-200 text-xs font-bold uppercase"
+                  className="px-4 py-2.5 bg-muted text-ink-soft rounded-lg hover:bg-zinc-200 text-sm font-medium"
                 >
                   {t('common.cancel')}
                 </button>
@@ -1152,14 +1151,14 @@ export default function App() {
 
       {/* Add Unit Modal */}
       {showAddUnitModal && (
-        <div className="fixed inset-0 bg-slate-950/70 flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
+        <div className="fixed inset-0 bg-zinc-950/70 flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
           <div className="bg-surface rounded-xl border border-line max-w-md w-full p-6 shadow-2xl">
-            <h3 className="text-lg font-bold text-ink mb-2">{t('properties.addUnit')}</h3>
+            <h3 className="text-lg font-semibold text-ink mb-2">{t('properties.addUnit')}</h3>
             <p className="text-xs text-ink-muted">{t('modals.registerUnitSubtitle')}</p>
 
             <form onSubmit={handleAddUnitSubmit} className="space-y-4 mt-6">
               <div>
-                <label htmlFor="new-unit-number" className="block text-[10px] font-bold text-slate-400 uppercase">{t('modals.unitNumber')}</label>
+                <label htmlFor="new-unit-number" className="block text-xs font-medium text-ink-faint">{t('modals.unitNumber')}</label>
                 <input
                   id="new-unit-number"
                   type="text"
@@ -1173,7 +1172,7 @@ export default function App() {
 
               <div className="grid grid-cols-3 gap-4">
                 <div>
-                  <label htmlFor="new-unit-bedrooms" className="block text-[10px] font-bold text-slate-400 uppercase">{t('modals.beds')}</label>
+                  <label htmlFor="new-unit-bedrooms" className="block text-xs font-medium text-ink-faint">{t('modals.beds')}</label>
                   <input
                     id="new-unit-bedrooms"
                     type="number"
@@ -1185,7 +1184,7 @@ export default function App() {
                   />
                 </div>
                 <div>
-                  <label htmlFor="new-unit-bathrooms" className="block text-[10px] font-bold text-slate-400 uppercase">{t('modals.baths')}</label>
+                  <label htmlFor="new-unit-bathrooms" className="block text-xs font-medium text-ink-faint">{t('modals.baths')}</label>
                   <input
                     id="new-unit-bathrooms"
                     type="number"
@@ -1197,7 +1196,7 @@ export default function App() {
                   />
                 </div>
                 <div>
-                  <label htmlFor="new-unit-sqft" className="block text-[10px] font-bold text-slate-400 uppercase">{t('modals.sqft')}</label>
+                  <label htmlFor="new-unit-sqft" className="block text-xs font-medium text-ink-faint">{t('modals.sqft')}</label>
                   <input
                     id="new-unit-sqft"
                     type="number"
@@ -1211,7 +1210,7 @@ export default function App() {
               </div>
 
               <div>
-                <label htmlFor="new-unit-rent" className="block text-[10px] font-bold text-slate-400 uppercase">{t('modals.baseRentEur')}</label>
+                <label htmlFor="new-unit-rent" className="block text-xs font-medium text-ink-faint">{t('modals.baseRentEur')}</label>
                 <input
                   id="new-unit-rent"
                   type="number"
@@ -1222,7 +1221,7 @@ export default function App() {
                   className="w-full mt-1 px-3 py-2.5 bg-inset border border-line rounded-lg text-xs"
                 />
                 {currency !== 'EUR' && (
-                  <p className="text-[10px] text-ink-faint mt-1">{t('unitConfig.convertedHint', { amount: formatMoney(newUnitBaseRent) })}</p>
+                  <p className="text-xs text-ink-faint mt-1">{t('unitConfig.convertedHint', { amount: formatMoney(newUnitBaseRent) })}</p>
                 )}
               </div>
 
@@ -1230,7 +1229,7 @@ export default function App() {
                 <button
                   type="submit"
                   disabled={addingUnit}
-                  className="flex-1 py-2.5 bg-sky-500 text-slate-950 font-bold rounded-lg hover:bg-sky-400 text-xs uppercase tracking-wider disabled:opacity-60 disabled:cursor-not-allowed"
+                  className="flex-1 py-2.5 bg-primary text-on-primary font-medium rounded-lg hover:bg-primary-hover text-sm disabled:opacity-60 disabled:cursor-not-allowed"
                 >
                   {addingUnit ? t('modals.adding') : t('properties.addUnit')}
                 </button>
@@ -1240,7 +1239,7 @@ export default function App() {
                     setShowAddUnitModal(false);
                     setAddUnitPropertyId(null);
                   }}
-                  className="px-4 py-2.5 bg-muted text-ink-soft rounded-lg hover:bg-slate-200 text-xs font-bold uppercase"
+                  className="px-4 py-2.5 bg-muted text-ink-soft rounded-lg hover:bg-zinc-200 text-sm font-medium"
                 >
                   {t('common.cancel')}
                 </button>
@@ -1252,14 +1251,14 @@ export default function App() {
 
       {/* Add Tenant Modal */}
       {showAddTenantModal && (
-        <div className="fixed inset-0 bg-slate-950/70 flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
+        <div className="fixed inset-0 bg-zinc-950/70 flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
           <div className="bg-surface rounded-xl border border-line max-w-md w-full p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
-            <h3 className="text-lg font-bold text-ink mb-2">{t('dashboard.addTenant')}</h3>
+            <h3 className="text-lg font-semibold text-ink mb-2">{t('dashboard.addTenant')}</h3>
             <p className="text-xs text-ink-muted">{t('modals.addTenantSubtitle')}</p>
 
             <form onSubmit={handleAddTenantSubmit} className="space-y-4 mt-6">
               <div>
-                <label htmlFor="new-tenant-unit" className="block text-[10px] font-bold text-slate-400 uppercase">{t('modals.unit')}</label>
+                <label htmlFor="new-tenant-unit" className="block text-xs font-medium text-ink-faint">{t('modals.unit')}</label>
                 <select
                   id="new-tenant-unit"
                   required
@@ -1277,12 +1276,12 @@ export default function App() {
                   ))}
                 </select>
                 {units.filter((u) => !u.activeTenant).length === 0 && (
-                  <p className="text-[10px] text-amber-500 mt-1">{t('modals.noVacantUnits')}</p>
+                  <p className="text-xs text-amber-500 mt-1">{t('modals.noVacantUnits')}</p>
                 )}
               </div>
 
               <div>
-                <label htmlFor="new-tenant-name" className="block text-[10px] font-bold text-slate-400 uppercase">{t('settings.fullName')}</label>
+                <label htmlFor="new-tenant-name" className="block text-xs font-medium text-ink-faint">{t('settings.fullName')}</label>
                 <input
                   id="new-tenant-name"
                   type="text"
@@ -1296,8 +1295,8 @@ export default function App() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label htmlFor="new-tenant-email" className="block text-[10px] font-bold text-slate-400 uppercase">
-                    {t('modals.email')} {newTenantGrantAccess && <span className="text-rose-400">*</span>}
+                  <label htmlFor="new-tenant-email" className="block text-xs font-medium text-ink-faint">
+                    {t('modals.email')} {newTenantGrantAccess && <span className="text-red-400">*</span>}
                   </label>
                   <input
                     id="new-tenant-email"
@@ -1310,7 +1309,7 @@ export default function App() {
                   />
                 </div>
                 <div>
-                  <label htmlFor="new-tenant-phone" className="block text-[10px] font-bold text-slate-400 uppercase">{t('settings.phone')}</label>
+                  <label htmlFor="new-tenant-phone" className="block text-xs font-medium text-ink-faint">{t('settings.phone')}</label>
                   <input
                     id="new-tenant-phone"
                     type="tel"
@@ -1324,7 +1323,7 @@ export default function App() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label htmlFor="new-tenant-lease-start" className="block text-[10px] font-bold text-slate-400 uppercase">{t('dashboard.leaseStart')}</label>
+                  <label htmlFor="new-tenant-lease-start" className="block text-xs font-medium text-ink-faint">{t('dashboard.leaseStart')}</label>
                   <input
                     id="new-tenant-lease-start"
                     type="date"
@@ -1335,7 +1334,7 @@ export default function App() {
                   />
                 </div>
                 <div>
-                  <label htmlFor="new-tenant-lease-end" className="block text-[10px] font-bold text-slate-400 uppercase">{t('dashboard.leaseEnd')}</label>
+                  <label htmlFor="new-tenant-lease-end" className="block text-xs font-medium text-ink-faint">{t('dashboard.leaseEnd')}</label>
                   <input
                     id="new-tenant-lease-end"
                     type="date"
@@ -1347,7 +1346,7 @@ export default function App() {
               </div>
 
               <div>
-                <label htmlFor="new-tenant-rent" className="block text-[10px] font-bold text-slate-400 uppercase">{t('modals.baseRentEur')}</label>
+                <label htmlFor="new-tenant-rent" className="block text-xs font-medium text-ink-faint">{t('modals.baseRentEur')}</label>
                 <input
                   id="new-tenant-rent"
                   type="number"
@@ -1358,7 +1357,7 @@ export default function App() {
                   className="w-full mt-1 px-3 py-2.5 bg-inset border border-line rounded-lg text-xs"
                 />
                 {currency !== 'EUR' && (
-                  <p className="text-[10px] text-ink-faint mt-1">{t('unitConfig.convertedHint', { amount: formatMoney(newTenantBaseRent) })}</p>
+                  <p className="text-xs text-ink-faint mt-1">{t('unitConfig.convertedHint', { amount: formatMoney(newTenantBaseRent) })}</p>
                 )}
               </div>
 
@@ -1369,11 +1368,11 @@ export default function App() {
                     type="checkbox"
                     checked={newTenantGrantAccess}
                     onChange={(e) => setNewTenantGrantAccess(e.target.checked)}
-                    className="mt-0.5 rounded border-slate-300 text-sky-600 focus:ring-sky-500"
+                    className="mt-0.5 rounded border-zinc-300 text-indigo-600 focus:ring-indigo-500"
                   />
                   <span className="text-xs">
-                    <span className="font-bold text-slate-800 dark:text-slate-200">{t('modals.givePortalAccess')}</span>
-                    <span className="block text-[10px] text-slate-400">{t('modals.givePortalAccessHint')}</span>
+                    <span className="font-semibold text-zinc-800 dark:text-zinc-200">{t('modals.givePortalAccess')}</span>
+                    <span className="block text-xs text-ink-faint">{t('modals.givePortalAccessHint')}</span>
                   </span>
                 </label>
 
@@ -1384,11 +1383,11 @@ export default function App() {
                       type="checkbox"
                       checked={newTenantSendEmail}
                       onChange={(e) => setNewTenantSendEmail(e.target.checked)}
-                      className="mt-0.5 rounded border-slate-300 text-sky-600 focus:ring-sky-500"
+                      className="mt-0.5 rounded border-zinc-300 text-indigo-600 focus:ring-indigo-500"
                     />
                     <span className="text-xs">
-                      <span className="font-bold text-slate-800 dark:text-slate-200">{t('modals.sendInviteEmailNow')}</span>
-                      <span className="block text-[10px] text-slate-400">{t('modals.sendInviteEmailHint')}</span>
+                      <span className="font-semibold text-zinc-800 dark:text-zinc-200">{t('modals.sendInviteEmailNow')}</span>
+                      <span className="block text-xs text-ink-faint">{t('modals.sendInviteEmailHint')}</span>
                     </span>
                   </label>
                 )}
@@ -1398,14 +1397,14 @@ export default function App() {
                 <button
                   type="submit"
                   disabled={addingTenant}
-                  className="flex-1 py-2.5 bg-sky-500 text-slate-950 font-bold rounded-lg hover:bg-sky-400 text-xs uppercase tracking-wider disabled:opacity-60 disabled:cursor-not-allowed"
+                  className="flex-1 py-2.5 bg-primary text-on-primary font-medium rounded-lg hover:bg-primary-hover text-sm disabled:opacity-60 disabled:cursor-not-allowed"
                 >
                   {addingTenant ? t('modals.adding') : t('dashboard.addTenant')}
                 </button>
                 <button
                   type="button"
                   onClick={() => setShowAddTenantModal(false)}
-                  className="px-4 py-2.5 bg-muted text-ink-soft rounded-lg hover:bg-slate-200 text-xs font-bold uppercase"
+                  className="px-4 py-2.5 bg-muted text-ink-soft rounded-lg hover:bg-zinc-200 text-sm font-medium"
                 >
                   {t('common.cancel')}
                 </button>
@@ -1417,11 +1416,11 @@ export default function App() {
 
       {/* Invite Existing Tenant to Portal Modal */}
       {inviteToPortalTenant && (
-        <div className="fixed inset-0 bg-slate-950/70 flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
+        <div className="fixed inset-0 bg-zinc-950/70 flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
           <div className="bg-surface rounded-xl border border-line max-w-md w-full p-6 shadow-2xl">
-            <h3 className="text-lg font-bold text-ink mb-2">{t('modals.grantPortalAccessTitle')}</h3>
+            <h3 className="text-lg font-semibold text-ink mb-2">{t('modals.grantPortalAccessTitle')}</h3>
             <p className="text-xs text-ink-muted">
-              {t('modals.grantPortalAccessSubtitle')} <span className="font-bold text-ink-soft">{inviteToPortalTenant.name}</span>.
+              {t('modals.grantPortalAccessSubtitle')} <span className="font-semibold text-ink-soft">{inviteToPortalTenant.name}</span>.
             </p>
 
             <div className="mt-6 space-y-3">
@@ -1431,11 +1430,11 @@ export default function App() {
                   type="checkbox"
                   checked={inviteToPortalSendEmail}
                   onChange={(e) => setInviteToPortalSendEmail(e.target.checked)}
-                  className="mt-0.5 rounded border-slate-300 text-sky-600 focus:ring-sky-500"
+                  className="mt-0.5 rounded border-zinc-300 text-indigo-600 focus:ring-indigo-500"
                 />
                 <span className="text-xs">
-                  <span className="font-bold text-slate-800 dark:text-slate-200">{t('modals.sendInviteEmailNow')}</span>
-                  <span className="block text-[10px] text-slate-400">{t('modals.sendInviteEmailHint')}</span>
+                  <span className="font-semibold text-zinc-800 dark:text-zinc-200">{t('modals.sendInviteEmailNow')}</span>
+                  <span className="block text-xs text-ink-faint">{t('modals.sendInviteEmailHint')}</span>
                 </span>
               </label>
             </div>
@@ -1445,7 +1444,7 @@ export default function App() {
                 type="button"
                 onClick={handleConfirmInviteToPortal}
                 disabled={invitingToPortal}
-                className="flex-1 py-2.5 bg-sky-500 text-slate-950 font-bold rounded-lg hover:bg-sky-400 text-xs uppercase tracking-wider disabled:opacity-60 disabled:cursor-not-allowed"
+                className="flex-1 py-2.5 bg-primary text-on-primary font-medium rounded-lg hover:bg-primary-hover text-sm disabled:opacity-60 disabled:cursor-not-allowed"
               >
                 {invitingToPortal ? t('modals.granting') : t('modals.grantAccess')}
               </button>
@@ -1455,7 +1454,7 @@ export default function App() {
                   setInviteToPortalTenant(null);
                   setInviteToPortalSendEmail(false);
                 }}
-                className="px-4 py-2.5 bg-muted text-ink-soft rounded-lg hover:bg-slate-200 text-xs font-bold uppercase"
+                className="px-4 py-2.5 bg-muted text-ink-soft rounded-lg hover:bg-zinc-200 text-sm font-medium"
               >
                 {t('common.cancel')}
               </button>
@@ -1466,9 +1465,9 @@ export default function App() {
 
       {/* Copyable Invite Link Modal */}
       {actionLinkToShare && (
-        <div className="fixed inset-0 bg-slate-950/70 flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
+        <div className="fixed inset-0 bg-zinc-950/70 flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
           <div className="bg-surface rounded-xl border border-line max-w-md w-full p-6 shadow-2xl">
-            <h3 className="text-lg font-bold text-ink mb-2">{t('modals.portalAccessCreated')}</h3>
+            <h3 className="text-lg font-semibold text-ink mb-2">{t('modals.portalAccessCreated')}</h3>
             <p className="text-xs text-ink-muted">
               {t('modals.noEmailSentNote')}
             </p>
@@ -1480,14 +1479,14 @@ export default function App() {
                 readOnly
                 value={actionLinkToShare}
                 onFocus={(e) => e.target.select()}
-                className="flex-1 px-3 py-2.5 bg-inset border border-line rounded-lg text-xxs font-mono"
+                className="flex-1 px-3 py-2.5 bg-inset border border-line rounded-lg text-xs font-mono"
               />
               <button
                 type="button"
                 onClick={() => {
                   navigator.clipboard.writeText(actionLinkToShare);
                 }}
-                className="px-4 py-2.5 bg-sky-500 text-slate-950 font-bold rounded-lg hover:bg-sky-400 text-xs uppercase tracking-wider"
+                className="px-4 py-2.5 bg-primary text-on-primary font-medium rounded-lg hover:bg-primary-hover text-sm"
               >
                 {t('modals.copy')}
               </button>
@@ -1497,7 +1496,7 @@ export default function App() {
               <button
                 type="button"
                 onClick={() => setActionLinkToShare(null)}
-                className="flex-1 py-2.5 bg-muted text-ink-soft rounded-lg hover:bg-slate-200 text-xs font-bold uppercase"
+                className="flex-1 py-2.5 bg-muted text-ink-soft rounded-lg hover:bg-zinc-200 text-sm font-medium"
               >
                 {t('modals.done')}
               </button>
@@ -1520,14 +1519,14 @@ export default function App() {
       )}
 
       {showServiceRequestModal && (
-        <div className="fixed inset-0 bg-slate-950/70 flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
+        <div className="fixed inset-0 bg-zinc-950/70 flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
           <div className="bg-surface rounded-xl border border-line max-w-md w-full p-6 shadow-2xl">
-            <h3 className="text-lg font-bold text-ink mb-2">{t('modals.createServiceTicket')}</h3>
+            <h3 className="text-lg font-semibold text-ink mb-2">{t('modals.createServiceTicket')}</h3>
             <p className="text-xs text-ink-muted">{t('modals.serviceTicketSubtitle')}</p>
 
             <form onSubmit={handleServiceRequestSubmit} className="space-y-4 mt-6">
               <div>
-                <label htmlFor="service-request-category" className="block text-[10px] font-bold text-slate-400 uppercase">{t('modals.issueCategory')}</label>
+                <label htmlFor="service-request-category" className="block text-xs font-medium text-ink-faint">{t('modals.issueCategory')}</label>
                 <select
                   id="service-request-category"
                   value={srCategory}
@@ -1543,7 +1542,7 @@ export default function App() {
               </div>
 
               <div>
-                <label htmlFor="service-request-description" className="block text-[10px] font-bold text-slate-400 uppercase">{t('modals.detailedDescription')}</label>
+                <label htmlFor="service-request-description" className="block text-xs font-medium text-ink-faint">{t('modals.detailedDescription')}</label>
                 <textarea
                   id="service-request-description"
                   required
@@ -1556,7 +1555,7 @@ export default function App() {
               </div>
 
               <div>
-                <label htmlFor="service-request-priority" className="block text-[10px] font-bold text-slate-400 uppercase">{t('modals.priorityLevel')}</label>
+                <label htmlFor="service-request-priority" className="block text-xs font-medium text-ink-faint">{t('modals.priorityLevel')}</label>
                 <select
                   id="service-request-priority"
                   value={srPriority}
@@ -1573,14 +1572,14 @@ export default function App() {
                 <button
                   type="submit"
                   disabled={submittingServiceRequest}
-                  className="flex-1 py-2.5 bg-emerald-600 text-white font-bold rounded hover:bg-emerald-500 text-xs uppercase tracking-wider disabled:opacity-60 disabled:cursor-not-allowed"
+                  className="flex-1 py-2.5 bg-emerald-600 text-white font-medium rounded hover:bg-emerald-500 text-sm disabled:opacity-60 disabled:cursor-not-allowed"
                 >
                   {submittingServiceRequest ? t('modals.submitting') : t('modals.submitServiceTicket')}
                 </button>
                 <button
                   type="button"
                   onClick={() => setShowServiceRequestModal(false)}
-                  className="px-4 py-2.5 bg-muted text-ink-soft rounded hover:bg-slate-200 text-xs font-bold uppercase"
+                  className="px-4 py-2.5 bg-muted text-ink-soft rounded hover:bg-zinc-200 text-sm font-medium"
                 >
                   {t('common.cancel')}
                 </button>

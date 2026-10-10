@@ -28,7 +28,7 @@ export default function PreferencesSelector() {
         id="btn-preferences"
         type="button"
         onClick={() => setOpen((prev) => !prev)}
-        className="p-2 rounded-lg text-ink-muted hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-colors cursor-pointer"
+        className="p-2 rounded-lg text-ink-muted hover:bg-zinc-100 dark:hover:bg-zinc-800/60 transition-colors cursor-pointer"
         title={t('preferences.title')}
       >
         <Globe size={20} />
@@ -39,7 +39,7 @@ export default function PreferencesSelector() {
           <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
           <div className="absolute right-0 mt-2 w-56 rounded-xl bg-surface border border-line shadow-2xl py-3 z-50 animate-in fade-in slide-in-from-top-1">
             <div className="px-4 pb-2">
-              <p className="text-xxs font-bold text-ink-faint uppercase tracking-wide mb-2">{t('preferences.language')}</p>
+              <p className="text-xs font-medium text-ink-faint mb-2">{t('preferences.language')}</p>
               <div className="flex gap-2">
                 {LOCALE_OPTIONS.map((opt) => (
                   <button
@@ -49,7 +49,7 @@ export default function PreferencesSelector() {
                     className={`flex-1 px-2 py-1.5 rounded-lg text-xs font-semibold transition-colors cursor-pointer ${
                       locale === opt.value
                         ? 'bg-primary text-on-primary'
-                        : 'bg-muted text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
+                        : 'bg-muted text-zinc-600 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700'
                     }`}
                   >
                     {t(opt.labelKey)}
@@ -58,7 +58,7 @@ export default function PreferencesSelector() {
               </div>
             </div>
             <div className="px-4 pt-2 border-t border-line-subtle">
-              <p className="text-xxs font-bold text-ink-faint uppercase tracking-wide mb-2 mt-2">{t('preferences.currency')}</p>
+              <p className="text-xs font-medium text-ink-faint mb-2 mt-2">{t('preferences.currency')}</p>
               <div className="flex gap-2">
                 {CURRENCY_OPTIONS.map((opt) => (
                   <button
@@ -68,7 +68,7 @@ export default function PreferencesSelector() {
                     className={`flex-1 px-2 py-1.5 rounded-lg text-xs font-semibold transition-colors cursor-pointer ${
                       currency === opt.value
                         ? 'bg-primary text-on-primary'
-                        : 'bg-muted text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
+                        : 'bg-muted text-zinc-600 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700'
                     }`}
                   >
                     {t(opt.labelKey)}

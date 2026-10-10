@@ -32,9 +32,9 @@ export default function ConfirmDialog({ state, onCancel }: ConfirmDialogProps) {
   if (!state) return null;
 
   return (
-    <div className="fixed inset-0 bg-slate-950/70 flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
+    <div className="fixed inset-0 bg-zinc-950/70 flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
       <div className="bg-surface rounded-xl border border-line max-w-sm w-full p-6 shadow-2xl">
-        <h3 className="text-lg font-bold text-ink mb-2">{state.title}</h3>
+        <h3 className="text-lg font-semibold text-ink mb-2">{state.title}</h3>
         <p className="text-xs text-ink-muted leading-relaxed">{state.message}</p>
 
         <div className="flex gap-2 pt-6 mt-2">
@@ -46,10 +46,10 @@ export default function ConfirmDialog({ state, onCancel }: ConfirmDialogProps) {
               state.onConfirm();
               onCancel();
             }}
-            className={`flex-1 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider cursor-pointer ${
+            className={`flex-1 py-2.5 rounded-lg text-sm font-medium cursor-pointer ${
               state.danger
                 ? 'bg-red-500 hover:bg-red-400 text-white'
-                : 'bg-sky-500 hover:bg-sky-400 text-slate-950'
+                : 'bg-primary hover:bg-primary-hover text-on-primary'
             }`}
           >
             {state.confirmLabel ?? t('common.confirm')}
@@ -57,7 +57,7 @@ export default function ConfirmDialog({ state, onCancel }: ConfirmDialogProps) {
           <button
             type="button"
             onClick={onCancel}
-            className="px-4 py-2.5 bg-muted text-ink-soft rounded-lg hover:bg-slate-200 text-xs font-bold uppercase cursor-pointer"
+            className="px-4 py-2.5 bg-muted text-ink-soft rounded-lg hover:bg-zinc-200 text-sm font-medium cursor-pointer"
           >
             {t('common.cancel')}
           </button>

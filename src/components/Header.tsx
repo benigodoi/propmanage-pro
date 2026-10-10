@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { Search, Bell, Settings, Sun, Moon, Wrench, CheckCircle2, AlertTriangle, Clock, Banknote, Menu } from 'lucide-react';
+import { Search, Bell, Settings, Sun, Moon, Wrench, CheckCircle2, AlertTriangle, Clock, Banknote, Menu, Plus } from 'lucide-react';
 import { Persona, Theme } from '../types';
 import React, { useEffect, useRef, useState } from 'react';
 import PreferencesSelector from './PreferencesSelector';
@@ -17,10 +17,10 @@ import {
 
 const notificationIcon: Record<NotificationKind, { icon: typeof Bell; className: string }> = {
   'sr-new': { icon: Wrench, className: 'text-amber-500' },
-  'sr-in-progress': { icon: Clock, className: 'text-sky-500' },
+  'sr-in-progress': { icon: Clock, className: 'text-indigo-500' },
   'sr-completed': { icon: CheckCircle2, className: 'text-emerald-500' },
   'payment-received': { icon: Banknote, className: 'text-emerald-500' },
-  'payment-overdue': { icon: AlertTriangle, className: 'text-rose-500' },
+  'payment-overdue': { icon: AlertTriangle, className: 'text-red-500' },
   'payment-due': { icon: Clock, className: 'text-amber-500' },
 };
 
@@ -32,7 +32,6 @@ interface HeaderProps {
   onServiceRequestClick: () => void;
   onSettingsClick: () => void;
   currentUserEmail: string;
-  currentUserName: string | null;
   searchQuery: string;
   onSearchChange: (q: string) => void;
   notifications: AppNotification[];
@@ -40,19 +39,6 @@ interface HeaderProps {
   /** Opens the sidebar drawer (only shown below the lg breakpoint). */
   onMenuClick: () => void;
   menuOpen: boolean;
-}
-
-function initialsFor(name: string | null, email: string): string {
-  if (name && name.trim().length > 0) {
-    return name
-      .trim()
-      .split(/\s+/)
-      .map((part) => part[0])
-      .slice(0, 2)
-      .join('')
-      .toUpperCase();
-  }
-  return (email[0] ?? '?').toUpperCase();
 }
 
 export default function Header({
@@ -63,7 +49,6 @@ export default function Header({
   onServiceRequestClick,
   onSettingsClick,
   currentUserEmail,
-  currentUserName,
   searchQuery,
   onSearchChange,
   notifications,
@@ -138,8 +123,6 @@ export default function Header({
     }
   };
 
-  const displayName = currentUserName && currentUserName.trim().length > 0 ? currentUserName : currentUserEmail;
-
   return (
     <header className="sticky top-0 z-40 bg-chrome border-b border-line transition-colors duration-200">
       <div className="flex h-16 items-center justify-between px-3 sm:px-6 gap-2 sm:gap-4">
@@ -149,7 +132,7 @@ export default function Header({
           id="btn-open-menu"
           type="button"
           onClick={onMenuClick}
-          className="lg:hidden p-2 -ml-1 rounded-lg text-ink-muted hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-colors cursor-pointer"
+          className="lg:hidden p-2 -ml-1 rounded-lg text-ink-muted hover:bg-zinc-100 dark:hover:bg-zinc-800/60 transition-colors cursor-pointer"
           aria-label={t('header.openMenu')}
           aria-controls="app-sidebar"
           aria-expanded={menuOpen}
@@ -169,7 +152,7 @@ export default function Header({
               placeholder={persona === 'owner' ? t('header.searchPortfolio') : t('header.searchPortal')}
               value={searchQuery}
               onChange={(e) => onSearchChange(e.target.value)}
-              className="w-full pl-10 pr-3 sm:pr-4 py-2 text-sm bg-field border border-slate-200/80 dark:border-slate-800 rounded-lg text-ink placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500/30 focus:border-sky-500 transition-all"
+              className="w-full pl-10 pr-3 sm:pr-4 py-2 text-sm bg-field border border-zinc-200/80 dark:border-zinc-800 rounded-lg text-ink placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 transition-all"
             />
           </div>
         </div>
@@ -182,7 +165,7 @@ export default function Header({
             id="theme-toggle"
             type="button"
             onClick={onThemeToggle}
-            className="p-2 rounded-lg text-ink-muted hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-colors cursor-pointer"
+            className="p-2 rounded-lg text-ink-muted hover:bg-zinc-100 dark:hover:bg-zinc-800/60 transition-colors cursor-pointer"
             title={theme === 'light' ? t('header.switchToDark') : t('header.switchToLight')}
           >
             {theme === 'light' ? <Moon size={20} /> : <Sun size={20} className="text-amber-400" />}
@@ -196,12 +179,12 @@ export default function Header({
               id="btn-notifications"
               type="button"
               onClick={() => (showNotifications ? setShowNotifications(false) : openNotifications())}
-              className="p-2 rounded-lg text-ink-muted hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-colors relative cursor-pointer"
+              className="p-2 rounded-lg text-ink-muted hover:bg-zinc-100 dark:hover:bg-zinc-800/60 transition-colors relative cursor-pointer"
               title={t('header.notifications')}
             >
               <Bell size={20} />
               {unreadCount > 0 && (
-                <span className="absolute top-1 right-1 min-w-4 h-4 px-1 rounded-full bg-rose-500 text-white text-[9px] font-extrabold flex items-center justify-center">
+                <span className="absolute top-0.5 right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-red-700 text-white text-[11px] leading-none font-semibold flex items-center justify-center ring-2 ring-chrome">
                   {unreadCount > 9 ? '9+' : unreadCount}
                 </span>
               )}
@@ -210,7 +193,7 @@ export default function Header({
             {showNotifications && (
               <div className="fixed left-3 right-3 top-16 max-h-[calc(100dvh-5rem)] flex flex-col sm:absolute sm:left-auto sm:right-0 sm:top-auto sm:mt-2 sm:w-80 sm:max-h-none rounded-xl bg-surface border border-line shadow-2xl py-2 z-50 animate-in fade-in slide-in-from-top-1">
                 <div className="flex justify-between items-center px-4 py-2 border-b border-line-subtle">
-                  <span className="font-bold text-sm text-ink">{t('header.notifications')}</span>
+                  <span className="font-semibold text-sm text-ink">{t('header.notifications')}</span>
                 </div>
                 {notifications.length === 0 ? (
                   <div className="px-4 py-6 text-center text-xs text-ink-faint">
@@ -230,17 +213,17 @@ export default function Header({
                               setShowNotifications(false);
                               onNotificationClick(n);
                             }}
-                            className={`w-full text-left px-4 py-3 flex gap-3 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors cursor-pointer ${
-                              unread ? 'bg-sky-50/60 dark:bg-sky-500/10' : ''
+                            className={`w-full text-left px-4 py-3 flex gap-3 hover:bg-zinc-50 dark:hover:bg-zinc-800/60 transition-colors cursor-pointer ${
+                              unread ? 'bg-indigo-50/60 dark:bg-indigo-500/10' : ''
                             }`}
                           >
                             <Icon size={16} className={`shrink-0 mt-0.5 ${className}`} />
                             <span className="min-w-0 flex-1">
-                              <span className="flex items-center gap-1.5 text-xs font-bold text-ink">
+                              <span className="flex items-center gap-1.5 text-xs font-semibold text-ink">
                                 {title}
-                                {unread && <span className="h-1.5 w-1.5 rounded-full bg-sky-500" />}
+                                {unread && <span className="h-1.5 w-1.5 rounded-full bg-indigo-500" />}
                               </span>
-                              <span className="block text-xxs text-ink-muted mt-0.5 truncate">{detail}</span>
+                              <span className="block text-xs text-ink-muted mt-0.5 truncate">{detail}</span>
                             </span>
                           </button>
                         </li>
@@ -257,26 +240,13 @@ export default function Header({
             id="btn-settings"
             type="button"
             onClick={onSettingsClick}
-            className="hidden sm:block p-2 rounded-lg text-ink-muted hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-colors cursor-pointer"
+            className="hidden sm:block p-2 rounded-lg text-ink-muted hover:bg-zinc-100 dark:hover:bg-zinc-800/60 transition-colors cursor-pointer"
             title={t('header.settings')}
           >
             <Settings size={20} />
           </button>
 
-          {/* User Profile Avatar */}
-          <div className="hidden sm:flex items-center gap-3 border-l border-line pl-3">
-            <div className="hidden md:block text-right">
-              <p className="text-xs font-bold text-ink">
-                {displayName}
-              </p>
-              <p className="text-xxs font-semibold text-ink-faint uppercase tracking-wide">
-                {persona === 'owner' ? t('header.adminOwner') : t('header.tenant')}
-              </p>
-            </div>
-            <div className="h-9 w-9 rounded-full bg-sky-100 dark:bg-sky-950 text-sky-700 dark:text-sky-300 font-extrabold flex items-center justify-center text-xs ring-2 ring-line-subtle">
-              {initialsFor(currentUserName, currentUserEmail)}
-            </div>
-          </div>
+          <span className="hidden sm:block w-px h-6 bg-line mx-1" aria-hidden="true" />
 
           {/* Header Actions for Quick UI Interactions */}
           <div className="hidden sm:block">
@@ -285,8 +255,9 @@ export default function Header({
                 id="btn-add-property-header"
                 type="button"
                 onClick={onAddPropertyClick}
-                className="ml-2 px-4 py-2 bg-primary hover:bg-primary-hover text-on-primary rounded-lg text-xs font-bold uppercase tracking-wider transition-all cursor-pointer"
+                className="h-9 px-3.5 flex items-center gap-1.5 bg-primary hover:bg-primary-hover text-on-primary rounded-lg text-sm font-medium shadow-sm transition-colors cursor-pointer"
               >
+                <Plus size={16} />
                 {t('header.addProperty')}
               </button>
             ) : (
@@ -294,8 +265,9 @@ export default function Header({
                 id="btn-service-request-header"
                 type="button"
                 onClick={onServiceRequestClick}
-                className="ml-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-bold uppercase tracking-wider transition-all cursor-pointer"
+                className="h-9 px-3.5 flex items-center gap-1.5 bg-primary hover:bg-primary-hover text-on-primary rounded-lg text-sm font-medium shadow-sm transition-colors cursor-pointer"
               >
+                <Wrench size={16} />
                 {t('header.serviceRequest')}
               </button>
             )}

@@ -101,14 +101,14 @@ export default function LoginScreen({ theme, onThemeToggle }: LoginScreenProps) 
     >
       {/* Top spacing */}
       <div className="w-full max-w-md flex justify-between items-center select-none">
-        <span className="text-sm font-semibold tracking-wide text-ink-muted">
+        <span className="text-sm font-semibold text-ink-muted">
           PROPMANAGE ENTERPRISE
         </span>
         <div className="flex items-center gap-2">
           <button
             type="button"
             onClick={() => setLocale(locale === 'en' ? 'ro' : 'en')}
-            className="px-2 py-1.5 rounded-lg text-xs font-bold text-ink-muted hover:bg-slate-200/50 dark:hover:bg-slate-800/60 transition-colors cursor-pointer"
+            className="px-2 py-1.5 rounded-lg text-xs font-semibold text-ink-muted hover:bg-zinc-200/50 dark:hover:bg-zinc-800/60 transition-colors cursor-pointer"
             title={t('preferences.title')}
           >
             {locale === 'en' ? 'EN' : 'RO'}
@@ -117,12 +117,12 @@ export default function LoginScreen({ theme, onThemeToggle }: LoginScreenProps) 
             id="login-theme-toggle"
             type="button"
             onClick={onThemeToggle}
-            className="p-1.5 rounded-lg text-ink-muted hover:bg-slate-200/50 dark:hover:bg-slate-800/60 transition-colors cursor-pointer flex items-center justify-center"
+            className="p-1.5 rounded-lg text-ink-muted hover:bg-zinc-200/50 dark:hover:bg-zinc-800/60 transition-colors cursor-pointer flex items-center justify-center"
             title={theme === 'light' ? t('header.switchToDark') : t('header.switchToLight')}
           >
             {theme === 'light' ? <Moon size={16} /> : <Sun size={16} className="text-amber-400" />}
           </button>
-          <span className="px-2 py-1 text-xs rounded bg-slate-200/50 dark:bg-slate-800/80 text-ink-soft">
+          <span className="px-2 py-1 text-xs rounded bg-zinc-200/50 dark:bg-zinc-800/80 text-ink-soft">
             v2.4 Production
           </span>
         </div>
@@ -131,7 +131,7 @@ export default function LoginScreen({ theme, onThemeToggle }: LoginScreenProps) 
       {/* Main Card */}
       <div className="w-full max-w-md my-auto">
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-extrabold tracking-tight text-ink font-sans">
+          <h1 className="text-4xl font-semibold tracking-tight text-ink font-sans">
             PropManage Pro
           </h1>
           <p className="mt-2 text-sm text-ink-secondary">
@@ -141,14 +141,14 @@ export default function LoginScreen({ theme, onThemeToggle }: LoginScreenProps) 
 
         <div className="bg-surface border border-line rounded-xl p-5 sm:p-8 shadow-xl relative overflow-hidden">
           {/* Decorative background pulse */}
-          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-sky-400 via-indigo-500 to-sky-400 animate-pulse" />
+          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-400 via-indigo-500 to-indigo-400 animate-pulse" />
 
           {mode === 'forgot' ? (
             <form onSubmit={handleForgotSubmit} className="space-y-6">
               <button
                 type="button"
                 onClick={() => { setMode('signin'); setForgotSent(false); setForgotError(''); }}
-                className="flex items-center gap-1.5 text-xs font-semibold text-ink-muted hover:text-slate-700 dark:hover:text-slate-200"
+                className="flex items-center gap-1.5 text-xs font-semibold text-ink-muted hover:text-zinc-700 dark:hover:text-zinc-200"
               >
                 <ArrowLeft size={14} /> {t('login.backToSignIn')}
               </button>
@@ -168,7 +168,7 @@ export default function LoginScreen({ theme, onThemeToggle }: LoginScreenProps) 
                         {forgotError}
                       </div>
                     )}
-                    <label htmlFor="forgot-email" className="block text-xs font-bold uppercase tracking-wider text-ink-soft mb-2">
+                    <label htmlFor="forgot-email" className="block text-sm font-medium text-ink-soft mb-2">
                       {t('login.emailAddress')}
                     </label>
                     <div className="relative">
@@ -182,7 +182,7 @@ export default function LoginScreen({ theme, onThemeToggle }: LoginScreenProps) 
                         placeholder="name@company.com"
                         value={forgotEmail}
                         onChange={(e) => setForgotEmail(e.target.value)}
-                        className="w-full pl-10 pr-4 py-3 bg-field border border-line rounded-lg text-ink placeholder-slate-400 dark:placeholder-slate-600 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500/50 focus:border-sky-500 transition-all"
+                        className="w-full pl-10 pr-4 py-3 bg-field border border-line rounded-lg text-ink placeholder-zinc-400 dark:placeholder-zinc-600 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all"
                       />
                     </div>
                   </div>
@@ -190,7 +190,7 @@ export default function LoginScreen({ theme, onThemeToggle }: LoginScreenProps) 
                   <button
                     type="submit"
                     disabled={forgotSubmitting}
-                    className="w-full flex items-center justify-center gap-2 py-3.5 px-4 rounded-lg font-bold text-sm uppercase tracking-wider transition-all duration-200 shadow-md bg-primary hover:bg-primary-hover text-on-primary cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                    className="w-full flex items-center justify-center gap-2 py-3.5 px-4 rounded-lg font-medium text-sm transition-all duration-200 shadow-md bg-primary hover:bg-primary-hover text-on-primary cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
                   >
                     {forgotSubmitting ? t('login.sending') : t('login.sendResetLink')}
                   </button>
@@ -212,7 +212,7 @@ export default function LoginScreen({ theme, onThemeToggle }: LoginScreenProps) 
 
               {/* Email Field */}
               <div>
-                <label htmlFor="login-email" className="block text-xs font-bold uppercase tracking-wider text-ink-soft mb-2">
+                <label htmlFor="login-email" className="block text-sm font-medium text-ink-soft mb-2">
                   {t('login.emailAddress')}
                 </label>
                 <div className="relative">
@@ -226,7 +226,7 @@ export default function LoginScreen({ theme, onThemeToggle }: LoginScreenProps) 
                     placeholder="name@company.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 bg-field border border-line rounded-lg text-ink placeholder-slate-400 dark:placeholder-slate-600 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500/50 focus:border-sky-500 transition-all"
+                    className="w-full pl-10 pr-4 py-3 bg-field border border-line rounded-lg text-ink placeholder-zinc-400 dark:placeholder-zinc-600 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all"
                   />
                 </div>
               </div>
@@ -234,13 +234,13 @@ export default function LoginScreen({ theme, onThemeToggle }: LoginScreenProps) 
               {/* Password Field */}
               <div>
                 <div className="flex justify-between items-center mb-2">
-                  <label htmlFor="login-password" className="block text-xs font-bold uppercase tracking-wider text-ink-soft">
+                  <label htmlFor="login-password" className="block text-sm font-medium text-ink-soft">
                     {t('login.password')}
                   </label>
                   <button
                     type="button"
                     onClick={() => { setMode('forgot'); setError(''); }}
-                    className="text-xs font-semibold text-ink-muted hover:text-slate-700 dark:hover:text-slate-200"
+                    className="text-xs font-semibold text-ink-muted hover:text-zinc-700 dark:hover:text-zinc-200"
                   >
                     {t('login.forgotPassword')}
                   </button>
@@ -256,13 +256,13 @@ export default function LoginScreen({ theme, onThemeToggle }: LoginScreenProps) 
                     placeholder="••••••••"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full pl-10 pr-10 py-3 bg-field border border-line rounded-lg text-ink placeholder-slate-400 dark:placeholder-slate-600 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500/50 focus:border-sky-500 transition-all"
+                    className="w-full pl-10 pr-10 py-3 bg-field border border-line rounded-lg text-ink placeholder-zinc-400 dark:placeholder-zinc-600 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all"
                   />
                   <button
                     id="toggle-password-visibility"
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute inset-y-0 right-0 flex items-center pr-3 text-ink-faint hover:text-slate-600 dark:hover:text-slate-300"
+                    className="absolute inset-y-0 right-0 flex items-center pr-3 text-ink-faint hover:text-zinc-600 dark:hover:text-zinc-300"
                   >
                     {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                   </button>
@@ -274,7 +274,7 @@ export default function LoginScreen({ theme, onThemeToggle }: LoginScreenProps) 
                 id="btn-signin"
                 type="submit"
                 disabled={submitting}
-                className="w-full flex items-center justify-center gap-2 py-3.5 px-4 rounded-lg font-bold text-sm uppercase tracking-wider transition-all duration-200 shadow-md bg-primary hover:bg-primary-hover text-on-primary cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                className="w-full flex items-center justify-center gap-2 py-3.5 px-4 rounded-lg font-medium text-sm transition-all duration-200 shadow-md bg-primary hover:bg-primary-hover text-on-primary cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
               >
                 {submitting ? t('login.signingIn') : t('login.signIn')} <LogIn size={16} />
               </button>
@@ -287,7 +287,7 @@ export default function LoginScreen({ theme, onThemeToggle }: LoginScreenProps) 
                 {t('login.inviteOnly')}{' '}
                 <a
                   href="mailto:beni.godoi@gbtitsolutions.com?subject=PropManage%20Pro%20%E2%80%94%20invite%20request"
-                  className="font-semibold text-slate-900 hover:underline dark:text-sky-400 dark:hover:text-sky-300"
+                  className="font-semibold text-zinc-900 hover:underline dark:text-indigo-400 dark:hover:text-indigo-300"
                 >
                   {t('login.contactForInvite')}
                 </a>
@@ -298,12 +298,12 @@ export default function LoginScreen({ theme, onThemeToggle }: LoginScreenProps) 
       </div>
 
       {/* Footer */}
-      <div className="w-full max-w-md flex justify-center gap-6 text-xs text-ink-muted mt-6 border-t border-slate-200/50 dark:border-slate-800/50 pt-4">
-        <a href="#help" className="flex items-center gap-1 hover:text-slate-700 dark:hover:text-slate-200">
+      <div className="w-full max-w-md flex justify-center gap-6 text-xs text-ink-muted mt-6 border-t border-zinc-200/50 dark:border-zinc-800/50 pt-4">
+        <a href="#help" className="flex items-center gap-1 hover:text-zinc-700 dark:hover:text-zinc-200">
           <HelpCircle size={14} /> {t('sidebar.helpCenter')}
         </a>
-        <span className="text-slate-300 dark:text-slate-700">|</span>
-        <a href="#privacy" className="flex items-center gap-1 hover:text-slate-700 dark:hover:text-slate-200">
+        <span className="text-zinc-300 dark:text-zinc-700">|</span>
+        <a href="#privacy" className="flex items-center gap-1 hover:text-zinc-700 dark:hover:text-zinc-200">
           <ShieldCheck size={14} /> {t('login.privacyPolicy')}
         </a>
       </div>

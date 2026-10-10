@@ -1,80 +1,97 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Geist", ui-sans-serif, system-ui, sans-serif;
   /* `text-xxs` isn't a Tailwind default — without this it silently falls
      back to the inherited size, blowing up badges and captions. */
   --text-xxs: 0.625rem;
   --text-xxs--line-height: 0.875rem;
 
+  /* Cards: a soft lift instead of a heavy border. */
+  --shadow-card: 0 1px 2px 0 rgb(24 24 27 / 0.04), 0 1px 3px 0 rgb(24 24 27 / 0.06);
+
   /* Semantic colour tokens. Components use these (`bg-surface`,
      `text-ink-muted`, `border-line`, …) instead of pairing a light class with
      a `dark:` override; the dark values live in the `.dark` block below, so
-     retheming is an edit to this file only. Light values here. */
+     retheming is an edit to this file only. Light values here.
+     Palette: zinc neutrals + indigo primary ("Indigo SaaS"). */
 
   /* Backgrounds */
-  --color-canvas: #fcf8fa;                     /* app background */
-  --color-sidebar: #faf8f9;
-  --color-chrome: var(--color-white);          /* header bar */
+  --color-canvas: var(--color-zinc-50);        /* app background */
+  --color-sidebar: var(--color-zinc-50);
+  --color-chrome: var(--color-zinc-50);        /* header bar */
   --color-surface: var(--color-white);         /* cards, panels, modals */
-  --color-inset: var(--color-slate-50);        /* wells inside a surface */
-  --color-subtle: var(--color-slate-50);
-  --color-field: var(--color-slate-50);        /* inputs */
-  --color-muted: var(--color-slate-100);       /* chips, pills, tracks */
+  --color-inset: var(--color-zinc-50);         /* wells inside a surface */
+  --color-subtle: var(--color-zinc-50);
+  --color-field: var(--color-white);           /* inputs */
+  --color-muted: var(--color-zinc-100);        /* chips, pills, tracks */
 
   /* Borders */
-  --color-line: var(--color-slate-200);
-  --color-line-subtle: var(--color-slate-100);
+  --color-line: var(--color-zinc-200);
+  --color-line-subtle: var(--color-zinc-100);
 
-  /* Text */
-  --color-foreground: #1b1b1d;                 /* inherited default */
-  --color-ink: var(--color-slate-900);         /* headings, primary text */
-  --color-ink-soft: var(--color-slate-700);    /* body copy */
-  --color-ink-secondary: var(--color-slate-600);
-  --color-ink-muted: var(--color-slate-500);   /* secondary text */
-  --color-ink-faint: var(--color-slate-400);   /* captions, icons */
+  /* Text — every step meets WCAG AA (4.5:1) on surface and canvas. */
+  --color-foreground: var(--color-zinc-900);   /* inherited default */
+  --color-ink: var(--color-zinc-900);          /* headings, primary text */
+  --color-ink-soft: var(--color-zinc-700);     /* body copy */
+  --color-ink-secondary: var(--color-zinc-600);
+  --color-ink-muted: var(--color-zinc-500);    /* secondary text */
+  --color-ink-faint: var(--color-zinc-500);    /* captions, icons */
 
   /* Primary action */
-  --color-primary: var(--color-slate-950);
-  --color-primary-hover: var(--color-slate-900);
+  --color-primary: var(--color-indigo-600);
+  --color-primary-hover: var(--color-indigo-700);
   --color-on-primary: var(--color-white);
+  --color-primary-soft: var(--color-indigo-50);    /* selected nav, avatar */
+  --color-primary-ink: var(--color-indigo-700);    /* text on primary-soft */
 
   /* Status */
-  --color-success: var(--color-emerald-600);
+  --color-success: var(--color-emerald-700);
   --color-success-soft: var(--color-emerald-50);
-  --color-danger: var(--color-red-600);
+  --color-danger: var(--color-red-700);
   --color-danger-soft: var(--color-red-50);
 }
 
 .dark {
-  --color-canvas: #0f1418;
-  --color-sidebar: #020617;
-  --color-chrome: #0f172a;
-  --color-surface: #1e293b;
-  --color-inset: var(--color-slate-950);
-  --color-subtle: var(--color-slate-900);
-  --color-field: color-mix(in oklab, var(--color-slate-950) 50%, transparent);
-  --color-muted: var(--color-slate-800);
+  --color-canvas: var(--color-zinc-950);
+  --color-sidebar: var(--color-zinc-950);
+  --color-chrome: var(--color-zinc-950);
+  --color-surface: var(--color-zinc-900);
+  --color-inset: var(--color-zinc-950);
+  --color-subtle: color-mix(in oklab, var(--color-zinc-800) 50%, transparent);
+  --color-field: var(--color-zinc-950);
+  --color-muted: var(--color-zinc-800);
 
-  --color-line: var(--color-slate-800);
-  --color-line-subtle: var(--color-slate-800);
+  --color-line: var(--color-zinc-800);
+  --color-line-subtle: var(--color-zinc-800);
 
-  --color-foreground: #dee3e8;
-  --color-ink: var(--color-white);
-  --color-ink-soft: var(--color-slate-300);
-  --color-ink-secondary: var(--color-slate-400);
-  --color-ink-muted: var(--color-slate-400);
-  --color-ink-faint: var(--color-slate-500);
+  --color-foreground: var(--color-zinc-50);
+  --color-ink: var(--color-zinc-50);
+  --color-ink-soft: var(--color-zinc-300);
+  --color-ink-secondary: var(--color-zinc-400);
+  --color-ink-muted: var(--color-zinc-400);
+  --color-ink-faint: var(--color-zinc-400);
 
-  --color-primary: var(--color-sky-400);
-  --color-primary-hover: var(--color-sky-300);
-  --color-on-primary: var(--color-slate-950);
+  /* indigo-600 keeps white button text at 6:1; lighter indigos are for
+     text and marks on dark surfaces. */
+  --color-primary: var(--color-indigo-600);
+  --color-primary-hover: var(--color-indigo-500);
+  --color-on-primary: var(--color-white);
+  --color-primary-soft: color-mix(in oklab, var(--color-indigo-500) 16%, transparent);
+  --color-primary-ink: var(--color-indigo-200);
 
   --color-success: var(--color-emerald-400);
-  --color-success-soft: color-mix(in oklab, var(--color-emerald-500) 10%, transparent);
+  --color-success-soft: color-mix(in oklab, var(--color-emerald-500) 12%, transparent);
   --color-danger: var(--color-red-400);
-  --color-danger-soft: color-mix(in oklab, var(--color-red-500) 10%, transparent);
+  --color-danger-soft: color-mix(in oklab, var(--color-red-500) 12%, transparent);
 }
 
 @variant dark (&:where(.dark, .dark *));
+
+@layer base {
+  body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}

@@ -29,7 +29,7 @@ export default function MyServiceRequestsModal({
 
   return (
     <div
-      className="fixed inset-0 bg-slate-950/70 flex items-center justify-center p-4 z-50 animate-in fade-in duration-200"
+      className="fixed inset-0 bg-zinc-950/70 flex items-center justify-center p-4 z-50 animate-in fade-in duration-200"
       onClick={onClose}
     >
       <div
@@ -38,13 +38,13 @@ export default function MyServiceRequestsModal({
       >
         <div className="flex items-start justify-between gap-4">
           <div>
-            <h3 className="text-lg font-bold text-ink mb-1">{t('serviceRequests.myTitle')}</h3>
+            <h3 className="text-lg font-semibold text-ink mb-1">{t('serviceRequests.myTitle')}</h3>
             <p className="text-xs text-ink-muted">{t('serviceRequests.mySubtitle')}</p>
           </div>
           <button
             type="button"
             onClick={onNewRequest}
-            className="shrink-0 px-3 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-bold uppercase tracking-wider transition-all flex items-center gap-1.5 cursor-pointer"
+            className="shrink-0 px-3 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-sm font-medium transition-all flex items-center gap-1.5 cursor-pointer"
           >
             <Plus size={14} />
             {t('serviceRequests.newRequest')}
@@ -67,12 +67,12 @@ export default function MyServiceRequestsModal({
                 </div>
                 <div className="flex-1 min-w-0 space-y-1">
                   <div className="flex flex-wrap items-center justify-between gap-2">
-                    <h4 className="font-bold text-sm text-ink">{req.title}</h4>
-                    <span className={`text-xxs font-bold uppercase tracking-wider px-2 py-0.5 rounded ${serviceRequestStatusBadgeClass[req.status]}`}>
+                    <h4 className="font-semibold text-sm text-ink">{req.title}</h4>
+                    <span className={`text-xs font-medium px-2 py-0.5 rounded ${serviceRequestStatusBadgeClass[req.status]}`}>
                       {enumLabel(locale, req.status)}
                     </span>
                   </div>
-                  <p className="text-xxs text-slate-400">
+                  <p className="text-xs text-ink-faint">
                     {enumLabel(locale, req.category)} · {t('serviceRequests.submittedOn', { date: req.dateCreated })}
                   </p>
                   {req.description && (
@@ -88,7 +88,7 @@ export default function MyServiceRequestsModal({
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 bg-muted hover:bg-slate-200 dark:hover:bg-slate-700 text-ink-soft rounded-lg text-xs font-bold uppercase tracking-wider transition-all cursor-pointer"
+            className="px-4 py-2 bg-muted hover:bg-zinc-200 dark:hover:bg-zinc-700 text-ink-soft rounded-lg text-sm font-medium transition-all cursor-pointer"
           >
             {t('common.close')}
           </button>
