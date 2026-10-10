@@ -454,7 +454,7 @@ export default function OwnerDashboard({
                 <button
                   type="button"
                   onClick={onAddPropertyClick}
-                  className="mt-2 text-xs font-semibold text-indigo-500 hover:underline"
+                  className="mt-2 text-xs font-semibold text-primary-ink hover:underline"
                 >
                   {t('dashboard.createFirstProperty')}
                 </button>
@@ -514,9 +514,9 @@ export default function OwnerDashboard({
                     return (
                       <tr key={prop.id}>
                         <td className="px-4 py-3 font-semibold text-zinc-800 dark:text-zinc-300">{prop.name}</td>
-                        <td className="px-4 py-3 font-mono">{formatMoney(billed)}</td>
-                        <td className="px-4 py-3 text-emerald-600 font-mono font-semibold">{formatMoney(collected)}</td>
-                        <td className="px-4 py-3 text-red-500 font-mono font-semibold">{formatMoney(billed - collected)}</td>
+                        <td className="px-4 py-3 tabular-nums">{formatMoney(billed)}</td>
+                        <td className="px-4 py-3 text-success tabular-nums font-semibold">{formatMoney(collected)}</td>
+                        <td className="px-4 py-3 text-danger tabular-nums font-semibold">{formatMoney(billed - collected)}</td>
                       </tr>
                     );
                   })}
@@ -579,8 +579,8 @@ export default function OwnerDashboard({
                       <p className="text-zinc-800 dark:text-zinc-300 font-semibold">{tn.propertyName}</p>
                       <p className="text-xs text-ink-faint">{t('dashboard.unitLabel', { unit: tn.unitNumber })}</p>
                     </td>
-                    <td className="px-4 py-3 font-mono text-ink-muted">{tn.leaseStart}</td>
-                    <td className="px-4 py-3 font-mono text-ink-muted">{tn.leaseEnd}</td>
+                    <td className="px-4 py-3 tabular-nums text-ink-muted">{tn.leaseStart}</td>
+                    <td className="px-4 py-3 tabular-nums text-ink-muted">{tn.leaseEnd}</td>
                     <td className="px-4 py-3">
                       <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-50 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-400">
                         {enumLabel(locale, tn.status)}
@@ -599,7 +599,7 @@ export default function OwnerDashboard({
                           <button
                             type="button"
                             onClick={() => onInviteToPortalClick(tn)}
-                            className="text-xs font-semibold text-indigo-500 hover:underline flex items-center gap-1 cursor-pointer"
+                            className="text-xs font-semibold text-primary-ink hover:underline flex items-center gap-1 cursor-pointer"
                           >
                             <KeyRound size={11} /> {t('dashboard.inviteToPortal')}
                           </button>

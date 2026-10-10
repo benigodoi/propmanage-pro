@@ -137,7 +137,7 @@ export default function InvoiceView({ payment, onClose }: InvoiceViewProps) {
                     <td className="px-4 py-3">
                       {t('invoice.baseRentLine', { month: payment.month })}
                     </td>
-                    <td className="px-4 py-3 text-right font-mono text-zinc-950 dark:text-white">
+                    <td className="px-4 py-3 text-right tabular-nums text-zinc-950 dark:text-white">
                       {formatMoney(payment.totalDue - payment.utilityCharges)}
                     </td>
                   </tr>
@@ -150,7 +150,7 @@ export default function InvoiceView({ payment, onClose }: InvoiceViewProps) {
                           <td className="px-4 py-3">
                             {t('invoice.utilityRecoveryNamed', { name: item.name })}
                           </td>
-                          <td className="px-4 py-3 text-right font-mono text-zinc-950 dark:text-white">
+                          <td className="px-4 py-3 text-right tabular-nums text-zinc-950 dark:text-white">
                             {formatMoney(item.amount)}
                           </td>
                         </tr>
@@ -160,7 +160,7 @@ export default function InvoiceView({ payment, onClose }: InvoiceViewProps) {
                         <td className="px-4 py-3">
                           {t('invoice.utilityRecovery')}
                         </td>
-                        <td className="px-4 py-3 text-right font-mono text-zinc-950 dark:text-white">
+                        <td className="px-4 py-3 text-right tabular-nums text-zinc-950 dark:text-white">
                           {formatMoney(payment.utilityCharges)}
                         </td>
                       </tr>
@@ -172,7 +172,7 @@ export default function InvoiceView({ payment, onClose }: InvoiceViewProps) {
                     <td className="px-4 py-3">
                       {t('invoice.totalAccountDebitDue')}
                     </td>
-                    <td className="px-4 py-3 text-right font-mono text-base">
+                    <td className="px-4 py-3 text-right tabular-nums text-base">
                       {formatMoney(payment.totalDue)}
                     </td>
                   </tr>
