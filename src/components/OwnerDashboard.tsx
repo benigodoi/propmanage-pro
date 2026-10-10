@@ -104,12 +104,11 @@ export default function OwnerDashboard({
         </div>
 
         {/* Overview Tab bar */}
-        <div role="tablist" className="flex bg-muted p-1 rounded-lg self-start">
+        <div role="group" aria-label={t('dashboard.title')} className="flex bg-muted p-1 rounded-lg self-start">
           <button
             id="tab-overview"
             type="button"
-            role="tab"
-            aria-selected={activeTab === 'overview'}
+            aria-pressed={activeTab === 'overview'}
             onClick={() => setActiveTab('overview')}
             className={`px-3.5 py-1.5 rounded-md text-sm font-medium transition-colors cursor-pointer ${
               activeTab === 'overview'
@@ -122,8 +121,7 @@ export default function OwnerDashboard({
           <button
             id="tab-financials"
             type="button"
-            role="tab"
-            aria-selected={activeTab === 'financials'}
+            aria-pressed={activeTab === 'financials'}
             onClick={() => setActiveTab('financials')}
             className={`px-3.5 py-1.5 rounded-md text-sm font-medium transition-colors cursor-pointer ${
               activeTab === 'financials'
@@ -136,8 +134,7 @@ export default function OwnerDashboard({
           <button
             id="tab-tenants"
             type="button"
-            role="tab"
-            aria-selected={activeTab === 'tenants'}
+            aria-pressed={activeTab === 'tenants'}
             onClick={() => setActiveTab('tenants')}
             className={`px-3.5 py-1.5 rounded-md text-sm font-medium transition-colors cursor-pointer ${
               activeTab === 'tenants'
@@ -272,9 +269,14 @@ export default function OwnerDashboard({
                           return (
                             <div
                               key={d.month}
-                              className="relative h-full flex-1 flex justify-center items-end cursor-pointer"
+                              role="img"
+                              tabIndex={0}
+                              aria-label={`${d.month}: ${formatMoney(d.revenue)}`}
+                              className="relative h-full flex-1 flex justify-center items-end cursor-pointer rounded-sm outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
                               onMouseEnter={() => setHoveredBar(index)}
                               onMouseLeave={() => setHoveredBar(null)}
+                              onFocus={() => setHoveredBar(index)}
+                              onBlur={() => setHoveredBar(null)}
                             >
                               {isHovered && (
                                 <div
@@ -367,10 +369,10 @@ export default function OwnerDashboard({
                 {t('dashboard.portfolioAssets')}
               </h3>
               <div className="flex gap-2">
-                <button type="button" className="p-1.5 rounded hover:bg-muted text-zinc-500 transition-colors">
+                <button type="button" className="p-1.5 rounded hover:bg-muted text-ink-muted transition-colors">
                   <SlidersHorizontal size={16} />
                 </button>
-                <button type="button" className="p-1.5 rounded hover:bg-muted text-zinc-500 transition-colors">
+                <button type="button" className="p-1.5 rounded hover:bg-muted text-ink-muted transition-colors">
                   <Download size={16} />
                 </button>
               </div>

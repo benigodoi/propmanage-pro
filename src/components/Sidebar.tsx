@@ -252,7 +252,7 @@ export default function Sidebar({
               onServiceRequestClick();
               onMobileClose();
             }}
-            className="w-full h-10 px-4 bg-primary hover:bg-primary-hover text-on-primary rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2 cursor-pointer"
+            className="w-full h-11 lg:h-10 px-4 bg-primary hover:bg-primary-hover text-on-primary rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2 cursor-pointer"
           >
             <Wrench size={16} />
             {t('sidebar.serviceRequest')}
@@ -301,7 +301,7 @@ export default function Sidebar({
             onClick={onLogout}
             aria-label={t('sidebar.logOut')}
             title={t('sidebar.logOut')}
-            className="h-9 w-9 shrink-0 flex items-center justify-center rounded-lg text-ink-muted hover:text-danger hover:bg-danger-soft transition-colors cursor-pointer"
+            className="h-11 w-11 lg:h-9 lg:w-9 shrink-0 flex items-center justify-center rounded-lg text-ink-muted hover:text-danger hover:bg-danger-soft transition-colors cursor-pointer"
           >
             <LogOut size={16} />
           </button>

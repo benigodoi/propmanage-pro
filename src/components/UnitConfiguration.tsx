@@ -160,7 +160,7 @@ export default function UnitConfiguration({
                     {t('unitConfig.baseMonthlyRent')}
                   </label>
                   <div className="relative">
-                    <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-zinc-500">
+                    <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-ink-muted">
                       <Euro size={14} />
                     </span>
                     <input
@@ -254,7 +254,7 @@ export default function UnitConfiguration({
                     />
                   </div>
                   <div className="flex gap-2">
-                    <button type="submit" className="px-3 py-1.5 bg-indigo-500 text-white rounded text-xs font-semibold hover:bg-indigo-400">{t('unitConfig.add')}</button>
+                    <button type="submit" className="px-3 py-1.5 bg-primary text-on-primary rounded text-xs font-semibold hover:bg-primary-hover">{t('unitConfig.add')}</button>
                     <button type="button" onClick={() => setShowAddForm(false)} className="px-3 py-1.5 bg-zinc-200 dark:bg-zinc-800 text-ink-secondary rounded text-xs">{t('common.cancel')}</button>
                   </div>
                 </form>
@@ -370,7 +370,7 @@ export default function UnitConfiguration({
                       </p>
                     </div>
                   </div>
-                  <span className="p-1 hover:bg-zinc-200 dark:hover:bg-zinc-800 text-zinc-500 rounded transition-colors shrink-0">
+                  <span className="p-1 hover:bg-zinc-200 dark:hover:bg-zinc-800 text-ink-muted rounded transition-colors shrink-0">
                     <Download size={14} />
                   </span>
                 </div>

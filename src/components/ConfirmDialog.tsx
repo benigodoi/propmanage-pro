@@ -49,7 +49,7 @@ export default function ConfirmDialog({ state, onCancel }: ConfirmDialogProps) {
             className={`flex-1 py-2.5 rounded-lg text-sm font-medium cursor-pointer ${
               state.danger
                 ? 'bg-red-500 hover:bg-red-400 text-white'
-                : 'bg-indigo-500 hover:bg-indigo-400 text-zinc-950'
+                : 'bg-primary hover:bg-primary-hover text-on-primary'
             }`}
           >
             {state.confirmLabel ?? t('common.confirm')}

@@ -971,8 +971,8 @@ export default function App() {
                           {payments.map((p) => (
                             <tr key={p.id} className="hover:bg-zinc-50 dark:hover:bg-zinc-800/20">
                               <td className="px-4 py-3 font-semibold text-ink">{p.month}</td>
-                              <td className="px-4 py-3 text-zinc-600">{enumLabel(locale, p.status)}</td>
-                              <td className="px-4 py-3 text-zinc-500">{p.datePaid || '—'}</td>
+                              <td className="px-4 py-3 text-ink-secondary">{enumLabel(locale, p.status)}</td>
+                              <td className="px-4 py-3 text-ink-muted">{p.datePaid || '—'}</td>
                               <td className="px-4 py-3 text-right font-mono font-semibold">{formatMoney(p.totalDue)}</td>
                               <td className="px-4 py-3 text-center">
                                 <button type="button" onClick={() => setSelectedPaymentInvoice(p)} className="px-3 py-1 bg-muted text-ink-soft rounded text-xs font-medium">{t('tenantPayments.viewStatement')}</button>
@@ -1132,7 +1132,7 @@ export default function App() {
                 <button
                   type="submit"
                   disabled={addingProperty}
-                  className="flex-1 py-2.5 bg-indigo-500 text-zinc-950 font-medium rounded-lg hover:bg-indigo-400 text-sm disabled:opacity-60 disabled:cursor-not-allowed"
+                  className="flex-1 py-2.5 bg-primary text-on-primary font-medium rounded-lg hover:bg-primary-hover text-sm disabled:opacity-60 disabled:cursor-not-allowed"
                 >
                   {addingProperty ? t('modals.creating') : t('modals.createPropertyAsset')}
                 </button>
@@ -1229,7 +1229,7 @@ export default function App() {
                 <button
                   type="submit"
                   disabled={addingUnit}
-                  className="flex-1 py-2.5 bg-indigo-500 text-zinc-950 font-medium rounded-lg hover:bg-indigo-400 text-sm disabled:opacity-60 disabled:cursor-not-allowed"
+                  className="flex-1 py-2.5 bg-primary text-on-primary font-medium rounded-lg hover:bg-primary-hover text-sm disabled:opacity-60 disabled:cursor-not-allowed"
                 >
                   {addingUnit ? t('modals.adding') : t('properties.addUnit')}
                 </button>
@@ -1397,7 +1397,7 @@ export default function App() {
                 <button
                   type="submit"
                   disabled={addingTenant}
-                  className="flex-1 py-2.5 bg-indigo-500 text-zinc-950 font-medium rounded-lg hover:bg-indigo-400 text-sm disabled:opacity-60 disabled:cursor-not-allowed"
+                  className="flex-1 py-2.5 bg-primary text-on-primary font-medium rounded-lg hover:bg-primary-hover text-sm disabled:opacity-60 disabled:cursor-not-allowed"
                 >
                   {addingTenant ? t('modals.adding') : t('dashboard.addTenant')}
                 </button>
@@ -1444,7 +1444,7 @@ export default function App() {
                 type="button"
                 onClick={handleConfirmInviteToPortal}
                 disabled={invitingToPortal}
-                className="flex-1 py-2.5 bg-indigo-500 text-zinc-950 font-medium rounded-lg hover:bg-indigo-400 text-sm disabled:opacity-60 disabled:cursor-not-allowed"
+                className="flex-1 py-2.5 bg-primary text-on-primary font-medium rounded-lg hover:bg-primary-hover text-sm disabled:opacity-60 disabled:cursor-not-allowed"
               >
                 {invitingToPortal ? t('modals.granting') : t('modals.grantAccess')}
               </button>
@@ -1486,7 +1486,7 @@ export default function App() {
                 onClick={() => {
                   navigator.clipboard.writeText(actionLinkToShare);
                 }}
-                className="px-4 py-2.5 bg-indigo-500 text-zinc-950 font-medium rounded-lg hover:bg-indigo-400 text-sm"
+                className="px-4 py-2.5 bg-primary text-on-primary font-medium rounded-lg hover:bg-primary-hover text-sm"
               >
                 {t('modals.copy')}
               </button>

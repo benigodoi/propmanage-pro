@@ -184,7 +184,7 @@ export default function Header({
             >
               <Bell size={20} />
               {unreadCount > 0 && (
-                <span className="absolute top-1 right-1 min-w-4 h-4 px-1 rounded-full bg-red-500 text-white text-[9px] font-semibold flex items-center justify-center">
+                <span className="absolute top-0.5 right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-red-700 text-white text-[11px] leading-none font-semibold flex items-center justify-center ring-2 ring-chrome">
                   {unreadCount > 9 ? '9+' : unreadCount}
                 </span>
               )}
