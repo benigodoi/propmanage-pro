@@ -106,7 +106,7 @@ export default function AcceptInviteScreen({ theme, userEmail, onThemeToggle, on
         <button
           type="button"
           onClick={onThemeToggle}
-          className="p-1.5 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-slate-200/50 dark:hover:bg-slate-800/60 transition-colors cursor-pointer flex items-center justify-center"
+          className="p-1.5 rounded-lg text-ink-muted hover:bg-slate-200/50 dark:hover:bg-slate-800/60 transition-colors cursor-pointer flex items-center justify-center"
           title={theme === 'light' ? t('header.switchToDark') : t('header.switchToLight')}
         >
           {theme === 'light' ? <Moon size={16} /> : <Sun size={16} className="text-amber-400" />}
@@ -115,34 +115,34 @@ export default function AcceptInviteScreen({ theme, userEmail, onThemeToggle, on
 
       <div className="w-full max-w-md my-auto">
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white font-sans">
+          <h1 className="text-4xl font-extrabold tracking-tight text-ink font-sans">
             {!isNewOrg && orgName ? t('invite.welcomeTo', { orgName }) : t('invite.welcome')}
           </h1>
-          <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
+          <p className="mt-2 text-sm text-ink-secondary">
             {userEmail ? t('invite.finishSetupFor', { email: userEmail }) : t('invite.finishSetup')}
           </p>
         </div>
 
-        <div className="bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-800 rounded-xl p-5 sm:p-8 shadow-xl relative overflow-hidden">
+        <div className="bg-surface border border-line rounded-xl p-5 sm:p-8 shadow-xl relative overflow-hidden">
           <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-sky-400 via-indigo-500 to-sky-400 animate-pulse" />
 
           {loading ? (
-            <p className="text-sm text-slate-500 dark:text-slate-400 text-center py-4">{t('invite.loadingInvite')}</p>
+            <p className="text-sm text-ink-muted text-center py-4">{t('invite.loadingInvite')}</p>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-6">
               {error && (
-                <div className="p-3 text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-900/50 rounded-lg">
+                <div className="p-3 text-sm text-danger bg-danger-soft border border-red-200 dark:border-red-900/50 rounded-lg">
                   {error}
                 </div>
               )}
 
               {isNewOrg && (
                 <div>
-                  <label htmlFor="invite-org-name" className="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-2">
+                  <label htmlFor="invite-org-name" className="block text-xs font-bold uppercase tracking-wider text-ink-soft mb-2">
                     {t('invite.orgNameLabel')}
                   </label>
                   <div className="relative">
-                    <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400 dark:text-slate-500">
+                    <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-ink-faint">
                       <Building2 size={16} />
                     </span>
                     <input
@@ -152,18 +152,18 @@ export default function AcceptInviteScreen({ theme, userEmail, onThemeToggle, on
                       placeholder="Acme Property Management"
                       value={orgName}
                       onChange={(e) => setOrgName(e.target.value)}
-                      className="w-full pl-10 pr-4 py-3 bg-slate-50 dark:bg-slate-950/50 border border-slate-200 dark:border-slate-800 rounded-lg text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-600 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500/50 focus:border-sky-500 transition-all"
+                      className="w-full pl-10 pr-4 py-3 bg-field border border-line rounded-lg text-ink placeholder-slate-400 dark:placeholder-slate-600 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500/50 focus:border-sky-500 transition-all"
                     />
                   </div>
                 </div>
               )}
 
               <div>
-                <label htmlFor="invite-full-name" className="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-2">
+                <label htmlFor="invite-full-name" className="block text-xs font-bold uppercase tracking-wider text-ink-soft mb-2">
                   {t('invite.yourName')}
                 </label>
                 <div className="relative">
-                  <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400 dark:text-slate-500">
+                  <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-ink-faint">
                     <User size={16} />
                   </span>
                   <input
@@ -173,17 +173,17 @@ export default function AcceptInviteScreen({ theme, userEmail, onThemeToggle, on
                     placeholder="Jane Smith"
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 bg-slate-50 dark:bg-slate-950/50 border border-slate-200 dark:border-slate-800 rounded-lg text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-600 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500/50 focus:border-sky-500 transition-all"
+                    className="w-full pl-10 pr-4 py-3 bg-field border border-line rounded-lg text-ink placeholder-slate-400 dark:placeholder-slate-600 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500/50 focus:border-sky-500 transition-all"
                   />
                 </div>
               </div>
 
               <div>
-                <label htmlFor="invite-new-password" className="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-2">
+                <label htmlFor="invite-new-password" className="block text-xs font-bold uppercase tracking-wider text-ink-soft mb-2">
                   {t('invite.choosePassword')}
                 </label>
                 <div className="relative">
-                  <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400 dark:text-slate-500">
+                  <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-ink-faint">
                     <Lock size={16} />
                   </span>
                   <input
@@ -193,17 +193,17 @@ export default function AcceptInviteScreen({ theme, userEmail, onThemeToggle, on
                     placeholder="••••••••"
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 bg-slate-50 dark:bg-slate-950/50 border border-slate-200 dark:border-slate-800 rounded-lg text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-600 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500/50 focus:border-sky-500 transition-all"
+                    className="w-full pl-10 pr-4 py-3 bg-field border border-line rounded-lg text-ink placeholder-slate-400 dark:placeholder-slate-600 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500/50 focus:border-sky-500 transition-all"
                   />
                 </div>
               </div>
 
               <div>
-                <label htmlFor="invite-confirm-password" className="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-2">
+                <label htmlFor="invite-confirm-password" className="block text-xs font-bold uppercase tracking-wider text-ink-soft mb-2">
                   {t('settings.confirmPassword')}
                 </label>
                 <div className="relative">
-                  <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400 dark:text-slate-500">
+                  <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-ink-faint">
                     <Lock size={16} />
                   </span>
                   <input
@@ -213,7 +213,7 @@ export default function AcceptInviteScreen({ theme, userEmail, onThemeToggle, on
                     placeholder="••••••••"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 bg-slate-50 dark:bg-slate-950/50 border border-slate-200 dark:border-slate-800 rounded-lg text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-600 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500/50 focus:border-sky-500 transition-all"
+                    className="w-full pl-10 pr-4 py-3 bg-field border border-line rounded-lg text-ink placeholder-slate-400 dark:placeholder-slate-600 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500/50 focus:border-sky-500 transition-all"
                   />
                 </div>
               </div>
@@ -223,7 +223,7 @@ export default function AcceptInviteScreen({ theme, userEmail, onThemeToggle, on
               <button
                 type="submit"
                 disabled={submitting}
-                className="w-full flex items-center justify-center gap-2 py-3.5 px-4 rounded-lg font-bold text-sm uppercase tracking-wider transition-all duration-200 shadow-md bg-slate-950 hover:bg-slate-900 dark:bg-sky-400 dark:hover:bg-sky-300 text-white dark:text-slate-950 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                className="w-full flex items-center justify-center gap-2 py-3.5 px-4 rounded-lg font-bold text-sm uppercase tracking-wider transition-all duration-200 shadow-md bg-primary hover:bg-primary-hover text-on-primary cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
               >
                 {submitting ? t('invite.settingUp') : t('invite.completeSetup')}
               </button>

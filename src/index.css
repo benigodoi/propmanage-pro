@@ -7,6 +7,74 @@
      back to the inherited size, blowing up badges and captions. */
   --text-xxs: 0.625rem;
   --text-xxs--line-height: 0.875rem;
+
+  /* Semantic colour tokens. Components use these (`bg-surface`,
+     `text-ink-muted`, `border-line`, …) instead of pairing a light class with
+     a `dark:` override; the dark values live in the `.dark` block below, so
+     retheming is an edit to this file only. Light values here. */
+
+  /* Backgrounds */
+  --color-canvas: #fcf8fa;                     /* app background */
+  --color-sidebar: #faf8f9;
+  --color-chrome: var(--color-white);          /* header bar */
+  --color-surface: var(--color-white);         /* cards, panels, modals */
+  --color-inset: var(--color-slate-50);        /* wells inside a surface */
+  --color-subtle: var(--color-slate-50);
+  --color-field: var(--color-slate-50);        /* inputs */
+  --color-muted: var(--color-slate-100);       /* chips, pills, tracks */
+
+  /* Borders */
+  --color-line: var(--color-slate-200);
+  --color-line-subtle: var(--color-slate-100);
+
+  /* Text */
+  --color-foreground: #1b1b1d;                 /* inherited default */
+  --color-ink: var(--color-slate-900);         /* headings, primary text */
+  --color-ink-soft: var(--color-slate-700);    /* body copy */
+  --color-ink-secondary: var(--color-slate-600);
+  --color-ink-muted: var(--color-slate-500);   /* secondary text */
+  --color-ink-faint: var(--color-slate-400);   /* captions, icons */
+
+  /* Primary action */
+  --color-primary: var(--color-slate-950);
+  --color-primary-hover: var(--color-slate-900);
+  --color-on-primary: var(--color-white);
+
+  /* Status */
+  --color-success: var(--color-emerald-600);
+  --color-success-soft: var(--color-emerald-50);
+  --color-danger: var(--color-red-600);
+  --color-danger-soft: var(--color-red-50);
+}
+
+.dark {
+  --color-canvas: #0f1418;
+  --color-sidebar: #020617;
+  --color-chrome: #0f172a;
+  --color-surface: #1e293b;
+  --color-inset: var(--color-slate-950);
+  --color-subtle: var(--color-slate-900);
+  --color-field: color-mix(in oklab, var(--color-slate-950) 50%, transparent);
+  --color-muted: var(--color-slate-800);
+
+  --color-line: var(--color-slate-800);
+  --color-line-subtle: var(--color-slate-800);
+
+  --color-foreground: #dee3e8;
+  --color-ink: var(--color-white);
+  --color-ink-soft: var(--color-slate-300);
+  --color-ink-secondary: var(--color-slate-400);
+  --color-ink-muted: var(--color-slate-400);
+  --color-ink-faint: var(--color-slate-500);
+
+  --color-primary: var(--color-sky-400);
+  --color-primary-hover: var(--color-sky-300);
+  --color-on-primary: var(--color-slate-950);
+
+  --color-success: var(--color-emerald-400);
+  --color-success-soft: color-mix(in oklab, var(--color-emerald-500) 10%, transparent);
+  --color-danger: var(--color-red-400);
+  --color-danger-soft: color-mix(in oklab, var(--color-red-500) 10%, transparent);
 }
 
 @variant dark (&:where(.dark, .dark *));

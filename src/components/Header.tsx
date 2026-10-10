@@ -141,7 +141,7 @@ export default function Header({
   const displayName = currentUserName && currentUserName.trim().length > 0 ? currentUserName : currentUserEmail;
 
   return (
-    <header className="sticky top-0 z-40 bg-white dark:bg-[#0f172a] border-b border-slate-200 dark:border-slate-800 transition-colors duration-200">
+    <header className="sticky top-0 z-40 bg-chrome border-b border-line transition-colors duration-200">
       <div className="flex h-16 items-center justify-between px-3 sm:px-6 gap-2 sm:gap-4">
 
         {/* Mobile menu toggle */}
@@ -149,7 +149,7 @@ export default function Header({
           id="btn-open-menu"
           type="button"
           onClick={onMenuClick}
-          className="lg:hidden p-2 -ml-1 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-colors cursor-pointer"
+          className="lg:hidden p-2 -ml-1 rounded-lg text-ink-muted hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-colors cursor-pointer"
           aria-label={t('header.openMenu')}
           aria-controls="app-sidebar"
           aria-expanded={menuOpen}
@@ -160,7 +160,7 @@ export default function Header({
         {/* Left: Search Bar */}
         <div className="flex-1 min-w-0 max-w-lg">
           <div className="relative">
-            <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400 dark:text-slate-500">
+            <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-ink-faint">
               <Search size={18} />
             </span>
             <input
@@ -169,7 +169,7 @@ export default function Header({
               placeholder={persona === 'owner' ? t('header.searchPortfolio') : t('header.searchPortal')}
               value={searchQuery}
               onChange={(e) => onSearchChange(e.target.value)}
-              className="w-full pl-10 pr-3 sm:pr-4 py-2 text-sm bg-slate-50 dark:bg-slate-950/50 border border-slate-200/80 dark:border-slate-800 rounded-lg text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500/30 focus:border-sky-500 transition-all"
+              className="w-full pl-10 pr-3 sm:pr-4 py-2 text-sm bg-field border border-slate-200/80 dark:border-slate-800 rounded-lg text-ink placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500/30 focus:border-sky-500 transition-all"
             />
           </div>
         </div>
@@ -182,7 +182,7 @@ export default function Header({
             id="theme-toggle"
             type="button"
             onClick={onThemeToggle}
-            className="p-2 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-colors cursor-pointer"
+            className="p-2 rounded-lg text-ink-muted hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-colors cursor-pointer"
             title={theme === 'light' ? t('header.switchToDark') : t('header.switchToLight')}
           >
             {theme === 'light' ? <Moon size={20} /> : <Sun size={20} className="text-amber-400" />}
@@ -196,7 +196,7 @@ export default function Header({
               id="btn-notifications"
               type="button"
               onClick={() => (showNotifications ? setShowNotifications(false) : openNotifications())}
-              className="p-2 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-colors relative cursor-pointer"
+              className="p-2 rounded-lg text-ink-muted hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-colors relative cursor-pointer"
               title={t('header.notifications')}
             >
               <Bell size={20} />
@@ -208,12 +208,12 @@ export default function Header({
             </button>
 
             {showNotifications && (
-              <div className="fixed left-3 right-3 top-16 max-h-[calc(100dvh-5rem)] flex flex-col sm:absolute sm:left-auto sm:right-0 sm:top-auto sm:mt-2 sm:w-80 sm:max-h-none rounded-xl bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-800 shadow-2xl py-2 z-50 animate-in fade-in slide-in-from-top-1">
-                <div className="flex justify-between items-center px-4 py-2 border-b border-slate-100 dark:border-slate-800">
-                  <span className="font-bold text-sm text-slate-900 dark:text-white">{t('header.notifications')}</span>
+              <div className="fixed left-3 right-3 top-16 max-h-[calc(100dvh-5rem)] flex flex-col sm:absolute sm:left-auto sm:right-0 sm:top-auto sm:mt-2 sm:w-80 sm:max-h-none rounded-xl bg-surface border border-line shadow-2xl py-2 z-50 animate-in fade-in slide-in-from-top-1">
+                <div className="flex justify-between items-center px-4 py-2 border-b border-line-subtle">
+                  <span className="font-bold text-sm text-ink">{t('header.notifications')}</span>
                 </div>
                 {notifications.length === 0 ? (
-                  <div className="px-4 py-6 text-center text-xs text-slate-400 dark:text-slate-500">
+                  <div className="px-4 py-6 text-center text-xs text-ink-faint">
                     {t('header.noNotifications')}
                   </div>
                 ) : (
@@ -236,11 +236,11 @@ export default function Header({
                           >
                             <Icon size={16} className={`shrink-0 mt-0.5 ${className}`} />
                             <span className="min-w-0 flex-1">
-                              <span className="flex items-center gap-1.5 text-xs font-bold text-slate-900 dark:text-white">
+                              <span className="flex items-center gap-1.5 text-xs font-bold text-ink">
                                 {title}
                                 {unread && <span className="h-1.5 w-1.5 rounded-full bg-sky-500" />}
                               </span>
-                              <span className="block text-xxs text-slate-500 dark:text-slate-400 mt-0.5 truncate">{detail}</span>
+                              <span className="block text-xxs text-ink-muted mt-0.5 truncate">{detail}</span>
                             </span>
                           </button>
                         </li>
@@ -257,23 +257,23 @@ export default function Header({
             id="btn-settings"
             type="button"
             onClick={onSettingsClick}
-            className="hidden sm:block p-2 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-colors cursor-pointer"
+            className="hidden sm:block p-2 rounded-lg text-ink-muted hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-colors cursor-pointer"
             title={t('header.settings')}
           >
             <Settings size={20} />
           </button>
 
           {/* User Profile Avatar */}
-          <div className="hidden sm:flex items-center gap-3 border-l border-slate-200 dark:border-slate-800 pl-3">
+          <div className="hidden sm:flex items-center gap-3 border-l border-line pl-3">
             <div className="hidden md:block text-right">
-              <p className="text-xs font-bold text-slate-900 dark:text-white">
+              <p className="text-xs font-bold text-ink">
                 {displayName}
               </p>
-              <p className="text-xxs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wide">
+              <p className="text-xxs font-semibold text-ink-faint uppercase tracking-wide">
                 {persona === 'owner' ? t('header.adminOwner') : t('header.tenant')}
               </p>
             </div>
-            <div className="h-9 w-9 rounded-full bg-sky-100 dark:bg-sky-950 text-sky-700 dark:text-sky-300 font-extrabold flex items-center justify-center text-xs ring-2 ring-slate-100 dark:ring-slate-800">
+            <div className="h-9 w-9 rounded-full bg-sky-100 dark:bg-sky-950 text-sky-700 dark:text-sky-300 font-extrabold flex items-center justify-center text-xs ring-2 ring-line-subtle">
               {initialsFor(currentUserName, currentUserEmail)}
             </div>
           </div>
@@ -285,7 +285,7 @@ export default function Header({
                 id="btn-add-property-header"
                 type="button"
                 onClick={onAddPropertyClick}
-                className="ml-2 px-4 py-2 bg-slate-950 dark:bg-sky-400 hover:bg-slate-900 dark:hover:bg-sky-300 text-white dark:text-slate-950 rounded-lg text-xs font-bold uppercase tracking-wider transition-all cursor-pointer"
+                className="ml-2 px-4 py-2 bg-primary hover:bg-primary-hover text-on-primary rounded-lg text-xs font-bold uppercase tracking-wider transition-all cursor-pointer"
               >
                 {t('header.addProperty')}
               </button>

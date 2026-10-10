@@ -22,7 +22,7 @@ export default function InvoiceView({ payment, onClose }: InvoiceViewProps) {
 
   return (
     <div className="fixed inset-0 bg-slate-950/70 flex items-center justify-center p-4 z-50 animate-in fade-in duration-200 overflow-y-auto">
-      <div className="bg-white dark:bg-[#1e293b] rounded-xl border border-slate-200 dark:border-slate-800 max-w-2xl w-full shadow-2xl relative overflow-hidden my-8">
+      <div className="bg-surface rounded-xl border border-line max-w-2xl w-full shadow-2xl relative overflow-hidden my-8">
 
         {/* Large Coral Stamp PAID Watermark */}
         {payment.status === 'Paid' && (
@@ -42,8 +42,8 @@ export default function InvoiceView({ payment, onClose }: InvoiceViewProps) {
         )}
 
         {/* Top Header Controls (Action icons) */}
-        <div className="flex justify-between items-center px-6 py-4 border-b border-slate-100 dark:border-slate-800 relative z-10 bg-slate-50 dark:bg-slate-900/60">
-          <span className="text-xxs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
+        <div className="flex justify-between items-center px-6 py-4 border-b border-line-subtle relative z-10 bg-slate-50 dark:bg-slate-900/60">
+          <span className="text-xxs font-bold text-ink-faint uppercase tracking-widest">
             {t('invoice.invoiceStatements')}
           </span>
           <div className="flex items-center gap-2">
@@ -51,7 +51,7 @@ export default function InvoiceView({ payment, onClose }: InvoiceViewProps) {
               id="btn-print-invoice"
               type="button"
               onClick={handlePrint}
-              className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 transition-colors cursor-pointer"
+              className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-800 text-ink-muted transition-colors cursor-pointer"
               title={t('invoice.printStatement')}
             >
               <Printer size={16} />
@@ -60,7 +60,7 @@ export default function InvoiceView({ payment, onClose }: InvoiceViewProps) {
               id="btn-close-invoice"
               type="button"
               onClick={onClose}
-              className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 transition-colors cursor-pointer"
+              className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-800 text-ink-muted transition-colors cursor-pointer"
               title={t('invoice.closeModal')}
             >
               <X size={16} />
@@ -74,27 +74,27 @@ export default function InvoiceView({ payment, onClose }: InvoiceViewProps) {
           {/* Logo & ID Row */}
           <div className="flex justify-between items-start">
             <div>
-              <h3 className="text-xl font-extrabold text-slate-900 dark:text-white">
+              <h3 className="text-xl font-extrabold text-ink">
                 {payment.managerOrgName ?? 'PropManage Pro'}
               </h3>
-              <p className="text-xxs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mt-1">
+              <p className="text-xxs font-bold text-ink-faint uppercase tracking-widest mt-1">
                 {t('invoice.statementOfAccount')}
               </p>
             </div>
             <div className="text-right">
-              <p className="text-xs font-bold text-slate-900 dark:text-white">
+              <p className="text-xs font-bold text-ink">
                 PAY-{payment.id.slice(0, 8).toUpperCase()}
               </p>
-              <p className="text-[10px] text-slate-400 dark:text-slate-500 font-semibold uppercase mt-1">
+              <p className="text-[10px] text-ink-faint font-semibold uppercase mt-1">
                 {t('invoice.billingPeriod', { month: payment.month })}
               </p>
             </div>
           </div>
 
           {/* Billing addresses */}
-          <div className="grid grid-cols-2 gap-6 text-xs border-t border-b border-slate-100 dark:border-slate-800 py-6">
+          <div className="grid grid-cols-2 gap-6 text-xs border-t border-b border-line-subtle py-6">
             <div>
-              <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest block mb-2">
+              <span className="text-[10px] font-bold text-ink-faint uppercase tracking-widest block mb-2">
                 {t('invoice.fromManager')}
               </span>
               <p className="font-extrabold text-slate-800 dark:text-white">
@@ -103,13 +103,13 @@ export default function InvoiceView({ payment, onClose }: InvoiceViewProps) {
             </div>
 
             <div>
-              <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest block mb-2">
+              <span className="text-[10px] font-bold text-ink-faint uppercase tracking-widest block mb-2">
                 {t('invoice.toTenant')}
               </span>
               <p className="font-extrabold text-slate-800 dark:text-white">
                 {payment.tenantName}
               </p>
-              <p className="text-slate-500 dark:text-slate-400 mt-1 font-medium leading-relaxed">
+              <p className="text-ink-muted mt-1 font-medium leading-relaxed">
                 {t('dashboard.unitAt', { unit: payment.unitNumber, property: payment.propertyName })}
                 {payment.propertyAddress && <><br />{payment.propertyAddress}</>}
                 {payment.tenantEmail && <><br />{payment.tenantEmail}</>}
@@ -119,19 +119,19 @@ export default function InvoiceView({ payment, onClose }: InvoiceViewProps) {
 
           {/* Breakdown item list */}
           <div className="space-y-4">
-            <h4 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
+            <h4 className="text-xs font-bold text-ink uppercase tracking-wider">
               {t('invoice.lineItemBreakdown')}
             </h4>
 
-            <div className="border border-slate-200 dark:border-slate-800 rounded-lg overflow-hidden">
+            <div className="border border-line rounded-lg overflow-hidden">
               <table className="w-full text-left text-xs border-collapse">
                 <thead>
-                  <tr className="bg-slate-50 dark:bg-slate-900 font-bold text-slate-400 dark:text-slate-500 border-b border-slate-200 dark:border-slate-800 uppercase tracking-wider text-[10px]">
+                  <tr className="bg-subtle font-bold text-ink-faint border-b border-line uppercase tracking-wider text-[10px]">
                     <th className="px-4 py-2.5">{t('invoice.itemDescription')}</th>
                     <th className="px-4 py-2.5 text-right">{t('invoice.amountDue')}</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100 dark:divide-slate-800/40 text-xs font-semibold text-slate-700 dark:text-slate-300">
+                <tbody className="divide-y divide-slate-100 dark:divide-slate-800/40 text-xs font-semibold text-ink-soft">
                   {/* Rent item */}
                   <tr>
                     <td className="px-4 py-3">
@@ -168,7 +168,7 @@ export default function InvoiceView({ payment, onClose }: InvoiceViewProps) {
                   )}
 
                   {/* Total row */}
-                  <tr className="bg-slate-50 dark:bg-slate-900/40 font-bold text-sm text-slate-900 dark:text-white border-t border-slate-200 dark:border-slate-800">
+                  <tr className="bg-slate-50 dark:bg-slate-900/40 font-bold text-sm text-ink border-t border-line">
                     <td className="px-4 py-3">
                       {t('invoice.totalAccountDebitDue')}
                     </td>
@@ -182,9 +182,9 @@ export default function InvoiceView({ payment, onClose }: InvoiceViewProps) {
           </div>
 
           {/* Payment Status Info block */}
-          <div className="p-4 bg-slate-50 dark:bg-slate-900 border border-slate-150 dark:border-slate-800/80 rounded-xl flex flex-wrap justify-between items-center gap-4 text-xs font-semibold">
+          <div className="p-4 bg-subtle border border-slate-150 dark:border-slate-800/80 rounded-xl flex flex-wrap justify-between items-center gap-4 text-xs font-semibold">
             <div className="flex items-center gap-2">
-              <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest block">
+              <span className="text-[10px] font-bold text-ink-faint uppercase tracking-widest block">
                 {t('invoice.paymentStatus')}
               </span>
               {payment.status === 'Paid' ? (
@@ -215,7 +215,7 @@ export default function InvoiceView({ payment, onClose }: InvoiceViewProps) {
           </div>
 
           {/* Footer note */}
-          <div className="flex items-center gap-2 text-xxs text-slate-400 dark:text-slate-500 font-semibold justify-center">
+          <div className="flex items-center gap-2 text-xxs text-ink-faint font-semibold justify-center">
             <ShieldCheck size={14} className="text-emerald-500" />
             <span>{t('invoice.generatedBy', { org: payment.managerOrgName ?? 'PropManage Pro' })}</span>
           </div>
@@ -223,12 +223,12 @@ export default function InvoiceView({ payment, onClose }: InvoiceViewProps) {
         </div>
 
         {/* Modal close bottom */}
-        <div className="px-6 py-4 bg-slate-50 dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 flex justify-end">
+        <div className="px-6 py-4 bg-subtle border-t border-line-subtle flex justify-end">
           <button
             id="btn-invoice-close-bottom"
             type="button"
             onClick={onClose}
-            className="px-4 py-2 bg-slate-950 hover:bg-slate-900 dark:bg-sky-400 dark:hover:bg-sky-300 text-white dark:text-slate-950 text-xs font-bold uppercase tracking-wider rounded-lg transition-colors cursor-pointer"
+            className="px-4 py-2 bg-primary hover:bg-primary-hover text-on-primary text-xs font-bold uppercase tracking-wider rounded-lg transition-colors cursor-pointer"
           >
             {t('invoice.closeInvoice')}
           </button>

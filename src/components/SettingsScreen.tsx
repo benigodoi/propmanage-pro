@@ -19,7 +19,7 @@ interface SettingsScreenProps {
 
 function FieldMessage({ message, tone }: { message: string; tone: 'success' | 'error' }) {
   return (
-    <p className={`text-xs font-semibold mt-2 ${tone === 'success' ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
+    <p className={`text-xs font-semibold mt-2 ${tone === 'success' ? 'text-success' : 'text-danger'}`}>
       {message}
     </p>
   );
@@ -123,26 +123,26 @@ export default function SettingsScreen({ persona, onProfileUpdated }: SettingsSc
   return (
     <div className="space-y-6 animate-in fade-in duration-300 max-w-2xl">
       <div>
-        <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 dark:text-white">{t('settings.title')}</h2>
-        <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">{t('settings.subtitle')}</p>
+        <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-ink">{t('settings.title')}</h2>
+        <p className="text-ink-muted text-sm mt-1">{t('settings.subtitle')}</p>
       </div>
 
       {/* Read-only context */}
-      <div className="bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-800 p-6 rounded-xl flex items-center gap-4">
+      <div className="bg-surface border border-line p-6 rounded-xl flex items-center gap-4">
         <div className="w-10 h-10 rounded-lg bg-sky-50 dark:bg-sky-500/10 flex items-center justify-center text-sky-500 shrink-0">
           <ShieldCheck size={20} />
         </div>
         <div>
-          <p className="text-xs font-bold text-slate-900 dark:text-white">{orgName || t('settings.organization')}</p>
-          <p className="text-xxs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wide">
+          <p className="text-xs font-bold text-ink">{orgName || t('settings.organization')}</p>
+          <p className="text-xxs font-semibold text-ink-faint uppercase tracking-wide">
             {persona === 'owner' ? t('settings.adminAccount') : t('settings.tenantAccount')}
           </p>
         </div>
       </div>
 
       {/* Preferences card */}
-      <div className="bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-800 p-6 rounded-xl space-y-4">
-        <h3 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
+      <div className="bg-surface border border-line p-6 rounded-xl space-y-4">
+        <h3 className="text-sm font-bold text-ink uppercase tracking-wider flex items-center gap-2">
           <Globe size={16} className="text-sky-500" /> {t('preferences.title')}
         </h3>
         <div>
@@ -155,8 +155,8 @@ export default function SettingsScreen({ persona, onProfileUpdated }: SettingsSc
                 onClick={() => setLocale(opt)}
                 className={`px-4 py-2 rounded-lg text-xs font-semibold transition-colors cursor-pointer ${
                   locale === opt
-                    ? 'bg-slate-950 dark:bg-sky-400 text-white dark:text-slate-950'
-                    : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
+                    ? 'bg-primary text-on-primary'
+                    : 'bg-muted text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
                 }`}
               >
                 {t(opt === 'en' ? 'preferences.english' : 'preferences.romanian')}
@@ -174,23 +174,23 @@ export default function SettingsScreen({ persona, onProfileUpdated }: SettingsSc
                 onClick={() => setCurrency(opt)}
                 className={`px-4 py-2 rounded-lg text-xs font-semibold transition-colors cursor-pointer ${
                   currency === opt
-                    ? 'bg-slate-950 dark:bg-sky-400 text-white dark:text-slate-950'
-                    : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
+                    ? 'bg-primary text-on-primary'
+                    : 'bg-muted text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
                 }`}
               >
                 {opt === 'EUR' ? t('preferences.euro') : t('preferences.ron')}
               </button>
             ))}
           </div>
-          <p className="text-xs text-slate-400 dark:text-slate-500 mt-2">
+          <p className="text-xs text-ink-faint mt-2">
             {t('preferences.rateNote', { rate: rate.toFixed(2) })}
           </p>
         </div>
       </div>
 
       {/* Profile form */}
-      <form onSubmit={handleProfileSubmit} className="bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-800 p-6 rounded-xl space-y-4">
-        <h3 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
+      <form onSubmit={handleProfileSubmit} className="bg-surface border border-line p-6 rounded-xl space-y-4">
+        <h3 className="text-sm font-bold text-ink uppercase tracking-wider flex items-center gap-2">
           <User size={16} className="text-sky-500" /> {t('settings.profile')}
         </h3>
         <div>
@@ -201,7 +201,7 @@ export default function SettingsScreen({ persona, onProfileUpdated }: SettingsSc
             value={fullName}
             onChange={(e) => setFullName(e.target.value)}
             placeholder={t('settings.yourName')}
-            className="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg text-sm"
+            className="w-full px-3 py-2.5 bg-inset border border-line rounded-lg text-sm"
           />
         </div>
         <div>
@@ -212,22 +212,22 @@ export default function SettingsScreen({ persona, onProfileUpdated }: SettingsSc
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
             placeholder="+1 (555) 000-0000"
-            className="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg text-sm"
+            className="w-full px-3 py-2.5 bg-inset border border-line rounded-lg text-sm"
           />
         </div>
         {profileMessage && <FieldMessage message={profileMessage.text} tone={profileMessage.tone} />}
         <button
           type="submit"
           disabled={profileSaving}
-          className="px-4 py-2 bg-slate-950 hover:bg-slate-900 dark:bg-sky-400 dark:hover:bg-sky-300 text-white dark:text-slate-950 rounded-lg text-xs font-bold uppercase tracking-wider disabled:opacity-60"
+          className="px-4 py-2 bg-primary hover:bg-primary-hover text-on-primary rounded-lg text-xs font-bold uppercase tracking-wider disabled:opacity-60"
         >
           {profileSaving ? t('common.saving') : t('settings.saveProfile')}
         </button>
       </form>
 
       {/* Email form */}
-      <form onSubmit={handleEmailSubmit} className="bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-800 p-6 rounded-xl space-y-4">
-        <h3 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
+      <form onSubmit={handleEmailSubmit} className="bg-surface border border-line p-6 rounded-xl space-y-4">
+        <h3 className="text-sm font-bold text-ink uppercase tracking-wider flex items-center gap-2">
           <Mail size={16} className="text-sky-500" /> {t('settings.email')}
         </h3>
         <div>
@@ -238,22 +238,22 @@ export default function SettingsScreen({ persona, onProfileUpdated }: SettingsSc
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg text-sm"
+            className="w-full px-3 py-2.5 bg-inset border border-line rounded-lg text-sm"
           />
         </div>
         {emailMessage && <FieldMessage message={emailMessage.text} tone={emailMessage.tone} />}
         <button
           type="submit"
           disabled={emailSaving}
-          className="px-4 py-2 bg-slate-950 hover:bg-slate-900 dark:bg-sky-400 dark:hover:bg-sky-300 text-white dark:text-slate-950 rounded-lg text-xs font-bold uppercase tracking-wider disabled:opacity-60"
+          className="px-4 py-2 bg-primary hover:bg-primary-hover text-on-primary rounded-lg text-xs font-bold uppercase tracking-wider disabled:opacity-60"
         >
           {emailSaving ? t('common.saving') : t('settings.updateEmail')}
         </button>
       </form>
 
       {/* Password form */}
-      <form onSubmit={handlePasswordSubmit} className="bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-800 p-6 rounded-xl space-y-4">
-        <h3 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
+      <form onSubmit={handlePasswordSubmit} className="bg-surface border border-line p-6 rounded-xl space-y-4">
+        <h3 className="text-sm font-bold text-ink uppercase tracking-wider flex items-center gap-2">
           <Lock size={16} className="text-sky-500" /> {t('settings.password')}
         </h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -266,7 +266,7 @@ export default function SettingsScreen({ persona, onProfileUpdated }: SettingsSc
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
               placeholder="••••••••"
-              className="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg text-sm"
+              className="w-full px-3 py-2.5 bg-inset border border-line rounded-lg text-sm"
             />
           </div>
           <div>
@@ -278,7 +278,7 @@ export default function SettingsScreen({ persona, onProfileUpdated }: SettingsSc
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               placeholder="••••••••"
-              className="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg text-sm"
+              className="w-full px-3 py-2.5 bg-inset border border-line rounded-lg text-sm"
             />
           </div>
         </div>
@@ -287,7 +287,7 @@ export default function SettingsScreen({ persona, onProfileUpdated }: SettingsSc
         <button
           type="submit"
           disabled={passwordSaving}
-          className="px-4 py-2 bg-slate-950 hover:bg-slate-900 dark:bg-sky-400 dark:hover:bg-sky-300 text-white dark:text-slate-950 rounded-lg text-xs font-bold uppercase tracking-wider disabled:opacity-60"
+          className="px-4 py-2 bg-primary hover:bg-primary-hover text-on-primary rounded-lg text-xs font-bold uppercase tracking-wider disabled:opacity-60"
         >
           {passwordSaving ? t('common.saving') : t('settings.updatePassword')}
         </button>
