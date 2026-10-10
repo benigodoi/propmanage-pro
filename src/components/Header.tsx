@@ -208,7 +208,7 @@ export default function Header({
             </button>
 
             {showNotifications && (
-              <div className="fixed left-3 right-3 top-16 sm:absolute sm:left-auto sm:right-0 sm:top-auto sm:mt-2 sm:w-80 rounded-xl bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-800 shadow-2xl py-2 z-50 animate-in fade-in slide-in-from-top-1">
+              <div className="fixed left-3 right-3 top-16 max-h-[calc(100dvh-5rem)] flex flex-col sm:absolute sm:left-auto sm:right-0 sm:top-auto sm:mt-2 sm:w-80 sm:max-h-none rounded-xl bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-800 shadow-2xl py-2 z-50 animate-in fade-in slide-in-from-top-1">
                 <div className="flex justify-between items-center px-4 py-2 border-b border-slate-100 dark:border-slate-800">
                   <span className="font-bold text-sm text-slate-900 dark:text-white">{t('header.notifications')}</span>
                 </div>
@@ -217,7 +217,7 @@ export default function Header({
                     {t('header.noNotifications')}
                   </div>
                 ) : (
-                  <ul className="max-h-96 overflow-y-auto">
+                  <ul className="min-h-0 flex-1 overflow-y-auto sm:max-h-96">
                     {notifications.map((n) => {
                       const { icon: Icon, className } = notificationIcon[n.kind];
                       const { title, detail } = notificationText(n);
