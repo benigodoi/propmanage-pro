@@ -397,7 +397,6 @@ const ro: Dictionary = {
     documents: 'Documente',
     propertyManager: 'ADMINISTRATOR PROPRIETATE',
     tenant: 'CHIRIAȘ',
-    generateReports: 'Generează rapoarte',
     serviceRequest: 'Cerere de service',
     settings: 'Setări',
     helpCenter: 'Centru de asistență',
