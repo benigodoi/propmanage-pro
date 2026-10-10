@@ -97,6 +97,8 @@ export default function App() {
   const [selectedUnitId, setSelectedUnitId] = useState<string | null>(null);
   const [selectedPaymentInvoice, setSelectedPaymentInvoice] = useState<Payment | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const closeMobileNav = React.useCallback(() => setMobileNavOpen(false), []);
   
   // Modal Triggers
   const [showAddPropertyModal, setShowAddPropertyModal] = useState(false);
@@ -642,7 +644,7 @@ export default function App() {
       {secondsRemaining !== null && (
         <SessionTimeoutWarning seconds={secondsRemaining} onStayActive={stayActive} />
       )}
-      <div className="flex h-screen overflow-hidden bg-[#fcf8fa] dark:bg-[#0f1418] text-[#1b1b1d] dark:text-[#dee3e8] font-sans transition-colors duration-300">
+      <div className="flex h-dvh overflow-hidden bg-[#fcf8fa] dark:bg-[#0f1418] text-[#1b1b1d] dark:text-[#dee3e8] font-sans transition-colors duration-300">
 
       {/* Sidebar Navigation */}
       <Sidebar
@@ -669,10 +671,12 @@ export default function App() {
           setShowServiceRequestModal(true);
         }}
         pendingServiceRequestCount={serviceRequests.filter((r) => r.status === 'Pending').length}
+        mobileOpen={mobileNavOpen}
+        onMobileClose={closeMobileNav}
       />
 
       {/* Main Content Area */}
-      <div className="flex flex-col flex-1 overflow-hidden">
+      <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
         
         {/* Header bar */}
         <Header
@@ -690,10 +694,12 @@ export default function App() {
           onSearchChange={setSearchQuery}
           notifications={notifications}
           onNotificationClick={handleNotificationClick}
+          onMenuClick={() => setMobileNavOpen(true)}
+          menuOpen={mobileNavOpen}
         />
 
         {/* Dynamic Screen View Router */}
-        <main className="flex-1 overflow-y-auto p-8 relative">
+        <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 relative">
           
           <div className="max-w-6xl mx-auto space-y-8">
             
@@ -726,9 +732,9 @@ export default function App() {
 
                 {activeOwnerScreen === 'properties' && (
                   <div className="space-y-6">
-                    <div className="flex justify-between items-center">
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                       <div>
-                        <h2 className="text-3xl font-extrabold text-slate-900 dark:text-white">{t('properties.title')}</h2>
+                        <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white">{t('properties.title')}</h2>
                         <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">{t('properties.subtitle')}</p>
                       </div>
                       <button
@@ -833,7 +839,7 @@ export default function App() {
                 )}
 
                 {activeOwnerScreen === 'reports' && (
-                  <div className="bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-800 p-8 rounded-xl space-y-6">
+                  <div className="bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-800 p-5 sm:p-8 rounded-xl space-y-6">
                     <div>
                       <h2 className="text-2xl font-bold text-slate-900 dark:text-white">{t('reports.title')}</h2>
                       <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">{t('reports.subtitle')}</p>
@@ -905,7 +911,7 @@ export default function App() {
                 {activeTenantScreen === 'property-details' && (
                   units[0] ? (
                     <div className="bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm">
-                      <div className="p-8 space-y-8">
+                      <div className="p-5 sm:p-8 space-y-8">
                         <div>
                           <h2 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">{units[0].propertyName}</h2>
                           <p className="text-slate-500 dark:text-slate-400 text-xs mt-1">{t('dashboard.unitLabel', { unit: units[0].unitNumber })}</p>
@@ -950,7 +956,7 @@ export default function App() {
                 )}
 
                 {activeTenantScreen === 'payments' && (
-                  <div className="bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-800 rounded-xl p-8 shadow-sm space-y-6">
+                  <div className="bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-800 rounded-xl p-5 sm:p-8 shadow-sm space-y-6">
                     <div>
                       <h2 className="text-2xl font-bold text-slate-900 dark:text-white">{t('tenantPayments.title')}</h2>
                       <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">{t('tenantPayments.subtitle')}</p>
@@ -993,7 +999,7 @@ export default function App() {
                 )}
 
                 {activeTenantScreen === 'documents' && (
-                  <div className="bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-800 p-8 rounded-xl space-y-6">
+                  <div className="bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-800 p-5 sm:p-8 rounded-xl space-y-6">
                     <div className="border-b border-slate-100 dark:border-slate-800 pb-4">
                       <h2 className="text-2xl font-bold text-slate-900 dark:text-white">{t('tenantDocuments.title')}</h2>
                       <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">{t('tenantDocuments.subtitle')}</p>
@@ -1037,7 +1043,7 @@ export default function App() {
             {/* Help Center Accordion Sub-View */}
             {((user.persona === 'owner' && activeOwnerScreen === 'help') || 
               (user.persona === 'tenant' && activeTenantScreen === 'help')) && (
-              <div className="bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-800 p-8 rounded-xl space-y-6">
+              <div className="bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-800 p-5 sm:p-8 rounded-xl space-y-6">
                 <div>
                   <h2 className="text-2xl font-bold text-slate-900 dark:text-white">{t('help.title')}</h2>
                   <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">{t('help.subtitle')}</p>

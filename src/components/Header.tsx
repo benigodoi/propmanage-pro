@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { Search, Bell, Settings, Sun, Moon, Wrench, CheckCircle2, AlertTriangle, Clock, Banknote } from 'lucide-react';
+import { Search, Bell, Settings, Sun, Moon, Wrench, CheckCircle2, AlertTriangle, Clock, Banknote, Menu } from 'lucide-react';
 import { Persona, Theme } from '../types';
 import React, { useEffect, useRef, useState } from 'react';
 import PreferencesSelector from './PreferencesSelector';
@@ -37,6 +37,9 @@ interface HeaderProps {
   onSearchChange: (q: string) => void;
   notifications: AppNotification[];
   onNotificationClick: (notification: AppNotification) => void;
+  /** Opens the sidebar drawer (only shown below the lg breakpoint). */
+  onMenuClick: () => void;
+  menuOpen: boolean;
 }
 
 function initialsFor(name: string | null, email: string): string {
@@ -65,6 +68,8 @@ export default function Header({
   onSearchChange,
   notifications,
   onNotificationClick,
+  onMenuClick,
+  menuOpen,
 }: HeaderProps) {
   const [showNotifications, setShowNotifications] = useState(false);
   const [seenKeys, setSeenKeys] = useState(() => loadSeenNotificationKeys(currentUserEmail));
@@ -137,10 +142,23 @@ export default function Header({
 
   return (
     <header className="sticky top-0 z-40 bg-white dark:bg-[#0f172a] border-b border-slate-200 dark:border-slate-800 transition-colors duration-200">
-      <div className="flex h-16 items-center justify-between px-6 gap-4">
+      <div className="flex h-16 items-center justify-between px-3 sm:px-6 gap-2 sm:gap-4">
+
+        {/* Mobile menu toggle */}
+        <button
+          id="btn-open-menu"
+          type="button"
+          onClick={onMenuClick}
+          className="lg:hidden p-2 -ml-1 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-colors cursor-pointer"
+          aria-label={t('header.openMenu')}
+          aria-controls="app-sidebar"
+          aria-expanded={menuOpen}
+        >
+          <Menu size={20} />
+        </button>
 
         {/* Left: Search Bar */}
-        <div className="flex-1 max-w-lg">
+        <div className="flex-1 min-w-0 max-w-lg">
           <div className="relative">
             <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400 dark:text-slate-500">
               <Search size={18} />
@@ -151,13 +169,13 @@ export default function Header({
               placeholder={persona === 'owner' ? t('header.searchPortfolio') : t('header.searchPortal')}
               value={searchQuery}
               onChange={(e) => onSearchChange(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 text-sm bg-slate-50 dark:bg-slate-950/50 border border-slate-200/80 dark:border-slate-800 rounded-lg text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500/30 focus:border-sky-500 transition-all"
+              className="w-full pl-10 pr-3 sm:pr-4 py-2 text-sm bg-slate-50 dark:bg-slate-950/50 border border-slate-200/80 dark:border-slate-800 rounded-lg text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500/30 focus:border-sky-500 transition-all"
             />
           </div>
         </div>
 
         {/* Right Actions */}
-        <div className="flex items-center gap-2 sm:gap-4">
+        <div className="flex items-center shrink-0 gap-0.5 sm:gap-4">
 
           {/* Theme Toggle */}
           <button
@@ -190,7 +208,7 @@ export default function Header({
             </button>
 
             {showNotifications && (
-              <div className="absolute right-0 mt-2 w-80 rounded-xl bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-800 shadow-2xl py-2 z-50 animate-in fade-in slide-in-from-top-1">
+              <div className="fixed left-3 right-3 top-16 sm:absolute sm:left-auto sm:right-0 sm:top-auto sm:mt-2 sm:w-80 rounded-xl bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-800 shadow-2xl py-2 z-50 animate-in fade-in slide-in-from-top-1">
                 <div className="flex justify-between items-center px-4 py-2 border-b border-slate-100 dark:border-slate-800">
                   <span className="font-bold text-sm text-slate-900 dark:text-white">{t('header.notifications')}</span>
                 </div>
@@ -239,14 +257,14 @@ export default function Header({
             id="btn-settings"
             type="button"
             onClick={onSettingsClick}
-            className="p-2 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-colors cursor-pointer"
+            className="hidden sm:block p-2 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-colors cursor-pointer"
             title={t('header.settings')}
           >
             <Settings size={20} />
           </button>
 
           {/* User Profile Avatar */}
-          <div className="flex items-center gap-3 border-l border-slate-200 dark:border-slate-800 pl-3">
+          <div className="hidden sm:flex items-center gap-3 border-l border-slate-200 dark:border-slate-800 pl-3">
             <div className="hidden md:block text-right">
               <p className="text-xs font-bold text-slate-900 dark:text-white">
                 {displayName}

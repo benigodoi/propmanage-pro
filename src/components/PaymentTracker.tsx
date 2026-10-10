@@ -190,7 +190,7 @@ export default function PaymentTracker({
       {/* Header & Main Actions */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
+          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
             {t('payments.title')}
           </h2>
           <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">
@@ -199,7 +199,7 @@ export default function PaymentTracker({
         </div>
 
         {/* Action Controls */}
-        <div className="flex gap-2.5">
+        <div className="flex flex-wrap gap-2.5">
           <button
             id="btn-send-reminder-tracker"
             type="button"

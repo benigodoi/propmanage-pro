@@ -139,7 +139,7 @@ export default function LoginScreen({ theme, onThemeToggle }: LoginScreenProps) 
           </p>
         </div>
 
-        <div className="bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-800 rounded-xl p-8 shadow-xl relative overflow-hidden">
+        <div className="bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-800 rounded-xl p-5 sm:p-8 shadow-xl relative overflow-hidden">
           {/* Decorative background pulse */}
           <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-sky-400 via-indigo-500 to-sky-400 animate-pulse" />
 

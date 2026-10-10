@@ -402,8 +402,10 @@ const en: Dictionary = {
     settings: 'Settings',
     helpCenter: 'Help Center',
     logOut: 'Log Out',
+    closeMenu: 'Close menu',
   },
   header: {
+    openMenu: 'Open menu',
     searchPortfolio: 'Search portfolio...',
     searchPortal: 'Search portal...',
     switchToDark: 'Switch to Dark Mode',
