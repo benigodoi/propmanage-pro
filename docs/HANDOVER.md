@@ -119,7 +119,7 @@ docs/                      # this file, PROJECT_STATUS.md
   3. Send them the printed link yourself. It's single-use and expires after **1 hour**.
   4. They set a password and name their company, which creates a new org with them as admin.
 - **Second manager in an existing org:**
-  1. Find the org id: `supabase db query --linked "select id, name from organizations"`.
+  1. Find the org id: `npx supabase db query --linked "select id, name from organizations"`.
   2. Run the same script with `--org`:
      ```bash
      SUPABASE_SERVICE_ROLE_KEY=... npx tsx scripts/invite-manager.ts second@example.com https://propmanage-pro.vercel.app --org <org-id>
