@@ -118,6 +118,15 @@ docs/                      # this file, PROJECT_STATUS.md
      (PowerShell: `$env:SUPABASE_SERVICE_ROLE_KEY="..."; npx tsx ...`)
   3. Send them the printed link yourself. It's single-use and expires after **1 hour**.
   4. They set a password and name their company, which creates a new org with them as admin.
+- **Second manager in an existing org:**
+  1. Find the org id: `supabase db query --linked "select id, name from organizations"`.
+  2. Run the same script with `--org`:
+     ```bash
+     SUPABASE_SERVICE_ROLE_KEY=... npx tsx scripts/invite-manager.ts second@example.com https://propmanage-pro.vercel.app --org <org-id>
+     ```
+     The invite carries `{ org_id, role: 'admin' }`, so `handle_new_user` creates their admin profile up front.
+  3. They open the link and set only a name and password. Both admins have identical rights over the org.
+  4. Each person needs their own link. A link signs in as the email it was made for.
 - **Tenant:**
   1. The manager adds the tenant in-app with "Grant portal access" ticked. This calls the `invite-tenant` Edge Function, which derives `org_id`/`role` server-side and returns a copyable link.
   2. The tenant sets a name and password on `AcceptInviteScreen`.
