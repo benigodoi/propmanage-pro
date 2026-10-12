@@ -3,10 +3,11 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React from 'react';
+import React, { useRef } from 'react';
 import { Printer, X, ShieldCheck, CreditCard } from 'lucide-react';
 import { Payment } from '../types';
 import { useLocalization } from '../contexts/LocalizationContext';
+import { useDialogFocus } from '../hooks/useDialogFocus';
 
 interface InvoiceViewProps {
   payment: Payment;
@@ -20,9 +21,18 @@ export default function InvoiceView({ payment, onClose }: InvoiceViewProps) {
     window.print();
   };
 
+  const dialogRef = useRef<HTMLDivElement>(null);
+  useDialogFocus(dialogRef, true, onClose);
+
   return (
     <div className="fixed inset-0 bg-zinc-950/70 flex items-center justify-center p-4 z-50 animate-in fade-in duration-200 overflow-y-auto">
-      <div className="bg-surface rounded-xl border border-line max-w-2xl w-full shadow-2xl relative overflow-hidden my-8">
+      <div
+        ref={dialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-label={t('invoice.statementOfAccount')}
+        className="bg-surface rounded-xl border border-line max-w-2xl w-full shadow-2xl relative overflow-hidden my-8"
+      >
 
         {/* Large Coral Stamp PAID Watermark */}
         {payment.status === 'Paid' && (

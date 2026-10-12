@@ -61,14 +61,21 @@ export async function listPayments(): Promise<Payment[]> {
 
 // Sets the same status on one or more payments in a single request, so a
 // bulk action is one round trip (and one refresh) rather than N racing ones.
+// The partial amount is kept only for 'Partial', so a payment moved to any
+// other status doesn't carry a stale amount.
 export async function updatePaymentStatus(
   ids: string[],
   status: Payment['status'],
   datePaidISO?: string,
+  partialAmountPaid?: number,
 ): Promise<void> {
   const { error } = await supabase
     .from('payments')
-    .update({ status, date_paid: datePaidISO ?? null })
+    .update({
+      status,
+      date_paid: datePaidISO ?? null,
+      partial_amount_paid: status === 'Partial' ? (partialAmountPaid ?? null) : null,
+    })
     .in('id', ids);
   if (error) throw error;
 }

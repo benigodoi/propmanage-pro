@@ -20,11 +20,13 @@ import { Payment } from '../types';
 import { useLocalization } from '../contexts/LocalizationContext';
 import { enumLabel } from '../lib/i18n';
 import { localDateISO, localMonthStartISO } from '../lib/dates';
+import { amountOverdue, amountReceived } from '../lib/paymentAmounts';
+import PartialPaymentDialog from './PartialPaymentDialog';
 
 interface PaymentTrackerProps {
   payments: Payment[];
   /** Resolves true on success (failures are already reported by the caller). */
-  onUpdatePaymentStatus: (ids: string[], status: Payment['status'], datePaid?: string) => Promise<boolean>;
+  onUpdatePaymentStatus: (ids: string[], status: Payment['status'], datePaid?: string, partialAmountPaid?: number) => Promise<boolean>;
   onOpenInvoice: (paymentId: string) => void;
 }
 
@@ -45,6 +47,11 @@ export default function PaymentTracker({
   const [selectedMonth, setSelectedMonth] = useState<string>(ALL_MONTHS);
   const [selectedRows, setSelectedRows] = useState<string[]>([]);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [partialPayment, setPartialPayment] = useState<Payment | null>(null);
+
+  // An unpaid payment for a month that has ended is overdue by definition —
+  // the daily roll_payments() job would flip "Pending" straight back.
+  const currentMonthStart = localMonthStartISO();
 
   // Unique dropdown list generators
   const propertiesList = useMemo(() => {
@@ -77,14 +84,8 @@ export default function PaymentTracker({
 
     filteredPayments.forEach(p => {
       totalExpected += p.totalDue;
-      if (p.status === 'Paid') {
-        totalReceived += p.totalDue;
-      } else if (p.status === 'Partial') {
-        totalReceived += p.partialAmountPaid || 0;
-        totalOverdue += (p.totalDue - (p.partialAmountPaid || 0));
-      } else if (p.status === 'Overdue') {
-        totalOverdue += p.totalDue;
-      }
+      totalReceived += amountReceived(p);
+      totalOverdue += amountOverdue(p, currentMonthStart);
       utilityChargesAcc(p);
     });
 
@@ -98,7 +99,7 @@ export default function PaymentTracker({
       totalOverdue,
       utilityRecoveries
     };
-  }, [filteredPayments]);
+  }, [filteredPayments, currentMonthStart]);
 
   // Selection helpers
   const handleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -142,16 +143,20 @@ export default function PaymentTracker({
     }
   };
 
-  // Per-row status change. Paid stamps today's date; any other status
-  // clears date_paid (updatePaymentStatus nulls it when no date is given).
+  // Per-row status change. Paid stamps today's date; Partial first asks how
+  // much was received; any other status clears date_paid
+  // (updatePaymentStatus nulls it when no date is given).
   const handleRowStatusChange = (payment: Payment, status: Payment['status']) => {
+    if (status === 'Partial') {
+      setPartialPayment(payment);
+      return;
+    }
     if (status === payment.status) return;
     onUpdatePaymentStatus([payment.id], status, status === 'Paid' ? localDateISO() : undefined);
   };
 
-  // An unpaid payment for a month that has ended is overdue by definition —
-  // the daily roll_payments() job would flip "Pending" straight back.
-  const currentMonthStart = localMonthStartISO();
+  const handlePartialSubmit = (payment: Payment, amountEur: number) =>
+    onUpdatePaymentStatus([payment.id], 'Partial', localDateISO(), amountEur);
 
   const handleSendReminderSelected = () => {
     if (selectedRows.length === 0) {
@@ -178,6 +183,12 @@ export default function PaymentTracker({
 
   return (
     <div className="space-y-6 animate-in fade-in duration-300 relative">
+
+      <PartialPaymentDialog
+        payment={partialPayment}
+        onCancel={() => setPartialPayment(null)}
+        onSubmit={handlePartialSubmit}
+      />
 
       {/* Toast Alert Popups */}
       {toastMessage && (
@@ -447,9 +458,15 @@ export default function PaymentTracker({
                           <span className="px-2 py-0.5 whitespace-nowrap rounded-full text-xs font-medium bg-indigo-50 dark:bg-indigo-500/15 text-indigo-700 dark:text-indigo-400 self-start">
                             ● {enumLabel(locale, 'Partial')}
                           </span>
-                          <span className="text-xs text-ink-faint mt-0.5 ml-1">
+                          {/* Opens the amount dialog again, e.g. when a second instalment arrives. */}
+                          <button
+                            type="button"
+                            onClick={() => setPartialPayment(p)}
+                            title={t('payments.editPartial')}
+                            className="text-xs text-ink-faint hover:text-primary-ink hover:underline mt-0.5 ml-1 self-start cursor-pointer"
+                          >
                             {t('payments.paidAmount', { amount: formatMoney(p.partialAmountPaid ?? 0) })}
-                          </span>
+                          </button>
                         </div>
                       )}
                     </td>
@@ -470,7 +487,7 @@ export default function PaymentTracker({
                           aria-label={t('payments.changeStatus')}
                           className="px-1.5 py-1 rounded bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 text-ink-soft text-xs font-medium cursor-pointer"
                         >
-                          {(['Pending', 'Overdue', 'Paid'] as const).map((s) => (
+                          {(['Pending', 'Overdue', 'Paid', 'Partial'] as const).map((s) => (
                             <option
                               key={s}
                               value={s}
@@ -479,8 +496,6 @@ export default function PaymentTracker({
                               {enumLabel(locale, s)}
                             </option>
                           ))}
-                          {/* Partial needs an amount, so it can't be picked here — only shown when already set. */}
-                          {p.status === 'Partial' && <option value="Partial" disabled>{enumLabel(locale, 'Partial')}</option>}
                         </select>
                         <button
                           id={`btn-open-invoice-${p.id}`}

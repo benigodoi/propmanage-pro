@@ -262,6 +262,12 @@ const ro: Dictionary = {
     markedPaidSuccess: '{{count}} plată(plăți) marcată(e) cu succes ca plătită(e)',
     markedOverdueSuccess: '{{count}} plată/plăți marcate ca restante',
     remindersSent: 'Mementouri trimise cu succes către {{count}} chiriaș(i)',
+    partialTitle: 'Înregistrează plată parțială',
+    partialSubtitle: '{{tenant}} · {{month}} · {{total}} de plată',
+    amountReceivedEur: 'Sumă primită până acum (EUR)',
+    partialInvalid: 'Introdu o sumă mai mare decât 0 și mai mică decât totalul de plată ({{total}}). Pentru suma integrală, marcheaz-o ca plătită.',
+    recordPartial: 'Înregistrează plata',
+    editPartial: 'Modifică suma primită',
   },
   dashboard: {
     title: 'Prezentare generală portofoliu',

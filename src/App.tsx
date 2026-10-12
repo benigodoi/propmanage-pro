@@ -295,9 +295,14 @@ export default function App() {
   // Helper action: Update specific payment status
   // Resolves true on success so callers can show their own confirmation
   // only once the update has actually landed.
-  const handleUpdatePaymentStatus = async (ids: string[], status: Payment['status'], datePaid?: string): Promise<boolean> => {
+  const handleUpdatePaymentStatus = async (
+    ids: string[],
+    status: Payment['status'],
+    datePaid?: string,
+    partialAmountPaid?: number,
+  ): Promise<boolean> => {
     try {
-      await updatePaymentStatus(ids, status, datePaid);
+      await updatePaymentStatus(ids, status, datePaid, partialAmountPaid);
       const freshPayments = await listPayments();
       setPayments(freshPayments);
       return true;
