@@ -29,3 +29,9 @@ test('a partial remainder is overdue only once its month has ended', () => {
   assert.equal(amountOverdue({ status: 'Overdue', totalDue: 455, monthIso: '2026-09-01' }, OCT), 455);
   assert.equal(amountOverdue({ status: 'Pending', totalDue: 855, monthIso: OCT }, OCT), 0);
 });
+
+test('an out-of-range stored partial amount is clamped to [0, total due]', () => {
+  assert.equal(amountReceived({ status: 'Partial', totalDue: 575, partialAmountPaid: -50 }), 0);
+  assert.equal(amountOutstanding({ status: 'Partial', totalDue: 575, partialAmountPaid: -50 }), 575);
+  assert.equal(amountReceived({ status: 'Partial', totalDue: 575, partialAmountPaid: 900 }), 575);
+});

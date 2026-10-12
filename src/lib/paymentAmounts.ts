@@ -12,7 +12,9 @@ type PaymentAmounts = Pick<Payment, 'status' | 'totalDue' | 'partialAmountPaid'>
 // Partial payment's unpaid remainder is still outstanding.
 export function amountReceived(p: PaymentAmounts): number {
   if (p.status === 'Paid') return p.totalDue;
-  if (p.status === 'Partial') return Math.min(p.partialAmountPaid ?? 0, p.totalDue);
+  // Clamped both ways: the column has no CHECK, so a bad stored value must
+  // not produce negative collections or an outstanding above the total.
+  if (p.status === 'Partial') return Math.min(Math.max(p.partialAmountPaid ?? 0, 0), p.totalDue);
   return 0;
 }
 

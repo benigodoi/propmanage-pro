@@ -3,11 +3,12 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Euro } from 'lucide-react';
 import { Payment } from '../types';
 import { useLocalization } from '../contexts/LocalizationContext';
 import { useAsyncGuard } from '../hooks/useAsyncGuard';
+import { useDialogFocus } from '../hooks/useDialogFocus';
 
 interface PartialPaymentDialogProps {
   payment: Payment | null;
@@ -23,20 +24,13 @@ export default function PartialPaymentDialog({ payment, onCancel, onSubmit }: Pa
   const [amount, setAmount] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [submitting, runGuarded] = useAsyncGuard();
+  const formRef = useRef<HTMLFormElement>(null);
+  useDialogFocus(formRef, !!payment, onCancel);
 
   useEffect(() => {
     setAmount(payment?.partialAmountPaid != null ? String(payment.partialAmountPaid) : '');
     setError(null);
   }, [payment]);
-
-  useEffect(() => {
-    if (!payment) return;
-    const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onCancel();
-    };
-    document.addEventListener('keydown', onKeyDown);
-    return () => document.removeEventListener('keydown', onKeyDown);
-  }, [payment, onCancel]);
 
   if (!payment) return null;
 
@@ -56,6 +50,7 @@ export default function PartialPaymentDialog({ payment, onCancel, onSubmit }: Pa
   return (
     <div className="fixed inset-0 bg-zinc-950/70 flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
       <form
+        ref={formRef}
         role="dialog"
         aria-modal="true"
         aria-labelledby="partial-payment-title"
