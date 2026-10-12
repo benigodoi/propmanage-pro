@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Printer, X, ShieldCheck, CreditCard } from 'lucide-react';
 import { Payment } from '../types';
 import { useLocalization } from '../contexts/LocalizationContext';
@@ -19,6 +19,14 @@ export default function InvoiceView({ payment, onClose }: InvoiceViewProps) {
   const handlePrint = () => {
     window.print();
   };
+
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    document.addEventListener('keydown', onKeyDown);
+    return () => document.removeEventListener('keydown', onKeyDown);
+  }, [onClose]);
 
   return (
     <div className="fixed inset-0 bg-zinc-950/70 flex items-center justify-center p-4 z-50 animate-in fade-in duration-200 overflow-y-auto">

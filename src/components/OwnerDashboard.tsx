@@ -22,6 +22,7 @@ import {
 import { Property, Tenant, Unit, Payment, ServiceRequest } from '../types';
 import { useLocalization } from '../contexts/LocalizationContext';
 import { enumLabel } from '../lib/i18n';
+import { amountOutstanding, amountReceived, sumBy } from '../lib/paymentAmounts';
 
 type AttentionKind = 'overdue' | 'service' | 'partial' | 'awaiting';
 
@@ -160,7 +161,7 @@ export default function OwnerDashboard({
       kind: 'partial',
       title: t('dashboard.partiallyPaid', { month: p.month }),
       detail: where(p),
-      amount: Math.max(0, p.totalDue - (p.partialAmountPaid ?? 0)),
+      amount: amountOutstanding(p),
       onClick: () => onOpenInvoice(p.id),
     }));
     const awaiting = payments
@@ -191,8 +192,9 @@ export default function OwnerDashboard({
   const occupiedUnits = units.filter(u => !!u.activeTenant).length;
   const overallOccupancy = totalUnits > 0 ? Math.round((occupiedUnits / totalUnits) * 100) : 0;
   const monthlyRevenue = properties.reduce((sum, p) => sum + p.monthlyRevenue, 0);
-  const pendingPayments = payments.filter(p => p.status === 'Pending' || p.status === 'Overdue');
-  const pendingTotal = pendingPayments.reduce((sum, p) => sum + p.totalDue, 0);
+  // Anything not fully paid, including a Partial payment's remainder.
+  const pendingPayments = payments.filter(p => p.status !== 'Paid');
+  const pendingTotal = sumBy(pendingPayments, amountOutstanding);
 
   return (
     <div className="space-y-8 animate-in fade-in duration-300">
@@ -596,7 +598,7 @@ export default function OwnerDashboard({
             <div className="p-4 bg-subtle border border-line-subtle rounded-lg">
               <span className="text-xs font-medium text-ink-faint">{t('dashboard.totalCollected')}</span>
               <p className="text-2xl font-semibold text-success mt-1">
-                {formatMoney(payments.reduce((sum, p) => sum + (p.status === 'Paid' ? p.totalDue : p.status === 'Partial' ? (p.partialAmountPaid ?? 0) : 0), 0))}
+                {formatMoney(sumBy(payments, amountReceived))}
               </p>
             </div>
             <div className="p-4 bg-subtle border border-line-subtle rounded-lg">
@@ -622,7 +624,7 @@ export default function OwnerDashboard({
                   {properties.map((prop) => {
                     const propPayments = payments.filter(p => p.propertyName === prop.name);
                     const billed = propPayments.reduce((sum, p) => sum + p.totalDue, 0);
-                    const collected = propPayments.reduce((sum, p) => sum + (p.status === 'Paid' ? p.totalDue : p.status === 'Partial' ? (p.partialAmountPaid ?? 0) : 0), 0);
+                    const collected = sumBy(propPayments, amountReceived);
                     return (
                       <tr key={prop.id}>
                         <td className="px-4 py-3 font-semibold text-zinc-800 dark:text-zinc-300">{prop.name}</td>
@@ -669,13 +671,13 @@ export default function OwnerDashboard({
             <table className="w-full text-left text-xs">
               <thead>
                 <tr className="bg-subtle text-ink-faint font-medium border-b border-line-subtle">
-                  <th className="px-6 py-3">{t('dashboard.tenantName')}</th>
-                  <th className="px-6 py-3">{t('dashboard.propertyUnit')}</th>
-                  <th className="px-6 py-3">{t('dashboard.leaseStart')}</th>
-                  <th className="px-6 py-3">{t('dashboard.leaseEnd')}</th>
-                  <th className="px-6 py-3">{t('dashboard.status')}</th>
-                  <th className="px-6 py-3">{t('dashboard.portalAccess')}</th>
-                  <th className="px-6 py-3 text-center">{t('dashboard.actions')}</th>
+                  <th className="px-4 py-3">{t('dashboard.tenantName')}</th>
+                  <th className="px-4 py-3">{t('dashboard.propertyUnit')}</th>
+                  <th className="px-4 py-3">{t('dashboard.leaseStart')}</th>
+                  <th className="px-4 py-3">{t('dashboard.leaseEnd')}</th>
+                  <th className="px-4 py-3">{t('dashboard.status')}</th>
+                  <th className="px-4 py-3">{t('dashboard.portalAccess')}</th>
+                  <th className="px-4 py-3 text-center">{t('dashboard.actions')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-line-subtle font-medium">

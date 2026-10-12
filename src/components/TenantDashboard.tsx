@@ -16,6 +16,7 @@ import {
 import { Payment, ServiceRequest, Unit } from '../types';
 import { useLocalization } from '../contexts/LocalizationContext';
 import { enumLabel } from '../lib/i18n';
+import { amountOutstanding, sumBy } from '../lib/paymentAmounts';
 
 interface TenantDashboardProps {
   units: Unit[];
@@ -46,13 +47,7 @@ export default function TenantDashboard({
   const currentUnit = units[0];
   const currentTenant = currentUnit?.activeTenant;
 
-  const balanceOutstanding = useMemo(() => {
-    return payments.reduce((sum, p) => {
-      if (p.status === 'Paid') return sum;
-      if (p.status === 'Partial') return sum + (p.totalDue - (p.partialAmountPaid ?? 0));
-      return sum + p.totalDue;
-    }, 0);
-  }, [payments]);
+  const balanceOutstanding = useMemo(() => sumBy(payments, amountOutstanding), [payments]);
 
   const recentPayments = useMemo(() => {
     return payments

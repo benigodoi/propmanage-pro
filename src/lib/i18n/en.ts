@@ -262,6 +262,12 @@ const en: Dictionary = {
     markedPaidSuccess: 'Successfully marked {{count}} payment(s) as Paid',
     markedOverdueSuccess: 'Marked {{count}} payment(s) as Overdue',
     remindersSent: 'Reminders sent successfully to {{count}} tenant(s)',
+    partialTitle: 'Record Partial Payment',
+    partialSubtitle: '{{tenant}} · {{month}} · {{total}} due',
+    amountReceivedEur: 'Amount received so far (EUR)',
+    partialInvalid: 'Enter an amount above 0 and below the total due ({{total}}). For the full amount, mark it as Paid.',
+    recordPartial: 'Record Payment',
+    editPartial: 'Change the amount received',
   },
   dashboard: {
     title: 'Portfolio Overview',

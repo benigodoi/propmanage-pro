@@ -9,7 +9,7 @@
     "preview": "vite preview",
     "clean": "rm -rf dist server.js",
     "lint": "tsc --noEmit",
-    "test": "tsx --test src/lib/screenRouting.test.ts"
+    "test": "tsx --test src/lib/screenRouting.test.ts src/lib/paymentAmounts.test.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.110.7",
