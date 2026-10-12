@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
 import {
   Percent,
   DollarSign,
@@ -87,6 +87,23 @@ export default function OwnerDashboard({
   const { t, locale, formatMoney } = useLocalization();
   const [activeTab, setActiveTab] = useState<'overview' | 'financials' | 'tenants'>('overview');
   const [hoveredBar, setHoveredBar] = useState<number | null>(null);
+
+  // On phones the stacked metric cards push the tab panel below the fold, so a
+  // tab press looked like it did nothing. Bring the panel into view when it is.
+  // A counter rather than activeTab, so re-tapping the current tab scrolls too.
+  const tabPanelRef = useRef<HTMLDivElement>(null);
+  const [tabPresses, setTabPresses] = useState(0);
+  const selectTab = (tab: typeof activeTab) => {
+    setActiveTab(tab);
+    setTabPresses((n) => n + 1);
+  };
+  useEffect(() => {
+    if (tabPresses === 0) return;
+    const panel = tabPanelRef.current;
+    if (!panel || panel.getBoundingClientRect().top < window.innerHeight * 0.75) return;
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    panel.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
+  }, [tabPresses]);
 
   // Real billed-per-month chart, grouped from actual payments (most recent
   // 6 distinct billing months present in the data, oldest to newest).
@@ -197,7 +214,7 @@ export default function OwnerDashboard({
             id="tab-overview"
             type="button"
             aria-pressed={activeTab === 'overview'}
-            onClick={() => setActiveTab('overview')}
+            onClick={() => selectTab('overview')}
             className={`px-3.5 py-1.5 rounded-md text-sm font-medium transition-colors cursor-pointer ${
               activeTab === 'overview'
                 ? 'bg-surface dark:bg-zinc-700 text-ink shadow-sm'
@@ -210,7 +227,7 @@ export default function OwnerDashboard({
             id="tab-financials"
             type="button"
             aria-pressed={activeTab === 'financials'}
-            onClick={() => setActiveTab('financials')}
+            onClick={() => selectTab('financials')}
             className={`px-3.5 py-1.5 rounded-md text-sm font-medium transition-colors cursor-pointer ${
               activeTab === 'financials'
                 ? 'bg-surface dark:bg-zinc-700 text-ink shadow-sm'
@@ -223,7 +240,7 @@ export default function OwnerDashboard({
             id="tab-tenants"
             type="button"
             aria-pressed={activeTab === 'tenants'}
-            onClick={() => setActiveTab('tenants')}
+            onClick={() => selectTab('tenants')}
             className={`px-3.5 py-1.5 rounded-md text-sm font-medium transition-colors cursor-pointer ${
               activeTab === 'tenants'
                 ? 'bg-surface dark:bg-zinc-700 text-ink shadow-sm'
@@ -316,6 +333,8 @@ export default function OwnerDashboard({
         </div>
       </div>
 
+      {/* Tab panel; scroll-mt clears the sticky h-16 header */}
+      <div ref={tabPanelRef} className="space-y-8 scroll-mt-20">
       {activeTab === 'overview' && (
         <>
           {/* Main Content Grid: Chart & Needs attention */}
@@ -716,6 +735,7 @@ export default function OwnerDashboard({
           </div>
         </div>
       )}
+      </div>
 
     </div>
   );
