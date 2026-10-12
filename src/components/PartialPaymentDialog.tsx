@@ -77,7 +77,6 @@ export default function PartialPaymentDialog({ payment, onCancel, onSubmit }: Pa
             inputMode="decimal"
             min="0"
             step="0.01"
-            autoFocus
             value={amount}
             onChange={(e) => {
               setAmount(e.target.value);

@@ -7,10 +7,10 @@ import { RefObject, useEffect, useRef } from 'react';
 
 const FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
-// Makes an overlay behave as a modal dialog while `open`: focus moves into
-// it (unless something inside already has it, e.g. via autoFocus), Tab
-// cycles within it, Escape calls onClose, and focus returns to whatever
-// opened it on close.
+// Makes an overlay behave as a modal dialog while `open`: focus moves to its
+// first focusable element, Tab cycles within it, Escape calls onClose, and
+// focus returns to whatever opened it on close. Don't put autoFocus inside:
+// it runs before this effect, so the opener would never be recorded.
 export function useDialogFocus(containerRef: RefObject<HTMLElement | null>, open: boolean, onClose: () => void): void {
   // Kept in a ref so an inline onClose doesn't re-run the effect (and bounce
   // focus back to the opener) on every render.
