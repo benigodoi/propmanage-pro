@@ -119,6 +119,8 @@ docs/                      # this file, PROJECT_STATUS.md
   3. Send them the printed link yourself. It's single-use and expires after **1 hour**.
   4. They set a password and name their company, which creates a new org with them as admin.
 - **Second manager in an existing org:**
+  - **Order matters:** the first manager must accept their invite and name the company before you invite the second. The org doesn't exist until then.
+  - **Don't forget `--org`:** without it, the second person gets a separate org of their own, and nothing warns you.
   1. Find the org id: `npx supabase db query --linked "select id, name from organizations"`.
   2. Run the same script with `--org`:
      ```bash
