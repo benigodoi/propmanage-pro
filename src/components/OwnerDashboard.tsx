@@ -90,20 +90,20 @@ export default function OwnerDashboard({
 
   // On phones the stacked metric cards push the tab panel below the fold, so a
   // tab press looked like it did nothing. Bring the panel into view when it is.
+  // A counter rather than activeTab, so re-tapping the current tab scrolls too.
   const tabPanelRef = useRef<HTMLDivElement>(null);
-  const tabChangedByUser = useRef(false);
+  const [tabPresses, setTabPresses] = useState(0);
   const selectTab = (tab: typeof activeTab) => {
-    tabChangedByUser.current = true;
     setActiveTab(tab);
+    setTabPresses((n) => n + 1);
   };
   useEffect(() => {
-    if (!tabChangedByUser.current) return;
-    tabChangedByUser.current = false;
+    if (tabPresses === 0) return;
     const panel = tabPanelRef.current;
     if (!panel || panel.getBoundingClientRect().top < window.innerHeight * 0.75) return;
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     panel.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
-  }, [activeTab]);
+  }, [tabPresses]);
 
   // Real billed-per-month chart, grouped from actual payments (most recent
   // 6 distinct billing months present in the data, oldest to newest).
